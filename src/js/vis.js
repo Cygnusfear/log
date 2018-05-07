@@ -282,12 +282,12 @@ Log.vis = {
       const ico = document.createElement('div');
       const inf = document.createElement('div');
 
-      itm.className = 'c4 mb3 f6 lhc';
+      itm.className = 'c3 mb3 f6 lhc';
 
       ico.className = 'dib sh3 sw3 mr2 brf vm';
       ico.style.backgroundColor = col;
 
-      inf.className = 'dib vm';
+      inf.className = 'dib vm sw6 elip';
       inf.innerHTML = `${val[i][1].toFixed(2)}% ${val[i][0]}`;
 
       itm.appendChild(ico);

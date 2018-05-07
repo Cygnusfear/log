@@ -242,6 +242,7 @@ var Log = {
         pc.className = 'c-pt';
         pc.setAttribute('onclick', `Log.nav.toProDetail('${rev[i].t}')`);
         pc.innerHTML = rev[i].t;
+        nc.className = 'pr0';
         nc.innerHTML = rev[i].d;
       }
     },
@@ -345,6 +346,7 @@ var Log = {
         sc.className = 'c-pt';
         sc.setAttribute('onclick', `Log.nav.toSecDetail('${rev[i].c}')`);
         sc.innerHTML = rev[i].c;
+        nc.className = 'pr0';
         nc.innerHTML = rev[i].d;
       }
     }
@@ -544,11 +546,10 @@ var Log = {
     Log.vis.peakChart(0, Log.data.peakHours(Log.data.sortEntByDay()[new Date().getDay()]), phc);
     Log.vis.peakChart(1, Log.cache.pkd, pdc);
 
-    if (Log.log.length !== 1) {
-      flh.innerHTML = Log.data.forecast.lh();
-      fsd.innerHTML = Log.data.forecast.sd();
-      fsf.innerHTML = Log.data.forecast.sf();
-    }
+    // if (Log.log.length !== 1) {
+    //   flh.innerHTML = Log.data.forecast.lh();
+    //   fsd.innerHTML = Log.data.forecast.sd();
+    // }
 
     Log.vis.day();
     Log.vis.bar(Log.data.bar(mn), ovc);
