@@ -7,154 +7,8 @@
   <meta name="description" content="A log and time-tracking system">
   <link rel="stylesheet" href="css/font/inter-ui.css">
   <link rel="stylesheet" href="css/macian.min.css">
-  <style>
-    body {
-      font-family: 'Inter UI', sans-serif;
-      font-feature-settings: 'calt';
-      font-feature-settings: 'case';
-    }
-
-    table {
-      font-feature-settings: 'tnum';
-    }
-
-    #topbar {
-      grid-column-start: 1;
-      grid-column-end: 4;
-    }
-
-    #main {
-      grid-row-start: 2;
-      grid-column-start: 1;
-      grid-column-end: 4;
-    }
-
-    #container {
-      display: grid;
-      grid-template-rows: 10% 90%;
-      grid-template-columns: auto;
-      grid-template-areas:
-        "topbar"
-        "main";
-    }
-
-    #ovwTop {
-      grid-column-start: 1;
-      grid-column-end: 4;
-    }
-
-    #ovwSideA {
-      display: grid;
-      grid-row-gap: 5%;
-      grid-template-rows: 25% 25%;
-      grid-template-areas:
-        "peakHours"
-        "ovwSideBB";
-    }
-
-    #ovwCenter {
-      display: grid;
-      grid-row-gap: 5%;
-      grid-template-rows: 15% 50% 30%;
-      grid-template-areas:
-        "lastEntry"
-        "ovc"
-        "todayStats";
-    }
-
-    #ovwSideB {
-      display: grid;
-      grid-row-gap: 5%;
-      grid-template-rows: 47.5% 47.5%;
-      grid-template-areas:
-        "peakDays"
-        "ovwSideBA";
-    }
-
-    #peakHours, #peakDays, #forecast, #ovwSideBA, #ovwSideBB {
-      /* background-color: #202020; */
-    }
-
-    #ovw {
-      display: grid;
-      grid-column-gap: 2.5%;
-      grid-row-gap: 5%;
-      grid-template-rows: 10% 85%;
-      grid-template-columns: 15% 65% 15%;
-      grid-template-areas:
-        "ovwTop"
-        "ovwSideA ovwCenter ovwSideB";
-    }
-
-    #lis {
-      grid-column-gap: 5%;
-      grid-template-columns: 10% 85%;
-      grid-template-areas:
-        "lisSideA lisCenter";
-    }
-
-    #sec {
-      grid-column-gap: 5%;
-      grid-template-columns: 75% 20%;
-      grid-template-areas:
-        "secDetails secList";
-    }
-
-    #secStat {
-      display: grid;
-      grid-row-gap: 5%;
-      grid-template-rows: 45% auto auto auto;
-      grid-template-areas:
-        "secChart"
-        "secStats"
-        "secPeaks"
-        "secFocus";
-    }
-
-    #pro {
-      grid-column-gap: 5%;
-      grid-template-columns: 75% 20%;
-      grid-template-areas:
-        "proDetails proList";
-    }
-
-    #proStat {
-      display: grid;
-      grid-row-gap: 5%;
-      grid-template-rows: 45% auto auto auto;
-      grid-template-areas:
-        "proChart"
-        "proStats"
-        "proPeaks"
-        "proFocus";
-    }
-
-    #vis {
-      grid-row-gap: 2.5%;
-      grid-template-rows: 5% 90%;
-      grid-template-columns: auto;
-      grid-template-areas:
-        "visMeter"
-        "visual";
-    }
-
-    #jou {
-      grid-row-gap: 5%;
-      grid-template-rows: 25% 75%;
-      grid-template-areas:
-        "jCal"
-        "jEntry";
-    }
-
-    #gui {
-      grid-column-gap: 5%;
-      grid-template-columns: 15% 40% 40%;
-      grid-template-areas:
-        "toc guideContent credits";
-    }
-  </style>
 </head>
-<body id="ui" class="noselect r p4 p4-m p5-l hf cn c-d">
+<body id="ui" class="noselect r p5 hf cn c-d">
 
   <div id="container" class="hf">
     <header id="topbar" class="mb2 f6 lhc">
@@ -166,7 +20,7 @@
       <button id="b-jou" class="pv1 tab on bg-cl o5 mr3" onclick="Log.tab('jou', 'sect', 'tab')">Journal</button>
       <button id="b-gui" class="pv1 tab on bg-cl o5 mr3" onclick="Log.tab('gui', 'sect', 'tab')">Guide</button>
 
-      <span id="timer" class="rf f5 dn di-m di-l">00:00:00</span>
+      <span id="timer" class="rf f5 di">00:00:00</span>
     </header>
 
     <div id="main">
@@ -188,7 +42,7 @@
           </div>
         </div>
 
-        <div id="ovwCenter" class="oya-l">
+        <div id="ovwCenter" class="oya">
           <div id="lastEntry">
             <table class="wf bn f6 lhc">
               <thead class="al">
@@ -211,35 +65,35 @@
           <div id="ovc" class="psr"></div>
 
           <ul id="todayStats" class="lsn f6 lhc">
-            <li class="mb3 c3 c3-m c3-l">
+            <li class="mb3 c3">
               <p id="tLHT" class="f4 fwb">&ndash;</p>
               <p class="o9">Total Hours</p>
             </li>
-            <li class="mb3 c3 c3-m c3-l">
+            <li class="mb3 c3">
               <p id="tLSN" class="f4 fwb">&ndash;</p>
               <p class="o9">Min Duration</p>
             </li>
-            <li class="mb3 c3 c3-m c3-l">
+            <li class="mb3 c3">
               <p id="tLSX" class="f4 fwb">&ndash;</p>
               <p class="o9">Max Duration</p>
             </li>
-            <li class="mb3 c3 c3-m c3-l">
+            <li class="mb3 c3">
               <p id="tASD" class="f4 fwb">&ndash;</p>
               <p class="o9">Average Duration</p>
             </li>
-            <li class="mb3 mb0-m mb0-l c3 c3-m c3-l">
+            <li class="mb0 c3">
               <p id="tLPT" class="f4 fwb">&ndash;</p>
               <p class="o9">Coverage</p>
             </li>
-            <li class="mb3 mb0-m mb0-l c3 c3-m c3-l">
+            <li class="mb0 c3">
               <p id="tFOC" class="f4 fwb">&ndash;</p>
               <p class="o9">Focus</p>
             </li>
-            <li class="mb3 mb0-m mb0-l c3 c3-m c3-l">
+            <li class="mb0 c3">
               <p id="tENC" class="f4 fwb">&ndash;</p>
               <p class="o9">Entries</p>
             </li>
-            <li class="mb3 mb0-m mb0-l c3 c3-m c3-l">
+            <li class="mb0 c3">
               <p id="tSTK" class="f4 fwb">&ndash;</p>
               <p class="o9">Streak</p>
             </li>
@@ -248,10 +102,10 @@
 
         <div id="ovwSideB" class="f6 lhc">
           <div id="ovwSideBA">
-            <ul id="secBars" class="nodrag lsn h9-l oya-l"></ul>
+            <ul id="secBars" class="nodrag lsn h9 oya"></ul>
           </div>
           <div id="ovwSideBB">
-            <ul id="proBars" class="nodrag lsn h9-l oya-l"></ul>
+            <ul id="proBars" class="nodrag lsn h9 oya"></ul>
           </div>
         </div>
       </div>
@@ -268,47 +122,47 @@
 
             <div id="sumStats">
               <ul class="mb4 lsn f6 lhc r">
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="LHH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Total Hours</p>
                 </li>
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="LNH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Min Duration</p>
                 </li>
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="LXH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Max Duration</p>
                 </li>
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="ASD" class="f4 fwb">&ndash;</p>
                   <p class="o9">Average Duration</p>
                 </li>
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="ALH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Daily Average</p>
                 </li>
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="LPH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Coverage</p>
                 </li>
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="EHC" class="f4 fwb">&ndash;</p>
                   <p class="o9">Entries</p>
                 </li>
-                <li class="mb4 c6 c3-m c3-l">
+                <li class="mb4 c3">
                   <p id="SCC" class="f4 fwb">&ndash;</p>
                   <p class="o9">Sectors</p>
                 </li>
-                <li class="mb4 mb0-l c6 c3-m c3-l">
+                <li class="mb0 c3">
                   <p id="PRC" class="f4 fwb">&ndash;</p>
                   <p class="o9">Projects</p>
                 </li>
-                <li class="mb4 mb0-l c6 c3-m c3-l">
+                <li class="mb0 c3">
                   <p id="PHH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Peak Hour</p>
                 </li>
-                <li class="mb4 mb0-l c6 c3-m c3-l">
+                <li class="mb0 c3">
                   <p id="PDH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Peak Day</p>
                 </li>
@@ -317,10 +171,10 @@
 
             <div id="sumPeaks">
               <h3 class="mb3 f6 fwn">Peaks</h3>
-              <div class="dib mb4-l pr4-l lf sh6 w5">
+              <div class="dib mb4 pr4 lf sh6 w5">
                 <div id="pth" class="psr hf wf"></div>
               </div>
-              <div class="dib mb4-l pl4-l lf sh6 w5">
+              <div class="dib mb4 pl4 lf sh6 w5">
                 <div id="pdh" class="psr hf wf"></div>
               </div>
             </div>
@@ -330,16 +184,16 @@
               <div id="focusChart" class="psr mb4 wf sh5"></div>
 
               <ul class="mb4 lsn f6 lhc r">
-                <li class="c6 c3-m c3-l">
+                <li class="c3">
                   <p id="Fmin" class="f4 fwb">&ndash;</p>
                   <p class="o9">Min Focus</span>
                   </p>
                 </li>
-                <li class="c6 c3-m c3-l">
+                <li class="c3">
                   <p id="Fmax" class="f4 fwb">&ndash;</p>
                   <p class="o9">Max Focus</p>
                 </li>
-                <li class="c6 c3-m c3-l">
+                <li class="c3">
                   <p id="Favg" class="f4 fwb">&ndash;</p>
                   <p class="o9">Average Focus</p>
                 </li>
@@ -366,35 +220,35 @@
 
                 <div id="secStats">
                   <ul class="lsn f6 lhc r">
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="sLHH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Total Hours</p>
                     </li>
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="sLNH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Min Duration</p>
                     </li>
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="sLXH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Max Duration</p>
                     </li>
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="sASD" class="f4 fwb">&ndash;</p>
                       <p class="o9">Average Duration</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="sEnt" class="f4 fwb">&ndash;</p>
                       <p class="o9">Entries</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="sSTK" class="f4 fwb">&ndash;</p>
                       <p class="o9">Streak</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="sPHH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Peak Hour</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="sPDH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Peak Day</p>
                     </li>
@@ -403,10 +257,10 @@
 
                 <div id="secPeaks">
                   <h3 class="mb3 f6 fwn">Peaks</h3>
-                  <div class="dib mb4-l pr4-l lf sh6 w5">
+                  <div class="dib mb4 pr4 lf sh6 w5">
                     <div id="sPKH" class="psr hf wf"></div>
                   </div>
-                  <div class="dib mb4-l pl4-l lf sh6 w5">
+                  <div class="dib mb4 pl4 lf sh6 w5">
                     <div id="sPKD" class="psr hf wf"></div>
                   </div>
                 </div>
@@ -416,15 +270,15 @@
                   <div id="sFoc" class="psr mb4 wf h1"></div>
 
                   <ul class="mb4 lsn f6 lhc r">
-                    <li class="c6 c3-m c3-l">
+                    <li class="c3">
                       <p id="sFmin" class="f4 fwb">&ndash;</p>
                       <p class="o9">Min Focus</p>
                     </li>
-                    <li class="c6 c3-m c3-l">
+                    <li class="c3">
                       <p id="sFmax" class="f4 fwb">&ndash;</p>
                       <p class="o9">Max Focus</p>
                     </li>
-                    <li class="c6 c3-m c3-l">
+                    <li class="c3">
                       <p id="sFavg" class="f4 fwb">&ndash;</p>
                       <p class="o9">Average Focus</p>
                     </li>
@@ -471,35 +325,35 @@
 
                 <div id="proStats">
                   <ul class="lsn f6 lhc r">
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="pLHH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Total Hours</p>
                     </li>
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="pLNH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Min Duration</p>
                     </li>
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="pLXH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Max Duration</p>
                     </li>
-                    <li class="mb4 c6 c3-m c3-l">
+                    <li class="mb4 c3">
                       <p id="pASD" class="f4 fwb">&ndash;</p>
                       <p class="o9">Average Duration</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="pEnt" class="f4 fwb">&ndash;</p>
                       <p class="o9">Entries</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="pSTK" class="f4 fwb">&ndash;</p>
                       <p class="o9">Streak</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="pPHH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Peak Hour</p>
                     </li>
-                    <li class="mb4 mb0-l c6 c3-m c3-l">
+                    <li class="mb0 c3">
                       <p id="pPDH" class="f4 fwb">&ndash;</p>
                       <p class="o9">Peak Day</p>
                     </li>
@@ -508,10 +362,10 @@
 
                 <div id="proPeaks">
                   <h3 class="mb4 f6 fwn">Peaks</h3>
-                  <div class="dib pr4-l lf sh6 w5">
+                  <div class="dib pr4 lf sh6 w5">
                     <div id="pPKH" class="psr hf wf"></div>
                   </div>
-                  <div class="dib pl4-l lf sh6 w5">
+                  <div class="dib pl4 lf sh6 w5">
                     <div id="pPKD" class="psr hf wf"></div>
                   </div>
                 </div>
@@ -521,15 +375,15 @@
                   <div id="pFoc" class="psr mb4 wf h1"></div>
 
                   <ul class="mb5 lsn f6 lhc r">
-                    <li class="c6 c3-m c3-l">
+                    <li class="c3">
                       <p id="pFmin" class="f4 fwb">&ndash;</p>
                       <p class="o9">Min Focus</p>
                     </li>
-                    <li class="c6 c3-m c3-l">
+                    <li class="c3">
                       <p id="pFmax" class="f4 fwb">&ndash;</p>
                       <p class="o9">Max Focus</p>
                     </li>
-                    <li class="c6 c3-m c3-l">
+                    <li class="c3">
                       <p id="pFavg" class="f4 fwb">&ndash;</p>
                       <p class="o9">Average Focus</p>
                     </li>
@@ -590,7 +444,7 @@
           </table>
         </div>
 
-        <div id="jEntry" class="nodrag oya-l">
+        <div id="jEntry" class="nodrag oya">
           <h2 id="journalDate" class="mb4 f5">Journal</h2>
 
           <div class="mb4 ph1">
@@ -599,9 +453,9 @@
           </div>
 
           <div class="r h6">
-            <ul id="jEnt" class="c8 pr4-l hf oya lsn"></ul>
+            <ul id="jEnt" class="c8 pr4 hf oya lsn"></ul>
 
-            <ul class="c4 pl4-l lsn f6 lhc r">
+            <ul class="c4 pl4 lsn f6 lhc r">
               <li class="mb4 c6">
                 <p id="jLHT" class="f4 fwb">&ndash;</p>
                 <p class="o9">Total Hours</p>
@@ -618,11 +472,11 @@
                 <p id="jASD" class="f4 fwb">&ndash;</p>
                 <p class="o9">Average Duration</p>
               </li>
-              <li class="mb4 mb0-l c6">
+              <li class="mb0 c6">
                 <p id="jLPT" class="f4 fwb">&ndash;</p>
                 <p class="o9">Coverage</p>
               </li>
-              <li class="mb4 mb0-l c6">
+              <li class="mb0 c6">
                 <p id="jFT" class="f4 fwb">&ndash;</p>
                 <p class="o9">Focus</p>
               </li>
