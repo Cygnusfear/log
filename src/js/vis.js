@@ -17,16 +17,18 @@ Log.vis = {
 
     for (let i = 0; i < l; i++) {
       const row = document.createElement('div');
-      row.className = 'db wf sh1 mt1 mb2';
+      row.className = 'db wf sh1 mt2 mb2 visRow';
       frag.appendChild(row);
 
       if (data[i].length === 0) continue;
       for (let o = 0, ol = data[i].length; o < ol; o++) {
         const entry = document.createElement('div');
+        const detail = user.log[data[i][o].id];
         entry.style.backgroundColor = data[i][o].col;
         entry.style.marginLeft = data[i][o].mg;
         entry.className = 'psr t0 hf mb1 lf';
         entry.style.width = data[i][o].wd;
+        entry.title = `${detail.c} - ${detail.t} - ${detail.d}`;
         row.appendChild(entry);
       }
     }

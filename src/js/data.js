@@ -715,6 +715,7 @@ Log.data = {
         const dp = Log.utils.calcDP(sort[i][o].s);
 
         data[i][data[i].length] = {
+          id: sort[i][o].id,
           col: sort[i][o][colour] || colour,
           mg: `${dp - lastPosition}%`,
           wd: `${width}%`
