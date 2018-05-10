@@ -213,6 +213,7 @@ Log.data = {
     }
 
     for (let i = 0, l = entries.length; i < l; i++) {
+      if (entries[i] === undefined) continue;
       const x = list.indexOf(Log.time.date(entries[i].s));
       if (x > -1) sorted[x][sorted[x].length] = entries[i];
     }

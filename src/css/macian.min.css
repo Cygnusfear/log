@@ -179,19 +179,30 @@ body {
     "visual";
 }
 
-#jou {
-  grid-row-gap: 5%;
-  grid-template-rows: 25% 75%;
-  grid-template-areas:
-    "jCal"
-    "jEntry";
-}
-
 #gui {
   grid-column-gap: 5%;
   grid-template-columns: 15% 40% 40%;
   grid-template-areas:
     "toc guideContent credits";
+}
+
+.calendar, .calendar th, .calendar td {
+  padding: .05em .5em;
+  font-family: "Roboto Mono", monospace
+}
+
+dialog {
+  background-color: #0c0c0c;
+  color: inherit;
+  width: 600px;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+dialog[open], dialog::backdrop {
+  animation: show 500ms ease;
 }
 
 .r {

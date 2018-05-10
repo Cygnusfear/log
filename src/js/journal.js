@@ -44,7 +44,7 @@ Log.journal = {
       const dr = document.createElement('span');
       const dc = document.createElement('p');
 
-      li.className = `f6 lhc ${i !== l - 1 && 'pb3 mb3'}`;
+      li.className = 'f6 lhc pb3 mb3';
       id.className = 'mr3 o7';
       id.innerHTML = ent[i].id + 1;
       tm.className = 'mr3 o7';
@@ -66,15 +66,17 @@ Log.journal = {
       li.appendChild(dc);
       jEnt.appendChild(li);
     }
+
+    Log.journal.dialog();
   },
 
   /**
    * Dislay calendar
    */
   cal() {
-    const ent = Log.data.sortEnt(Log.data.recEnt(400));
+    const sort = Log.data.sortEnt(Log.data.entries.byPeriod(new Date(2018, 0, 1), new Date(2018, 11, 31)));
 
-    const sf = (ent) => {
+    const sf = ent => {
       const list = Log.data.listSec(ent);
       let a = 0;
       let b = '';
@@ -87,27 +89,30 @@ Log.journal = {
       return b;
     };
 
-    // const diff = Log.time.convert(ent[0][0].s).getDay();
-
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 26; i++) {
       const rw = cal.insertRow(i);
-      for (let o = 0; o < 52; o++) {
-        const id = (365 - i) - (7 * o) - 1;
+      for (let o = 0; o < 14; o++) {
+        const id = ((14 * i) + o) + 1;
         const cell = rw.insertCell(o);
+        const pos = sort[id - 1];
 
-        if (ent[365 - id] === undefined || ent[365 - id].length === 0) continue;
+        cell.innerHTML = `${Aequirys.month(id)}${`0${Aequirys.date(id)}`.substr(-2)}`;
 
-        const foc = sf(ent[365 - id]);
-
-        if (Log.config.ui.colourMode === 'none') {
-          cell.style.backgroundColor = Log.config.ui.colour;
-        } else {
-          cell.style.backgroundColor = Log.palette[foc] || Log.projectPalette[foc] || Log.config.ui.colour;
+        if (pos === undefined || pos.length === 0) {
+          cell.style.opacity = '.5'
+          continue;
         }
 
-        cell.setAttribute('onclick', `Log.journal.translate('${ent[365 - id][0].s}')`);
+        const foc = sf(pos);
 
-        cell.title = Log.time.displayDate(Log.time.convert(ent[365 - id][0].s));
+        if (Log.config.ui.colourMode === 'none') {
+          cell.style.borderLeft = `2px solid ${Log.config.ui.colour}`;
+        } else {
+          cell.style.borderLeft = `2px solid ${Log.palette[foc] || Log.projectPalette[foc] || Log.config.ui.colour}`;
+        }
+
+        cell.setAttribute('onclick', `Log.journal.translate('${pos[0].s}')`);
+        cell.title = Log.time.displayDate(Log.time.convert(pos[0].s));
       }
     }
   },
@@ -119,5 +124,12 @@ Log.journal = {
   translate(h) {
     if (typeof h !== 'string' || h.length === 0) return;
     Log.journal.display(Log.time.convert(h));
+  },
+
+  /**
+   * Show Journal modal
+   */
+  dialog() {
+    document.getElementById('entryModal').showModal();
   }
 };

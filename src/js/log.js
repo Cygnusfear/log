@@ -571,7 +571,6 @@ var Log = {
     Log.vis.line(Log.data.line(mn), visual);
     Log.display(user.log, 100);
     Log.journal.cal();
-    Log.journal.display();
   },
 
   refresh() {
@@ -652,6 +651,10 @@ var Log = {
         }
       };
     }
+
+    const modal = document.getElementById('entryModal');
+
+    document.addEventListener('click', ({target}) => target === modal && modal.close());
 
     const user = {
       config: dataStore.get('config') || {},
