@@ -116,6 +116,7 @@ Log.vis = {
       en.style.backgroundColor = ent[i][colour] || colour;
       en.style.width = `${wd}%`;
       en.className = 'hf lf';
+      en.title = `${ent[i].c} - ${ent[i].t} - ${ent[i].d}`;
 
       frag.appendChild(en);
 
