@@ -223,7 +223,7 @@ body {
 }
 
 dialog {
-  background-color: #0c0c0c;
+  background-color: #eb4e32;
   color: inherit;
   width: 600px;
 }
@@ -234,6 +234,20 @@ dialog::backdrop {
 
 dialog[open], dialog::backdrop {
   animation: show 500ms ease;
+}
+
+#editModal {
+  width: 300px;
+  height: auto;
+}
+
+#editModal input, #editModal textarea {
+  background-color: rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+textarea {
+  resize: none;
 }
 
 .r {
@@ -1116,6 +1130,11 @@ ul, ol, .lspi {
   border-width: 0
 }
 
+.br0 {border-radius:        0} .br1 {border-radius:  .7862em}
+.br2 {border-radius:      1em} .br3 {border-radius:  1.272em}
+.br4 {border-radius:  1.618em} .br5 {border-radius: 2.0581em}
+.br6 {border-radius: 2.6179em}
+
 .brf {
   border-radius: 100%
 }
@@ -1144,7 +1163,7 @@ button, input[type="button"], input[type="submit"], input[type="reset"] {
   border: 0
 }
 
-button:hover, input[type="button"]:hover {
+button:hover, input[type="button"]:hover, input[type="submit"]:hover {
   cursor: pointer
 }
 

@@ -19,6 +19,7 @@ const proDetailCache = {};
 var Log = {
 
   path: '',
+  modalFocus: false,
 
   log: [],
   config: {},
@@ -111,7 +112,11 @@ var Log = {
       const dt = Log.time.convert(arr[i].s);
       const st = Log.time.stamp(dt);
 
-      ic.className = 'pl0';
+      rw.id = `tr-${ent.length - i - 1}`;
+
+      ic.setAttribute('onclick', `Log.edit(${ent.length - i - 1})`);
+
+      ic.className = 'pl0 c-pt hvl';
       ic.innerHTML = ent.length - i;
 
       dc.className = 'c-pt hvl';
@@ -137,6 +142,80 @@ var Log = {
       nc.className = 'pr0'
       nc.innerHTML = arr[i].d;
     }
+  },
+
+  /**
+   * Summon Edit modal
+   * @param {number} id - Entry ID
+   */
+  edit(id) {
+    const entry = user.log[id];
+
+    editStart.value = '';
+    editEnd.value = '';
+
+    editID.innerHTML = `Entry #${id + 1}`;
+
+    editEntryID.value = id;
+
+    editSector.value = entry.c;
+    editProject.value = entry.t;
+    editDesc.value = entry.d;
+
+    const start = Log.time.convert(entry.s);
+
+    editStart.value = `${start.getFullYear()}-${`0${start.getMonth() + 1}`.substr(-2)}-${`0${start.getDate()}`.substr(-2)}T${`0${start.getHours()}`.substr(-2)}:${`0${start.getMinutes()}`.substr(-2)}:${`0${start.getSeconds()}`.substr(-2)}`;
+
+    if (entry.e !== undefined) {
+      const end = Log.time.convert(entry.e);
+
+      editEnd.value = `${end.getFullYear()}-${`0${end.getMonth() + 1}`.substr(-2)}-${`0${end.getDate()}`.substr(-2)}T${`0${end.getHours()}`.substr(-2)}:${`0${end.getMinutes()}`.substr(-2)}:${`0${end.getSeconds()}`.substr(-2)}`;
+    }
+
+    Log.modalFocus = true;
+    document.getElementById('editModal').showModal();
+
+  },
+
+  /**
+   * Update entry
+   * @param {number} id - Entry ID
+   */
+  update(id) {
+    const row = document.getElementById(`tr-${id}`);
+    const children = row.childNodes;
+    const start = new Date(editStart.value);
+    const end = editEnd.value === '' ? '' : new Date(editEnd.value);
+    const startHex = Log.time.toHex(start);
+    const endHex = end === '' ? undefined : Log.time.toHex(end);
+
+    children[1].innerHTML = Log.time.displayDate(start);
+
+    if (endHex === undefined) {
+      children[2].innerHTML = Log.time.stamp(start);
+      children[3].innerHTML = '—';
+    } else {
+      children[2].innerHTML = `${Log.time.stamp(start)} – ${Log.time.stamp(end)}`;
+      children[3].innerHTML = Log.time.duration(startHex, endHex).toFixed(2);
+    }
+
+    children[4].innerHTML = editSector.value;
+    children[5].innerHTML = editProject.value;
+    children[6].innerHTML = editDesc.value;
+
+    user.log[id].s = startHex;
+    user.log[id].e = endHex;
+    user.log[id].c = editSector.value;
+    user.log[id].t = editProject.value;
+    user.log[id].d = editDesc.value;
+
+    localStorage.setItem('user', JSON.stringify(user));
+    dataStore.set('log', user.log);
+
+    document.getElementById('editModal').close();
+    Log.modalFocus = false;
+
+    Log.refresh();
   },
 
   detail: {
@@ -605,6 +684,7 @@ var Log = {
       Log.keyEventInitialized = true;
 
       document.onkeydown = e => {
+        if (Log.modalFocus) return;
         if (e.which >= 65 && e.which <= 90) {
           cmd.style.display = 'block';
           con.focus();
@@ -653,8 +733,25 @@ var Log = {
     }
 
     const modal = document.getElementById('entryModal');
+    const modalB = document.getElementById('editModal');
 
     document.addEventListener('click', ({target}) => target === modal && modal.close());
+
+    modalB.onkeydown = e => {
+      (e.key === 'Escape') && (Log.modalFocus = false);
+    }
+
+    document.addEventListener('click', ({target}) => {
+      if (target === modalB) {
+        Log.modalFocus = false;
+        modalB.close();
+      }
+    });
+
+    editForm.addEventListener('submit', _ => {
+      Log.update(editEntryID.value);
+      Log.modalFocus = false;
+    });
 
     const user = {
       config: dataStore.get('config') || {},

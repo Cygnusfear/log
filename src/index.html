@@ -435,6 +435,23 @@
           </thead>
           <tbody id="logbook" class="nodrag f6"></tbody>
         </table>
+
+        <dialog id="editModal" class="p4 cn bn h6" close>
+          <p id="editID" class="mb4 f6 lhc">Entry #000</p>
+
+          <form id="editForm" onsubmit="return false">
+            <input id="editEntryID" type="hidden">
+            <input id="editSector" class="db wf p2 mb3 bn" type="text" placeholder="Sector">
+            <input id="editProject" class="db wf p2 mb3 bn" type="text" placeholder="Project">
+
+            <textarea id="editDesc" class="db wf p2 mb3 bn" placeholder="Description (optional)" rows='3'></textarea>
+
+            <input id="editStart" class="db wf p2 mb3 bn" type="datetime-local" step="1">
+            <input id="editEnd" class="db wf p2 mb3 bn" type="datetime-local" step="1">
+
+            <input id="editUpdate" class="ph2 pv1 mr3 br1 bn" type="submit" value="Update">
+          </form>
+        </dialog>
       </div>
 
       <div id="jou" class="dn sect hf wf oya hoverScroll">
