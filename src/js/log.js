@@ -116,10 +116,10 @@ var Log = {
 
       ic.setAttribute('onclick', `Log.edit(${ent.length - i - 1})`);
 
-      ic.className = 'pl0 c-pt hvl';
+      ic.className = 'pl0 c-pt hover';
       ic.innerHTML = ent.length - i;
 
-      dc.className = 'c-pt hvl';
+      dc.className = 'c-pt hover';
       dc.innerHTML = Log.time.displayDate(dt);
       dc.setAttribute('onclick', `Log.nav.toJournal('${arr[i].s}')`);
 
@@ -132,11 +132,11 @@ var Log = {
       }
 
       sc.innerHTML = arr[i].c;
-      sc.className = 'c-pt hvl';
+      sc.className = 'c-pt hover';
       sc.setAttribute('onclick', `Log.nav.toSecDetail('${arr[i].c}')`);
 
       pc.innerHTML = arr[i].t;
-      pc.className = 'c-pt hvl';
+      pc.className = 'c-pt hover';
       pc.setAttribute('onclick', `Log.nav.toProDetail('${arr[i].t}')`);
 
       nc.className = 'pr0'

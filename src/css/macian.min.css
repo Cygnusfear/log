@@ -7,6 +7,15 @@
   }
 }
 
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 body {
   -webkit-app-region: drag;
   animation: fadein 0.7862s
@@ -34,16 +43,24 @@ button {
   overflow-x: hidden;
 }
 
+@keyframes scrollFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .noscroll::-webkit-scrollbar {
   display: none;
 }
 
 .hoverScroll::-webkit-scrollbar-thumb {
-  background: transparent;
+  background-color: transparent;
 }
 
 .hoverScroll:hover::-webkit-scrollbar-thumb {
-  opacity: 1;
   background-color: #202020;
 }
 
@@ -58,11 +75,7 @@ button {
 ::-webkit-scrollbar {
   background-color: transparent;
   width: .5rem;
-  height: .5rem
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #eb4e32;
+  height: .5rem;
 }
 
 *, *::before, *::after {
@@ -217,6 +230,24 @@ body {
     "toc guideContent credits";
 }
 
+header button:hover, #lisSideA button:hover, .protab:hover, .sectab:hover {
+  opacity: 1;
+  transition: 200ms ease;
+}
+
+header button, #lisSideA button, .protab, .sectab {
+  transition: 200ms ease;
+}
+
+.hover:hover {
+  color: #eb4e32;
+  transition: 250ms ease;
+}
+
+.sect, .subsect, .prosect, .secsect {
+  animation: fadein 250ms ease;
+}
+
 .calendar, .calendar th, .calendar td {
   padding: .05em .5em;
   font-family: "Roboto Mono", monospace
@@ -233,7 +264,7 @@ dialog::backdrop {
 }
 
 dialog[open], dialog::backdrop {
-  animation: show 500ms ease;
+  animation: fadein 250ms ease;
 }
 
 #editModal {
