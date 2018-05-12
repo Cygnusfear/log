@@ -4,6 +4,12 @@ Date.prototype.addDays = function(n) {
   return d;
 };
 
+Date.prototype.subtractDays = function(n) {
+  const d = new Date(this.valueOf());
+  d.setDate(d.getDate() - n);
+  return d;
+};
+
 const days = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday',
   'Thursday', 'Friday', 'Saturday',
@@ -553,6 +559,17 @@ Log.data = {
    */
   proFocus(p = Log.cache.pro) {
     return typeof p !== 'object' || p.length === 0 ? 0 : 1 / p.length;
+  },
+
+  /**
+   * Calculate trend
+   * @param {number} a - Value
+   * @param {number} b - Value
+   * @returns {number} Trend
+   */
+  trend(a, b) {
+    const t = (a - b) / b * 100;
+    return t < 0 ? `${t.toFixed(2)}%` : `+${t.toFixed(2)}%`;
   },
 
   forecast: {

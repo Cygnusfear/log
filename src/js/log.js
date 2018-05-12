@@ -544,16 +544,45 @@ var Log = {
       today(en) {
         const dur = Log.data.listDur(en);
         const now = Log.log.slice(-1)[0];
-        const st = Log.time.stamp(Log.time.convert(now.s));
+        const nowDate = Log.time.convert(now.s);
+        const st = Log.time.stamp(nowDate);
 
-        tFOC.innerHTML = Log.data.proFocus(Log.data.listPro(en)).toFixed(2);
-        tLPT.innerHTML = Log.data.lp(en);
-        tLHT.innerHTML = Log.data.sum(dur).toFixed(2);
-        tLSN.innerHTML = Log.data.min(dur).toFixed(2);
-        tLSX.innerHTML = Log.data.max(dur).toFixed(2);
-        tASD.innerHTML = Log.data.avg(dur).toFixed(2);
+        const yesterday = Log.data.entries.byDate(nowDate.subtractDays(1));
+        const yDur = Log.data.listDur(yesterday);
+
+        const ylh = Log.data.sum(yDur);
+        const ylhn = Log.data.min(yDur);
+        const ylhx = Log.data.max(yDur);
+        const yasd = Log.data.avg(yDur);
+        const ylpt = Log.data.lp(yesterday);
+        const yfoc = Log.data.proFocus(Log.data.listPro(yesterday));
+        const yenc = yesterday.length;
+
+        const lh = Log.data.sum(dur);
+        const lhn = Log.data.min(dur);
+        const lhx = Log.data.max(dur);
+        const asd = Log.data.avg(dur);
+        const lpt = Log.data.lp(en);
+        const foc = Log.data.proFocus(Log.data.listPro(en));
+        const enc = en.length;
+
+        tLHT.innerHTML = lh.toFixed(2);
+        tLSN.innerHTML = lhn.toFixed(2);
+        tLSX.innerHTML = lhx.toFixed(2);
+        tASD.innerHTML = asd.toFixed(2);
+        // tLPT.innerHTML = lpt.toFixed(2);
+        tFOC.innerHTML = foc.toFixed(2);
+
         tSTK.innerHTML = Log.data.streak();
-        tENC.innerHTML = en.length;
+        tENC.innerHTML = enc;
+
+        tLHTtr.innerHTML = Log.data.trend(lh, ylh);
+        tLSNtr.innerHTML = Log.data.trend(lhn, ylhn);
+        tLSXtr.innerHTML = Log.data.trend(lhx, ylhx);
+        tASDtr.innerHTML = Log.data.trend(asd, yasd);
+        tLPTtr.innerHTML = Log.data.trend(lpt, ylpt);
+        tFOCtr.innerHTML = Log.data.trend(foc, yfoc);
+        tENCtr.innerHTML = Log.data.trend(enc, yenc);
 
         leid.innerHTML = user.log.length;
         ltim.innerHTML = now.e === undefined ?
