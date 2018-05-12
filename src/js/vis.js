@@ -214,13 +214,13 @@ Log.vis = {
       col = Log.config.ui.colourMode === 'none' ?
         Log.config.ui.colour : palette[arr[i][0]];
 
-      itm.className = 'mb4 c-pt';
+      itm.className =  `${i === arr.length - 1 ? 'mb0' : 'mb4'} c-pt`;
       itm.setAttribute('onclick', `Log.detail.${key}('${arr[i][0]}')`);
 
       nam.className = 'dib xw6 elip';
       nam.innerHTML = arr[i][0];
 
-      dur.className = 'rf';
+      dur.className = 'rf tnum';
       dur.innerHTML = arr[i][1].toFixed(2);
 
       bar.className = 'sh1';
@@ -277,7 +277,15 @@ Log.vis = {
 
     const frag = document.createDocumentFragment();
     const val = Log.data.sortValues(ent, mod, 1);
-    const pal = mod === 0 ? Log.palette : Log.projectPalette;
+    let pal, nav;
+
+    if (mod === 0) {
+      pal = Log.palette;
+      nav = 'Log.nav.toSecDetail';
+    } else {
+      pal = Log.projectPalette;
+      nav = 'Log.nav.toProDetail';
+    }
 
     for (let i = 0, l = val.length; i < l; i++) {
       const col = pal[val[i][0]] || Log.config.ui.colour;
@@ -287,10 +295,11 @@ Log.vis = {
 
       itm.className = 'c3 mb3 f6 lhc';
 
-      ico.className = 'dib sh3 sw3 mr2 brf vm';
+      ico.className = 'dib sh3 sw3 mr2 brf vm c-pt';
       ico.style.backgroundColor = col;
+      ico.setAttribute('onclick', `${nav}('${val[i][0]}')`);
 
-      inf.className = 'dib vm sw6 elip';
+      inf.className = 'dib vm sw6 elip tnum';
       inf.innerHTML = `${val[i][1].toFixed(2)}% ${val[i][0]}`;
 
       itm.appendChild(ico);

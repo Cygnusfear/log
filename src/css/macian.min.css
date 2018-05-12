@@ -61,7 +61,7 @@ button {
 }
 
 .hoverScroll:hover::-webkit-scrollbar-thumb {
-  background-color: #202020;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 ::-webkit-scrollbar {
@@ -135,10 +135,14 @@ body {
 #ovwSideA {
   display: grid;
   grid-row-gap: 5%;
-  grid-template-rows: 25% 25%;
+  grid-template-rows: 5% 25% 25%;
   grid-template-areas:
     "peakHours"
-    "ovwSideBB";
+    "peakDays";
+}
+
+#peakHours, #peakDays {
+  /* background-color: #222; */
 }
 
 #ovwCenter {
@@ -254,13 +258,12 @@ header button, #lisSideA button, .protab, .sectab {
 }
 
 dialog {
-  background-color: #eb4e32;
   color: inherit;
   width: 600px;
 }
 
 dialog::backdrop {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 dialog[open], dialog::backdrop {
@@ -274,6 +277,7 @@ dialog[open], dialog::backdrop {
 
 #editModal input, #editModal textarea {
   background-color: rgba(0, 0, 0, 0.2);
+  color: inherit;
   outline: none;
 }
 
@@ -288,7 +292,43 @@ textarea {
 
 .c1, .c2, .c3, .c4, .c5, .c6, .c7, .c8, .c9, .ca, .cb, .cc {
   float: left;
+}
+
+.cc {
   width: 100%
+}
+.cb {
+  width: 91.66%
+}
+.ca {
+  width: 83.33%
+}
+.c9 {
+  width: 75%
+}
+.c8 {
+  width: 66.66%
+}
+.c7 {
+  width: 58.33%
+}
+.c6 {
+  width: 50%
+}
+.c5 {
+  width: 41.66%
+}
+.c4 {
+  width: 33.33%
+}
+.c3 {
+  width: 25%
+}
+.c2 {
+  width: 16.66%
+}
+.c1 {
+  width: 8.33%
 }
 
 table {
@@ -299,6 +339,10 @@ table {
 
 th, td {
   padding: 7px;
+}
+
+.tnum {
+  font-feature-settings: 'tnum';
 }
 
 .f1, h1 {
@@ -1204,43 +1248,4 @@ button:hover, input[type="button"]:hover, input[type="submit"]:hover {
 
 .c-pt {
   cursor: pointer
-}
-
-@media screen and (min-width: 60em) {
-  .cc {
-    width: 100%
-  }
-  .cb {
-    width: 91.66%
-  }
-  .ca {
-    width: 83.33%
-  }
-  .c9 {
-    width: 75%
-  }
-  .c8 {
-    width: 66.66%
-  }
-  .c7 {
-    width: 58.33%
-  }
-  .c6 {
-    width: 50%
-  }
-  .c5 {
-    width: 41.66%
-  }
-  .c4 {
-    width: 33.33%
-  }
-  .c3 {
-    width: 25%
-  }
-  .c2 {
-    width: 16.66%
-  }
-  .c1 {
-    width: 8.33%
-  }
 }

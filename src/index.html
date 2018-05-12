@@ -31,8 +31,9 @@
         </div>
 
         <div id="ovwSideA">
+          <h3 class="mb3 f6 lhc">Peaks</h3>
           <div id="peakHours">
-            <h3 class="mb2 f6 lhc fwn">17:00</h3>
+            <h3 class="mb2 f6 lhc fwn tnum">17:00</h3>
             <div id="phc" class="psr h7 wf"></div>
           </div>
 
@@ -47,7 +48,7 @@
             <table class="wf bn f6 lhc">
               <thead class="al">
                 <tr>
-                  <th class="fwn pb1 pt0">Latest</th>
+                  <th class="pb1 pt0">Recent</th>
                 </tr>
               </thead>
               <tbody>
@@ -102,10 +103,12 @@
 
         <div id="ovwSideB" class="f6 lhc">
           <div id="ovwSideBA">
-            <ul id="secBars" class="nodrag lsn h9 oya hoverScroll"></ul>
+            <h3 class="mb3 f5 lhc">Sectors</h3>
+            <ul id="secBars" class="nodrag lsn h8 oya hoverScroll"></ul>
           </div>
           <div id="ovwSideBB">
-            <ul id="proBars" class="nodrag lsn h9 oya hoverScroll"></ul>
+            <h3 class="mb3 f5 lhc">Projects</h3>
+            <ul id="proBars" class="nodrag lsn h8 oya hoverScroll"></ul>
           </div>
         </div>
       </div>
@@ -121,7 +124,7 @@
           <div id="sum" class="nodrag subsect hf oya hoverScroll">
 
             <div id="sumStats">
-              <ul class="mb4 lsn f6 lhc r">
+              <ul class="mb5 lsn f6 lhc r">
                 <li class="mb4 c3">
                   <p id="LHH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Total Hours</p>
@@ -158,6 +161,19 @@
                   <p id="PRC" class="f4 fwb">&ndash;</p>
                   <p class="o9">Projects</p>
                 </li>
+              </ul>
+            </div>
+
+            <div id="sumPeaks">
+              <h3 class="mb3 f6 lhc">Peaks</h3>
+              <div class="dib mb4 pr4 lf sh6 w5">
+                <div id="pth" class="psr hf wf"></div>
+              </div>
+              <div class="dib mb4 pl4 lf sh6 w5">
+                <div id="pdh" class="psr hf wf"></div>
+              </div>
+
+              <ul class="mb5 lsn f6 lhc r">
                 <li class="mb0 c3">
                   <p id="PHH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Peak Hour</p>
@@ -166,24 +182,18 @@
                   <p id="PDH" class="f4 fwb">&ndash;</p>
                   <p class="o9">Peak Day</p>
                 </li>
+                <li class="mb0 c3">
+                  <p id="PMH" class="f4 fwb">&ndash;</p>
+                  <p class="o9">Peak Month</p>
+                </li>
               </ul>
             </div>
 
-            <div id="sumPeaks">
-              <h3 class="mb3 f6 fwn">Peaks</h3>
-              <div class="dib mb4 pr4 lf sh6 w5">
-                <div id="pth" class="psr hf wf"></div>
-              </div>
-              <div class="dib mb4 pl4 lf sh6 w5">
-                <div id="pdh" class="psr hf wf"></div>
-              </div>
-            </div>
-
             <div id="sumFocus">
-              <h3 class="mb3 f6 fwn">Focus</h3>
+              <h3 class="mb3 f6 lhc">Focus</h3>
               <div id="focusChart" class="psr mb4 wf sh5"></div>
 
-              <ul class="mb4 lsn f6 lhc r">
+              <ul class="mb5 lsn f6 lhc r">
                 <li class="c3">
                   <p id="Fmin" class="f4 fwb">&ndash;</p>
                   <p class="o9">Min Focus</span>
@@ -199,7 +209,7 @@
                 </li>
               </ul>
 
-              <h3 class="mb3 f6 fwn">Sector Distribution</h3>
+              <h3 class="mb3 f6 lhc">Sector Distribution</h3>
               <div id="secFocBar" class="mb3 wf sh2"></div>
               <ul id="secLegSum" class="lsn r"></ul>
             </div>
@@ -294,12 +304,12 @@
                 <table class="wf bn">
                   <thead>
                     <tr class="f6 al">
-                      <th class="fwn pl0">ID</th>
-                      <th class="fwn">Date</th>
-                      <th class="fwn">Time</th>
-                      <th class="fwn">Span</th>
-                      <th class="fwn">Project</th>
-                      <th class="fwn pr0">Description</th>
+                      <th class="pl0">ID</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Span</th>
+                      <th>Project</th>
+                      <th class="pr0">Description</th>
                     </tr>
                   </thead>
                   <tbody id="secLog" class="nodrag f6"></tbody>
@@ -399,12 +409,12 @@
                 <table class="wf bn">
                   <thead>
                     <tr class="f6 al">
-                      <th class="pl0 fwn">ID</th>
-                      <th class="fwn">Date</th>
-                      <th class="fwn">Time</th>
-                      <th class="fwn">Span</th>
-                      <th class="fwn">Sector</th>
-                      <th class="pr0 fwn">Description</th>
+                      <th class="pl0">ID</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Span</th>
+                      <th>Sector</th>
+                      <th class="pr0">Description</th>
                     </tr>
                   </thead>
                   <tbody id="proLog" class="nodrag f6"></tbody>
@@ -425,13 +435,13 @@
       <div id="tab" class="dn sect hf wf oya hoverScroll">
         <table class="wf bn">
           <thead class="f6 al">
-            <th class="pl0 fwn">ID</th>
-            <th class="fwn">Date</th>
-            <th class="fwn">Time</th>
-            <th class="fwn">Span</th>
-            <th class="fwn">Sector</th>
-            <th class="fwn">Project</th>
-            <th class="pr0 fwn">Details</th>
+            <th class="pl0">ID</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Span</th>
+            <th>Sector</th>
+            <th>Project</th>
+            <th class="pr0">Details</th>
           </thead>
           <tbody id="logbook" class="nodrag f6"></tbody>
         </table>
@@ -449,7 +459,7 @@
             <input id="editStart" class="db wf p2 mb3 bn" type="datetime-local" step="1">
             <input id="editEnd" class="db wf p2 mb3 bn" type="datetime-local" step="1">
 
-            <input id="editUpdate" class="ph2 pv1 mr3 br1 bn" type="submit" value="Update">
+            <input id="editUpdate" class="p2 br1 bn" type="submit" value="Update">
           </form>
         </dialog>
       </div>

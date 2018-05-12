@@ -174,7 +174,6 @@ var Log = {
 
     Log.modalFocus = true;
     document.getElementById('editModal').showModal();
-
   },
 
   /**
@@ -609,6 +608,12 @@ var Log = {
 
     ui.style.backgroundColor = Log.config.ui.bg;
     ui.style.color = Log.config.ui.colour;
+
+    editModal.style.backgroundColor = Log.config.ui.bg;
+    editModal.style.color = Log.config.ui.colour;
+
+    entryModal.style.backgroundColor = Log.config.ui.bg;
+    entryModal.style.color = Log.config.ui.colour;
 
     if (user.log.length === 0) {
       Log.nav.index = 5;
