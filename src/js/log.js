@@ -274,7 +274,7 @@ var Log = {
       Log.vis.peakChart(1, pkd, sPKD);
 
       if (ent.length !== 0) {
-        const foc = Log.data.listFocus(1, Log.data.sortEnt(ent));
+        const foc = Log.data.listFocus(1, Log.data.sortEnt(his));
 
         Log.vis.bar(Log.data.bar(ent, 'project'), secChart);
         Log.vis.focusChart(1, ent, sFoc);
@@ -283,8 +283,8 @@ var Log = {
         sFmin.innerHTML = Log.data.min(foc).toFixed(2);
         sFmax.innerHTML = Log.data.max(foc).toFixed(2);
 
-        Log.vis.focusBar(1, ent, proFocDetail);
-        Log.vis.legend(1, ent, proLeg);
+        Log.vis.focusBar(1, his, proFocDetail);
+        Log.vis.legend(1, his, proLeg);
       }
 
       if (typeof ent !== 'object' || ent.length === 0) return;
@@ -380,7 +380,7 @@ var Log = {
       Log.vis.peakChart(1, pkd, pPKD);
 
       if (ent.length !== 0) {
-        const foc = Log.data.listFocus(0, Log.data.sortEnt(ent));
+        const foc = Log.data.listFocus(0, Log.data.sortEnt(his));
 
         Log.vis.bar(Log.data.bar(ent), proChart);
         Log.vis.focusChart(0, ent, pFoc);
@@ -389,8 +389,8 @@ var Log = {
         pFmin.innerHTML = Log.data.min(foc).toFixed(2);
         pFmax.innerHTML = Log.data.max(foc).toFixed(2);
 
-        Log.vis.focusBar(0, ent, secFocDetail);
-        Log.vis.legend(0, ent, secLeg);
+        Log.vis.focusBar(0, his, secFocDetail);
+        Log.vis.legend(0, his, secLeg);
       }
 
       const arr = Log.data.entries.byPro(pro);
