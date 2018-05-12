@@ -634,6 +634,7 @@ Log.data = {
     if (typeof ent !== 'object' || ent.length === 0) return;
 
     const sort = Log.data.sortEnt(ent);
+    const avg = (Log.data.avg(Log.data.listDur(ent)) * 3600) / 864E5 * 100;
 
     let set = [];
     let colour = '';
@@ -687,7 +688,10 @@ Log.data = {
       }
     }
 
-    return set;
+    return {
+      set,
+      avg
+    }
   },
 
   /**

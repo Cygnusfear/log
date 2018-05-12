@@ -44,12 +44,12 @@ Log.vis = {
   bar(data, con) {
     if (data === undefined || con === undefined) return;
 
-    const l = data.length;
+    const l = data.set.length;
 
     if (typeof data !== 'object' || l === 0) return;
     if (typeof con !== 'object' || con === null) return;
 
-    Log.vis.gridLines(con);
+    Log.vis.gridLines(con, data.avg);
 
     const frag = document.createDocumentFragment();
     const width = `${100 / Log.config.ui.view}%`;
@@ -60,12 +60,12 @@ Log.vis = {
       column.style.width = width;
       frag.appendChild(column);
 
-      if (data[i].length === 0) continue;
-      for (let o = 0, ol = data[i].length; o < ol; o++) {
+      if (data.set[i].length === 0) continue;
+      for (let o = 0, ol = data.set[i].length; o < ol; o++) {
         const entry = document.createElement('div');
-        entry.style.backgroundColor = data[i][o].col;
-        entry.style.bottom = data[i][o].pos;
-        entry.style.height = data[i][o].wh;
+        entry.style.backgroundColor = data.set[i][o].col;
+        entry.style.bottom = data.set[i][o].pos;
+        entry.style.height = data.set[i][o].wh;
         entry.className = 'psa sw1';
         column.appendChild(entry);
       }
@@ -352,7 +352,7 @@ Log.vis = {
    * Create chart lines
    * @param {Object} con - Container
    */
-  gridLines(con) {
+  gridLines(con, avg = undefined) {
     if (con === undefined) return;
     if (typeof con !== 'object' || con === null) return;
 
@@ -380,6 +380,15 @@ Log.vis = {
     con.appendChild(d3);
     con.appendChild(d4);
     con.appendChild(d5);
+
+    if (avg !== undefined) {
+      const al = document.createElement('div');
+      al.className = 'psa wf bt';
+      al.style.bottom = `${(avg * 10000).toFixed(2)}%`;
+      al.style.backgroundColor = 'red !important';
+      al.style.color = 'red'
+      con.appendChild(al);
+    }
   },
 
   /**
