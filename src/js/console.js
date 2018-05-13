@@ -35,7 +35,8 @@ Log.console = {
         Log.console.edit(p[1], p[2], p[3]);
         break;
       case 'delete':
-        Log.console.delete(i);
+      case 'del':
+        Log.confirmDelete(i);
         break;
       case 'undo':
         Log.console.undo();

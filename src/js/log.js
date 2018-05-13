@@ -27,6 +27,8 @@ var Log = {
   projectPalette: {},
   clock: {},
 
+  bin: [],
+
   keyEventInitialized: false,
 
   cache: {
@@ -174,6 +176,71 @@ var Log = {
 
     Log.modalFocus = true;
     document.getElementById('editModal').showModal();
+  },
+
+  /**
+   * Summon Delete modal
+   * @param {string} i - Command input
+   */
+  confirmDelete(i) {
+    delList.innerHTML = '';
+
+    const words = i.split(' ').slice(1);
+    let count = 0;
+
+    if (words[0] === 'project') {
+      user.log.forEach((e, id) => {
+        if (e.t === words[1]) count++;
+      });
+
+      delMessage.innerHTML = `Are you sure you want to delete the ${words[1]} project? ${count} entries will be deleted. This can't be undone.`;
+    } else if (words[0] === 'sector') {
+      let count = 0;
+      user.log.forEach((e, id) => {
+        if (e.c === words[1]) count++;
+      });
+
+      delMessage.innerHTML = `Are you sure you want to delete the ${words[1]} sector? ${count} entries will be deleted. This can't be undone.`;
+    } else {
+      const aui = words.filter((v, i, self) => self.indexOf(v) === i).sort();
+
+      delMessage.innerHTML = aui.length > 1 ?
+        `Are you sure you want to delete the following ${aui.length} entries? This can't be undone.` :
+        'Are you sure you want to delete the following entry? This can\'t be undone.' ;
+
+      aui.forEach(i => {
+        const ent = user.log[Number(i) - 1];
+        const li = document.createElement('li');
+        const id = document.createElement('span');
+        const tm = document.createElement('span');
+        const sc = document.createElement('span');
+        const pr = document.createElement('span');
+        const dc = document.createElement('p');
+
+        li.className = 'f6 lhc pb3 mb3';
+        id.className = 'mr3 o7';
+        id.innerHTML = i;
+        tm.className = 'mr3 o7';
+        tm.innerHTML = `${Log.time.stamp(Log.time.convert(ent.s))} &ndash; ${Log.time.stamp(Log.time.convert(ent.e))}`;
+        sc.className = 'mr3 o7';
+        sc.innerHTML = ent.c;
+        pr.className = 'o7';
+        pr.innerHTML = ent.t;
+        dc.className = 'f4 lhc';
+        dc.innerHTML = ent.d;
+
+        li.appendChild(id);
+        li.appendChild(tm);
+        li.appendChild(sc);
+        li.appendChild(pr);
+        li.appendChild(dc);
+        delList.append(li);
+      });
+    }
+
+    delModal.showModal();
+
+    delConfirm.setAttribute('onclick', `Log.console.delete(${i})`);
   },
 
   /**
@@ -665,6 +732,9 @@ var Log = {
 
     entryModal.style.backgroundColor = Log.config.ui.bg;
     entryModal.style.color = Log.config.ui.colour;
+
+    delModal.style.backgroundColor = Log.config.ui.bg;
+    delModal.style.color = Log.config.ui.colour;
 
     if (user.log.length === 0) {
       Log.nav.index = 5;

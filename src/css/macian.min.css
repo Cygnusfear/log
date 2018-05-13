@@ -280,10 +280,14 @@ dialog[open], dialog::backdrop {
   height: auto;
 }
 
-#editModal input, #editModal textarea {
+#editModal input, #editModal textarea, #delModal button {
   background-color: rgba(0, 0, 0, 0.2);
   color: inherit;
   outline: none;
+}
+
+#delModal {
+  width: 400px;
 }
 
 textarea {
