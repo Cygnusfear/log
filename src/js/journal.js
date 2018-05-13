@@ -96,12 +96,29 @@ Log.journal = {
         const cell = rw.insertCell(o);
         const pos = sort[id - 1];
 
-        cell.innerHTML = `${Aequirys.month(id)}${`0${Aequirys.date(id)}`.substr(-2)}`;
+        cell.innerHTML = '--';
 
         if (pos === undefined || pos.length === 0) {
           cell.style.opacity = '.5'
           continue;
         }
+
+        let date = '';
+        let d = Log.time.convert(pos[0].s);
+        switch (Log.config.system.calendar) {
+          case 'aequirys':
+          case 'desamber':
+            date = `${Aequirys.month(id)}${`0${Aequirys.date(id)}`.substr(-2)}`;
+            break;
+          case 'monocal':
+            date = Monocal.shorter(Monocal.convert(d)).substring(0, 4);
+            break;
+          default:
+            date = `${months[d.getMonth()].substring(0, 1)}${`0${d.getDate()}`.slice(-2)}`;
+            break;
+        }
+
+        cell.innerHTML = date;
 
         const foc = sf(pos);
 
