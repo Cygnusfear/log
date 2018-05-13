@@ -14,21 +14,24 @@ Log.vis = {
     if (typeof con !== 'object' || con === null) return;
 
     const frag = document.createDocumentFragment();
+    const rowEl = document.createElement('div');
+    const entryEl = document.createElement('div');
+
+    rowEl.className = 'db wf sh1 mt2 mb2 visRow';
+    entryEl.className = 'psr t0 hf mb1 lf';
 
     for (let i = 0; i < l; i++) {
-      const row = document.createElement('div');
-      row.className = 'db wf sh1 mt2 mb2 visRow';
+      const row = rowEl.cloneNode();
       frag.appendChild(row);
 
       if (data[i].length === 0) continue;
       for (let o = 0, ol = data[i].length; o < ol; o++) {
-        const entry = document.createElement('div');
+        const entry = entryEl.cloneNode();
         const detail = user.log[data[i][o].id];
+        entry.title = `${detail.c} - ${detail.t} - ${detail.d}`;
         entry.style.backgroundColor = data[i][o].col;
         entry.style.marginLeft = data[i][o].mg;
-        entry.className = 'psr t0 hf mb1 lf';
         entry.style.width = data[i][o].wd;
-        entry.title = `${detail.c} - ${detail.t} - ${detail.d}`;
         row.appendChild(entry);
       }
     }
@@ -52,21 +55,23 @@ Log.vis = {
     Log.vis.gridLines(con, data.avg);
 
     const frag = document.createDocumentFragment();
-    const width = `${100 / Log.config.ui.view}%`;
+    const columnEl = document.createElement('div');
+    const entryEl = document.createElement('div');
+
+    columnEl.className = 'dib psr hf';
+    columnEl.style.width = `${100 / Log.config.ui.view}%`;
+    entryEl.className = 'psa sw1';
 
     for (let i = 0; i < l; i++) {
-      const column = document.createElement('div');
-      column.className = 'dib psr hf';
-      column.style.width = width;
+      const column = columnEl.cloneNode();
       frag.appendChild(column);
 
       if (data.set[i].length === 0) continue;
       for (let o = 0, ol = data.set[i].length; o < ol; o++) {
-        const entry = document.createElement('div');
+        const entry = entryEl.cloneNode();
         entry.style.backgroundColor = data.set[i][o].col;
         entry.style.bottom = data.set[i][o].pos;
         entry.style.height = data.set[i][o].wh;
-        entry.className = 'psa sw1';
         column.appendChild(entry);
       }
     }
@@ -105,17 +110,19 @@ Log.vis = {
     let lastWidth = 0;
     let lastPercentage = 0;
 
+    const enEl = document.createElement('span');
+    enEl.className = 'hf lf';
+
     for (let i = 0, l = ent.length; i < l; i++) {
       if (ent[i].e === undefined) continue;
 
       const wd = ent[i].dur * 3600 / 86400 * 100;
-      const en = document.createElement('a');
+      const en = enEl.cloneNode();
       const dp = Log.utils.calcDP(ent[i].s);
 
       en.style.marginLeft = `${dp - (lastWidth + lastPercentage)}%`;
       en.style.backgroundColor = ent[i][colour] || colour;
       en.style.width = `${wd}%`;
-      en.className = 'hf lf';
       en.title = `${ent[i].c} - ${ent[i].t} - ${ent[i].d}`;
 
       frag.appendChild(en);
@@ -144,7 +151,6 @@ Log.vis = {
 
     const frag = document.createDocumentFragment();
     const max = Math.max(...peaks);
-    const wid = `${100 / l}%`;
 
     let now, label;
 
@@ -156,14 +162,19 @@ Log.vis = {
       label = 'Log.label.setDay';
     }
 
-    for (let i = 0; i < l; i++) {
-      const col = document.createElement('div');
-      const inn = document.createElement('div');
-      const cor = document.createElement('div');
+    const colEl = document.createElement('div');
+    const innEl = document.createElement('div');
+    const corEl = document.createElement('div');
 
-      col.className = 'dib hf psr';
-      cor.className = 'psa b0 sw1 c-pt hoverCol';
-      inn.className = 'sw1 hf cn';
+    colEl.className = 'dib hf psr';
+    colEl.style.width = `${100 / l}%`;
+    corEl.className = 'psa b0 sw1 c-pt hoverCol';
+    innEl.className = 'sw1 hf cn';
+
+    for (let i = 0; i < l; i++) {
+      const col = colEl.cloneNode();
+      const inn = innEl.cloneNode();
+      const cor = corEl.cloneNode();
 
       cor.setAttribute('onmouseover', `${label}(${i})`);
       cor.setAttribute('onmouseout', `${label}()`);
@@ -172,7 +183,6 @@ Log.vis = {
         Log.config.ui.accent : Log.config.ui.colour;
 
       cor.style.height = `${peaks[i] / max * 100}%`;
-      col.style.width = wid;
 
       inn.appendChild(cor);
       col.appendChild(inn);
@@ -213,11 +223,19 @@ Log.vis = {
       palette = Log.projectPalette;
     }
 
+    const namEl = document.createElement('span');
+    const durEl = document.createElement('span');
+    const barEl = document.createElement('div');
+
+    namEl.className = 'dib xw6 elip';
+    durEl.className = 'rf tnum';
+    barEl.className = 'sh1';
+
     for (let i = 0, l = arr.length; i < l; i++) {
-      const nam = document.createElement('span');
-      const dur = document.createElement('span');
-      const bar = document.createElement('div');
-      const itm = document.createElement('li');
+      const itm = document.createElement('li')
+      const nam = namEl.cloneNode();
+      const dur = durEl.cloneNode();
+      const bar = barEl.cloneNode();
 
       wid = mode === 0 ?
         Log.data.lh(Log.data.entries.bySec(arr[i][0], ent)) / lhe * 100 :
@@ -226,16 +244,12 @@ Log.vis = {
       col = Log.config.ui.colourMode === 'none' ?
         Log.config.ui.colour : palette[arr[i][0]];
 
-      itm.className =  `${i === arr.length - 1 ? 'mb0' : 'mb4'} c-pt`;
+      itm.className = `${i === arr.length - 1 ? 'mb0' : 'mb4'} c-pt`;
       itm.setAttribute('onclick', `Log.detail.${key}('${arr[i][0]}')`);
 
-      nam.className = 'dib xw6 elip';
       nam.innerHTML = arr[i][0];
-
-      dur.className = 'rf tnum';
       dur.innerHTML = arr[i][1].toFixed(2);
 
-      bar.className = 'sh1';
       bar.style.backgroundColor = col || Log.config.ui.colour;
       bar.style.width = `${wid}%`;
 
@@ -263,12 +277,14 @@ Log.vis = {
     const frag = document.createDocumentFragment();
     const val = Log.data.sortValues(ent, mod, 1);
     const pal = mod === 0 ? Log.palette : Log.projectPalette;
+    const divEl = document.createElement('div');
+
+    divEl.className = 'hf lf';
 
     for (let i = 0, l = val.length; i < l; i++) {
-      const div = document.createElement('div');
+      const div = divEl.cloneNode();
       div.style.backgroundColor = pal[val[i][0]] || Log.config.ui.colour;
       div.style.width = `${val[i][1]}%`;
-      div.className = 'hf lf';
       frag.appendChild(div);
     }
 
@@ -299,19 +315,22 @@ Log.vis = {
       nav = 'Log.nav.toProDetail';
     }
 
+    const itmEl = document.createElement('li');
+    const icoEl = document.createElement('div');
+    const infEl = document.createElement('div');
+
+    itmEl.className = 'c3 mb3 f6 lhc';
+    icoEl.className = 'dib sh3 sw3 mr2 brf vm c-pt';
+    infEl.className = 'dib vm sw6 elip tnum';
+
     for (let i = 0, l = val.length; i < l; i++) {
       const col = pal[val[i][0]] || Log.config.ui.colour;
-      const itm = document.createElement('li');
-      const ico = document.createElement('div');
-      const inf = document.createElement('div');
+      const itm = itmEl.cloneNode();
+      const ico = icoEl.cloneNode();
+      const inf = infEl.cloneNode();
 
-      itm.className = 'c3 mb3 f6 lhc';
-
-      ico.className = 'dib sh3 sw3 mr2 brf vm c-pt';
       ico.style.backgroundColor = col;
       ico.setAttribute('onclick', `${nav}('${val[i][0]}')`);
-
-      inf.className = 'dib vm sw6 elip tnum';
       inf.innerHTML = `${val[i][1].toFixed(2)}% ${val[i][0]}`;
 
       itm.appendChild(ico);
@@ -341,16 +360,20 @@ Log.vis = {
     const listFunc = mod === 0 ?
       Log.data.listSec : Log.data.listPro;
 
+    const colEl = document.createElement('div');
+    const innEl = document.createElement('div');
+
+    colEl.className = 'dib hf';
+    colEl.style.width = `${100 / l}%`;
+
+    innEl.className = 'psa sw1 b0';
+    innEl.style.backgroundColor = Log.config.ui.colour;
+
     for (let i = 0; i < l; i++) {
       const list = listFunc(set[i]);
-      const col = document.createElement('div');
-      const inn = document.createElement('div');
+      const col = colEl.cloneNode();
+      const inn = innEl.cloneNode();
 
-      col.className = 'dib hf';
-      col.style.width = wid;
-
-      inn.className = 'psa sw1 b0';
-      inn.style.backgroundColor = Log.config.ui.colour;
       inn.style.height = `${list === undefined ? 0 : 1 / list.length * 100}%`;
 
       col.appendChild(inn);
