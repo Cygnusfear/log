@@ -37,6 +37,9 @@ Log.console = {
       case 'delete':
         Log.console.delete(i);
         break;
+      case 'undo':
+        Log.console.undo();
+        break;
       case 'background':
       case 'bg':
         Log.options.setBG(s[1]);
@@ -401,5 +404,29 @@ Log.console = {
     user.config.ui.bg = c;
 
     Log.options.update.config();
+  },
+
+  /**
+   * Undo previous command
+   */
+  undo() {
+    /* To be implemented */
+
+    const i = Log.console.history.slice(-2)[0];
+    const p = Log.console.getParams(i);
+    const s = i.split(' ');
+
+    switch (s[0].toLowerCase()) {
+      case 'rename':
+      case 'rn':
+        Log.console.rename(p[1], p[3], p[2]);
+        break;
+      case 'invert':
+      case 'iv':
+        Log.console.invert();
+        break;
+      default:
+        return;
+    }
   }
 };
