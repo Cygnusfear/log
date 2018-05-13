@@ -143,9 +143,18 @@ Log.vis = {
     if (typeof con !== 'object' || con === null) return;
 
     const frag = document.createDocumentFragment();
-    const now = mode === 0 ? (new Date()).getHours() : (new Date()).getDay();
     const max = Math.max(...peaks);
     const wid = `${100 / l}%`;
+
+    let now, label;
+
+    if (mode === 0) {
+      now = (new Date()).getHours();
+      label = 'Log.label.setTime';
+    } else {
+      now = (new Date()).getDay();
+      label = 'Log.label.setDay';
+    }
 
     for (let i = 0; i < l; i++) {
       const col = document.createElement('div');
@@ -153,8 +162,11 @@ Log.vis = {
       const cor = document.createElement('div');
 
       col.className = 'dib hf psr';
-      cor.className = 'psa b0 sw1';
+      cor.className = 'psa b0 sw1 c-pt hoverCol';
       inn.className = 'sw1 hf cn';
+
+      cor.setAttribute('onmouseover', `${label}(${i})`);
+      cor.setAttribute('onmouseout', `${label}()`);
 
       cor.style.backgroundColor = i === now ?
         Log.config.ui.accent : Log.config.ui.colour;

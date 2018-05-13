@@ -248,6 +248,11 @@ header button, #lisSideA button, .protab, .sectab {
   transition: 250ms ease;
 }
 
+.hoverCol:hover {
+  background-color: #eb4e32 !important;
+  transition: 250ms ease;
+}
+
 .sect, .subsect, .prosect, .secsect {
   animation: fadein 250ms ease;
 }

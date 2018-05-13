@@ -474,6 +474,28 @@ var Log = {
       `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
   },
 
+  /**
+   * Peak chart column labels
+   */
+  label: {
+
+    /**
+     * Show current hour
+     * @param {number} h - Hour
+     */
+    setTime(h = (new Date).getHours()) {
+      currentHour.innerHTML = `${h}:00`;
+    },
+
+    /**
+     * Show current day
+     * @param {number} d - Day
+     */
+    setDay(d = (new Date).getDay()) {
+      currentDay.innerHTML = days[d].substring(0, 3);
+    }
+  },
+
   reset() {
     clearInterval(Log.clock);
     document.getElementById('timer').innerHTML = '00:00:00';
@@ -655,6 +677,9 @@ var Log = {
     Log.timer(Log.status());
 
     const mn = Log.data.recEnt(Log.config.ui.view - 1);
+
+    Log.label.setTime();
+    Log.label.setDay();
 
     Log.vis.peakChart(0, Log.data.peakHours(Log.data.sortEntByDay()[new Date().getDay()]), phc);
     Log.vis.peakChart(1, Log.cache.pkd, pdc);
