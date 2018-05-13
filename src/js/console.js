@@ -165,9 +165,21 @@ Log.console = {
     localStorage.setItem('user', s);
     user = JSON.parse(localStorage.getItem('user'));
 
-    new window.Notification('Log data was successfully imported.');
+    try {
+      Log.config = user.config;
+      Log.palette = user.palette;
+      Log.projectPalette = user.projectPalette;
+      Log.log = Log.data.parse(user.log);
+    } catch (e) {
+      console.error('User log data contains errors');
+      new window.Notification('There is something wrong with this file.');
+      return;
+    }
+
     Log.reset();
     Log.load();
+
+    new window.Notification('Log data was successfully imported.');
   },
 
   /**
