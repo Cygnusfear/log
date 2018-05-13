@@ -7,15 +7,6 @@
   }
 }
 
-@keyframes fadeout {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
 body {
   -webkit-app-region: drag;
   animation: fadein 0.7862s
@@ -41,15 +32,6 @@ button {
 
 #visual {
   overflow-x: hidden;
-}
-
-@keyframes scrollFade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 .noscroll::-webkit-scrollbar {
@@ -139,10 +121,6 @@ body {
   grid-template-areas:
     "peakHours"
     "peakDays";
-}
-
-#peakHours, #peakDays {
-  /* background-color: #222; */
 }
 
 #ovwCenter {
