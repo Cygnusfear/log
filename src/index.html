@@ -801,9 +801,12 @@
 
     let dataPath = '';
 
+    console.log('Checking data path...');
     if (localStorage.hasOwnProperty('logDataPath')) {
+      console.log('Data path found');
       dataPath = localStorage.getItem('logDataPath');
     } else {
+      console.log('No data path found. Reverting to default data location');
       dataPath = `${app.getPath('appData')}/log-data.json`;
       localStorage.setItem('logDataPath', dataPath);
     }
@@ -832,26 +835,13 @@
       }
     });
 
-    let user = {
-      config: dataStore.get('config'),
-      palette: dataStore.get('palette'),
-      projectPalette: dataStore.get('projectPalette'),
-      log: dataStore.get('log')
-    }
-
     Log.path = dataStore.path;
 
     Log.vis.meterLines(ovwMeter);
     Log.vis.meterLines(visMeter);
     Log.vis.meterLines(jMeter);
 
-    // 1839.73 ms
     Log.init();
-
-    dataStore.set('config', user.config);
-    dataStore.set('palette', user.palette);
-    dataStore.set('projectPalette', user.projectPalette);
-    dataStore.set('log', user.log);
   </script>
 </body>
 </html>

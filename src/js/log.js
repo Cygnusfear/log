@@ -8,6 +8,8 @@
 
 'use strict';
 
+let user = {};
+
 const mainSectors = [phc, pdc, dyc, ovc, pth, pdh, secBars, proBars, secList, proList, visual, logbook, focusChart, secFocBar, secLegSum, jDyc, jEnt, cal];
 
 const secSectors = [secChart, sPKH, sPKD, proFocDetail, proLeg, sFoc, secLog];
@@ -719,11 +721,6 @@ var Log = {
   },
 
   load() {
-    Log.config = user.config;
-    Log.palette = user.palette;
-    Log.projectPalette = user.projectPalette;
-    Log.log = Log.data.parse(user.log);
-
     ui.style.backgroundColor = Log.config.ui.bg;
     ui.style.color = Log.config.ui.colour;
 
@@ -787,6 +784,30 @@ var Log = {
   },
 
   init() {
+    console.log('Installing user data...')
+    user = {
+      config: dataStore.get('config') || {},
+      palette: dataStore.get('palette') || {},
+      projectPalette: dataStore.get('projectPalette') || {},
+      log: dataStore.get('log') || [],
+    }
+
+    console.log('Installing data and config...')
+    try {
+      Log.config = user.config;
+      Log.palette = user.palette;
+      Log.projectPalette = user.projectPalette;
+      Log.log = Log.data.parse(user.log);
+    } catch (e) {
+      console.error('User log data contains errors');
+      new window.Notification('There is something wrong with this file.');
+      return;
+    }
+
+    console.time('Log')
+    Log.load();
+    console.timeEnd('Log')
+
     if (localStorage.hasOwnProperty('logHistory')) {
       Log.console.history = JSON.parse(localStorage.getItem('logHistory'));
     } else {
@@ -881,16 +902,5 @@ var Log = {
       Log.update(editEntryID.value);
       Log.modalFocus = false;
     });
-
-    const user = {
-      config: dataStore.get('config') || {},
-      palette: dataStore.get('palette') || {},
-      projectPalette: dataStore.get('projectPalette') || {},
-      log: dataStore.get('log') || [],
-    }
-
-    console.time('Log')
-    Log.load();
-    console.timeEnd('Log')
   }
 };

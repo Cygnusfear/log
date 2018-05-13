@@ -139,10 +139,22 @@ Log.console = {
 
     let s = '';
 
+    console.log('Attempting import...')
+    console.log('Checking file...')
     try {
       s = fs.readFileSync(path[0], 'utf-8');
     } catch (e) {
       new window.Notification('An error occured while trying to load this file.');
+      return;
+    }
+
+    console.log('Parsing data...')
+    try {
+      let test = JSON.parse(s);
+    } catch (e) {
+      console.error(e)
+      console.error('Parse failed. Check file')
+      new window.Notification('There is something wrong with this file. Import failed.')
       return;
     }
 
