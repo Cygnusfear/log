@@ -4,13 +4,8 @@ Type=Application
 Version=1.0
 Name=Log
 Comment=Log and time-tracking utility
-
-# The path to the folder in which the executable is run
-Path=/opt/jmemorise
-
-# The executable of the application, possibly with arguments.
-Exec=npm start
-
+Path=/usr/bin
+Exec=log
 Icon=icon.png
 Terminal=false
 Categories=Productivity;
