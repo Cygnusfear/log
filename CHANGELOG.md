@@ -21,6 +21,7 @@
   - `fg {colour}` - Sets the foreground colour
   - `accent {colour}` - Sets the accent colour
   - `colourmode {sector|project|none}` - Sets the colour mode
+  - `cc {sector|project} "Name" "{colour}"` - Set a sector's or project's colour code
   - `view {x}` - Sets the number of days' worth of data to display on charts
   - `calendar {desamber|monocal|gregorian}` - Sets the calendar format
   - `time {12|24|decimal}` - Sets the time format

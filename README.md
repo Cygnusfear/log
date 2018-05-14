@@ -18,8 +18,8 @@
 | Set the interface's background colour | `bg {colour}` |
 | Set the interface's text colour | `colour {colour}` |
 | Set the interface's accent colour | `accent {colour}` |
-| Set a sector's colour code | `set sector "Sector Name" {colour}` |
-| Set a project's colour code | `set project "Project Name" {colour}` |
+| Set a sector's colour code | `cc sector "Sector Name" "{colour}"` |
+| Set a project's colour code | `cc project "Project Name" "{colour}"` |
 | Set colour mode | `colourmode {sector/project}` |
 | Set view | `view {x}` |
 | Set calendar | `calendar {desamber/monocal/gregorian}` |
