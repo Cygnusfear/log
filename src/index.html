@@ -512,44 +512,28 @@
           <h2 class="mb3 f5">Contents</h2>
 
           <ul class="lsn">
-            <li class="fwb mb3">Console</li>
             <li><a href="#starting">Starting</a></li>
             <li><a href="#stopping">Stopping</a></li>
-            <li class="mb3"><a href="#pausing">Pausing</a></li>
+            <li class="mb3"><a href="#pausing">Pausing and Resuming</a></li>
             <li><a href="#editing">Editing</a></li>
             <li class="mb3"><a href="#deleting">Deleting</a></li>
-            <li class="mb3"><a href="#customising">Customising</a></li>
+            <li class="mb3"><a href="#customising">Customisation</a></li>
             <li class="mb3"><a href="#import">Import/Export</a></li>
-            <li class="mb4"><a href="#shortcuts">Shortcuts</a></li>
-
-            <li class="fwb mb3">Terminology</li>
-            <li><a href="#shortcuts">Sectors</a></li>
-            <li class="mb3"><a href="#shortcuts">Projects</a></li>
-
-            <li class="mb3"><a href="#statistics">Statistics</a></li>
-
-            <li>Charts</li>
-            <li><a href="#shortcuts">Overview</a></li>
-            <li><a href="#shortcuts">Peak Times</a></li>
-            <li><a href="#shortcuts">Focus Chart</a></li>
-            <li class="mb4"><a href="#shortcuts">Visualisation</a></li>
-
-            <li class="mb4"><a href="#shortcuts">Journal</a></li>
-
-            <li class="fwb mb3">About</li>
-            <li><a href="#contributions">Contribution</a></li>
-            <li><a href="#credits">Credits</a></li>
+            <li class="mb3"><a href="#sectorsAndProjects">Sectors and Projects</a></li>
+            <li class="mb3"><a href="#statistics">Stats</a></li>
+            <li><a href="#chartGuide">Charts</a></li>
+            <li><a href="#jourGuide">Journal</a></li>
           </ul>
         </div>
 
         <div id="guideContent" class="nodrag oys f6 lhc hoverScroll">
           <h2 class="mb3 f5">Guide</h2>
 
-          <p class="mb4 m">Log is designed for single-tasking. When you start a log, focus on your activity and stop at any time.</p>
+          <p class="mb4 m">Log is designed for single-tasking &mdash; start a log, focus on your activity, and then end it when you're done.</p>
 
-          <p class="mb4 m">Use the console to enter commands. The console is summoned when you start typing. Here are a list of available commands:</p>
+          <p class="mb4 m">Use the Console to enter commands. It shows up on the bottom as you start typing.</p>
 
-          <h3 id="starting" class="mb3 f5">Starting Log Entries</h3>
+          <h3 id="starting" class="mb3 f5">Starting</h3>
 
           <p class="mb3 m">To start a log, you may do so in a few different ways. Choose the one you find convenient:</p>
           <div class="mb4 bl pl3 m">
@@ -559,26 +543,26 @@
             <p>start Sector | Title | Description</p>
           </div>
 
-          <p class="mb4 m">If you start a log without ending an ongoing previous session, that session will be automatically stopped before opening a new session.
-
-          <h3 id="stopping" class="mb3 f5">Stopping Log Entries</h3>
+          <h3 id="stopping" class="mb3 f5">Stopping</h3>
 
           <p class="mb3 m">To stop logging:</p>
           <div class="mb4 bl pl3 m">
             <p>stop</p>
           </div>
 
-          <h3 id="pausing" class="mb3 f5">Pausing Log Entries</h3>
+          <h3 id="pausing" class="mb3 f5">Pausing and Resuming</h3>
 
           <p class="mb3 m">If you want pause logging temporarily, and resume logging from where you left off previously:</p>
           <div class="mb4 bl pl3 m">
-            <p>pause <span class="o8">// stops your current log session</span></p>
-            <p>resume <span class="o8">// resumes the last log session</span></p>
+            <p>pause</p>
+            <p>resume</p>
           </div>
 
-          <h3 id="editing" class="mb3 f5">Editing Log Entries</h3>
+          <h3 id="editing" class="mb3 f5">Editing</h3>
 
-          <p class="mb3 m">To edit a log entry, use its ID (shown in Entries):</p>
+          <p class="mb3 m">As of 1.0.5, you can edit an entry by going to the Entries tab and clicking on the entry's ID on the left.</p>
+
+          <p class="mb3 m">To edit an entry, use its ID:</p>
           <div class="mb4 bl pl3 m">
             <p class="mb2">edit 12 sector "Code" <span class="o8">// edits entry #12</span></p>
             <p class="mb2">edit 25 project "Fishing"</p>
@@ -591,37 +575,36 @@
 
           <h3 id="deleting" class="mb3 f5">Deleting</h3>
 
-          <p class="mb3 m">To delete a log entry, use its ID:</p>
+          <p class="mb3 m">To delete an entry, use its ID:</p>
           <div class="mb4 bl pl3 m">
-            <p>delete 15 <span class="o8">// deletes entry #15</span></p>
+            <p class="mb2">delete 15 <span class="o8">// deletes entry #15</span></p>
+            <p>delete 1 2 3 <span class="o8">// deletes entries #1, #2, and #3</span></p>
           </div>
 
-          <p class="mb3 m">To delete a sector or project, use its name:</p>
+          <p class="mb3 m">To delete a sector's or project's entries:</p>
           <div class="mb4 bl pl3 m">
             <p class="mb2">delete sector Code <span class="o8">// deletes all Code entries</span></p>
-          </div>
-          <p>delete project Fishing <span class="o8">// deletes all Fishing entries</span></p>
-
-          <h3 id="customising" class="mb3 f5">Customising</h3>
-
-          <p class="mb3 m">To change the interface's background colour, choose a hexadecimal colour or an HTML colour name:</p>
-          <div class="mb4 bl pl3 m">
-            <p class="mb2">set background #aabbcc</p>
-            <p>set background aquamarine</p>
+            <p>delete project Fishing <span class="o8">// deletes all Fishing entries</span></p>
           </div>
 
-          <p class="mb3 m">To change the interface's text colour, choose a hexadecimal colour or an HTML colour name:</p>
+          <h3 id="customising" class="mb3 f5">Customisation</h3>
+
+          <p class="mb3 m">To change the interface's background colour:</p>
           <div class="mb4 bl pl3 m">
-            <p class="mb2">set colour #112233</p>
-            <p>set colour black</p>
+            <p class="mb2">bg #aabbcc</p>
+            <p>bg aquamarine</p>
           </div>
 
-          <p class="mb3 m">The accent is what indicates the current hour and day
-          in the peak time charts. To change the it, choose a
-          hexadecimal colour or an HTML colour name:</p>
+          <p class="mb3 m">To change the interface's text colour:</p>
           <div class="mb4 bl pl3 m">
-            <p class="mb2">set accent #ac1d1c</p>
-            <p>set accent red</p>
+            <p class="mb2">colour #112233</p>
+            <p>color black</p>
+          </div>
+
+          <p class="mb3 m">To change the interface's accent colour:</p>
+          <div class="mb4 bl pl3 m">
+            <p class="mb2">accent #ac1d1c</p>
+            <p>accent red</p>
           </div>
 
           <p class="mb3 m">To switch the interface's background and text colours:</p>
@@ -629,75 +612,88 @@
             <p>invert</p>
           </div>
 
-          <p class="mb3 m">To set your sectors' and projects' colour codes (used in charts):</p>
+          <p class="mb3 m">To set your sectors' and projects' colour codes:</p>
           <div class="mb4 bl pl3 m">
             <p class="mb2">set sector "Fishing" green</p>
             <p>set project "Top Secret Project" #c0ffee</p>
           </div>
 
-          <p class="mb3 m">The colour mode defines how charts show colour &mdash; using sector or project colour codes:</p>
+          <p class="mb3 m">The colour mode defines how charts show colour code entries &mdash; using sector codes, project codes, or neither:</p>
           <div class="mb4 bl pl3 m">
-            <p class="mb2">set colourmode sector</p>
-            <p>set colourmode project</p>
+            <p class="mb2">colourmode sector</p>
+            <p class="mb2">colourmode project</p>
+            <p>colourmode none</p>
           </div>
 
-          <p class="mb3 m">To change the number of days displayed in the charts:</p>
+          <p class="mb3 m">To change the number of days displayed in the charts. The higher the number, the more time it takes to render charts:</p>
           <div class="mb4 bl pl3 m">
-            <p class="mb2">set view 30 <span class="o8">// shows only the last 30 days</span></p>
-            <p>set view 7 <span class="o8">// shows only the last 7 days</span></p>
+            <p class="mb2">view 100 <span class="o8">// shows the last 100 days</span></p>
+            <p>view 28 <span class="o8">// shows the last 28 days</span></p>
           </div>
 
           <p class="mb3 m">To change the calendar system used, choose between the Gregorian, Desamber, MONOCAL, or Aequirys calendars. This does not affect your logs. It simply shows dates differently:</p>
           <div class="mb4 bl pl3 m">
-            <p class="mb2">set calendar gregorian</p>
-            <p class="mb2">set calendar desamber</p>
-            <p class="mb2">set calendar monocal</p>
-            <p>set calendar aequirys</p>
+            <p class="mb2">calendar aequirys</p>
+            <p class="mb2">calendar desamber</p>
+            <p class="mb2">calendar monocal</p>
+            <p>calendar gregorian</p>
           </div>
 
-          <p class="mb3 m">To change the time format, choose between 12- or 24-hours:</p>
+          <p class="mb3 m">To change the time format:</p>
           <div class="mb4 bl pl3 m">
-            <p class="mb2">set time 12</p>
-            <p>set time 24</p>
+            <p class="mb2">time 12 <span class="o8">// 12-hour time</span></p>
+            <p class="mb2">time 24 <span class="o8">// 24-hour time</span></p>
+            <p>time decimal <span class="o8">// decimal time</span></p>
           </div>
 
           <h3 id="import" class="mb3 f5">Import/Export</h3>
 
-          <p class="mb3 m">If you have an existing data file (JSON), you can import it:</p>
-          <div class="mb4 bl pl3 m">
+          <p class="mb3 m">By default, your log data is stored in a JSON file located in either of the following locations:</p>
+
+          <p class="mb3 m">
+            Linux: $XDG_CONFIG_HOME or ~/.config<br>
+            macOS: ~/Library/Application Support<br>
+            Windows: %APPDATA%
+          </p>
+
+          <p class="mb3 m">However, if you have an existing data file (JSON), you can import it:</p>
+          <div class="mb3 bl pl3 m">
             <p>import</p>
           </div>
 
-          <p class="mb3 m">To export your data:</p>
+          <p class="mb3 m">Once it's imported, Log will start writing directly to that file. Deleting it will result in data loss.</p>
+
+          <p class="mb3 m">It's always a good idea to regularly keep backups of your log data. To export your data:</p>
           <div class="mb4 bl pl3 m">
             <p>export</p>
           </div>
 
           <p class="mb3 m">To quit:</p>
           <div class="mb4 bl pl3 m">
-            <p>quit</p>
+            <p class="mb2">quit</p>
+            <p>exit</p>
           </div>
 
           <h3 id="terminology" class="mb3 f5">Terminology</h3>
 
-          <p class="mb4 m">A <b>Sector</b> defines an activity type. A <b>Project</b> can involve one or more Sectors. For example, an app project may involve Design, Code, and Research sectors.</p>
+          <p id="sectorsAndProjects" class="mb4 m">A <b>Sector</b> defines an activity type. A <b>Project</b> can involve one or more Sectors. For example, an app project may involve sectors like research, design, and programming.</p>
 
-          <h3 id="statistics" class="mb3 f5">Statistics</h3>
+          <h3 id="statistics" class="mb3 f5">Stats</h3>
 
           <p class="mb4 m">The Stats provide information about your log activity.</p>
 
           <dl class="mb4 m">
-            <dt class="fwb">Total (LH)</dt>
-            <dd class="mb3">The total number of hours logged</dd>
+            <dt class="fwb">Total</dt>
+            <dd class="mb3">Total number of hours logged</dd>
 
-            <dt class="fwb">Min (LHn)</dt>
-            <dd class="mb3">The duration of the shortest log session</dd>
+            <dt class="fwb">Min</dt>
+            <dd class="mb3">The shortest log's duration</dd>
 
-            <dt class="fwb">Max (LHx)</dt>
-            <dd class="mb3">The duration of the longest log session</dd>
+            <dt class="fwb">Max</dt>
+            <dd class="mb3">The longest log's duration</dd>
 
-            <dt class="fwb">Average (Lha)</dt>
-            <dd class="mb3">The average duration of your log sessions. In the Overview, the Lha shown is for the day. Historical Lha is found in the Details</dd>
+            <dt class="fwb">Avg</dt>
+            <dd class="mb3">Average duration of your logs. In the Overview, the Average shown is for the day. Your overall Average is found in the Details</dd>
 
             <dt class="fwb">Coverage</dt>
             <dd class="mb3">How much of a time period has been logged. For example, a Coverage of 50% means half of your day was logged.</dd>
@@ -706,13 +702,13 @@
             <dd class="mb3">Focus shows how much of your time was spent on Sectors or Projects. For example, a 0.50 focus means your time was split between 2 projects. By default, Focus is calculated for projects but in the case of the Project view in the Details, Sector Focus is calculated.</dd>
 
             <dt class="fwb">Entries</dt>
-            <dd class="mb3">The number of log entries</dd>
+            <dd class="mb3">Number of entries</dd>
 
             <dt class="fwb">Streak</dt>
-            <dd class="mb3">Desc</dd>
+            <dd class="mb3">Number of days you've consecutively logged in a row</dd>
 
             <dt class="fwb">Daily Average</dt>
-            <dd class="mb3">The average daily logged hours</dd>
+            <dd class="mb3">Average daily logged hours</dd>
 
             <dt class="fwb">Sectors</dt>
             <dd class="mb3">Number of sectors</dd>
@@ -727,9 +723,7 @@
             <dd>Most productive day of the week</dd>
           </dl>
 
-          <h3 id="charts" class="mb3 f5">Charts</h3>
-
-          <p class="mb4 m">A <b>Sector</b> defines an activity type. A <b>Project</b> can involve one or more Sectors. For example, an app project may involve Design, Code, and Research sectors.</p>
+          <h3 id="chartGuide" class="mb3 f5">Charts</h3>
 
           <dl class="mb4 m">
             <dt class="fwb">Peak Hour Chart</dt>
@@ -750,11 +744,15 @@
             <dt class="fwb">Visualisation</dt>
             <dd>An alternative view of the data from the past number of days. Each row is a day that spans from midnight to midnight.</dd>
           </dl>
+
+          <h3 id="jourGuide" class="mb3 f5">Journal</h3>
+
+          <p class="m">The Journal provides another visual overview of your log history in the form of the Calendar. Each cell is a date and is colour-coded according to that date's sector or project focus. Clicking on a cell shows some information about that date.</p>
         </div>
 
         <div id="credits" class="nodrag oys f6 lhc hoverScroll">
-          <h2 class="mb3 f5">Log</h2>
-          <p class="mb4 m">Log is a log and time-tracking system. Its primary purpose is to provide insight to how one's time is spent to optimise personal productivity and better manage time.</p>
+          <h2 class="mb3 f5">Log <span id="ver"></span></h2>
+          <p class="mb4 m">Log is a log and time-tracking utility. Its primary purpose is to provide insight to how one's time is spent to optimise personal productivity and better manage time.</p>
 
           <h3 class="mb3 f5">Contribution</h3>
           <p class="mb3 m">This project is open-source and its source code is available on GitHub under the MIT License:</p>
@@ -798,6 +796,8 @@
     // const ipcRenderer = require('electron').ipcRenderer
     const Store = require('./js/store.js');
     const path = require('path');
+
+    ver.innerHTML = app.getVersion();
 
     let dataPath = '';
 
