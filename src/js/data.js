@@ -425,7 +425,7 @@ Log.data = {
    */
   min(v) {
     return typeof v !== 'object' || v === undefined ?
-      '-' : v.length === 0 ? 0 : Math.min(...v);
+      0 : v.length === 0 ? 0 : Math.min(...v);
   },
 
   /**
@@ -436,7 +436,7 @@ Log.data = {
   max(v) {
     if (v === undefined) return;
     return typeof v !== 'object' || v.length === 0 ?
-      '-' : v.length === 0 ? 0 : Math.max(...v);
+      0 : v.length === 0 ? 0 : Math.max(...v);
   },
 
   /**
@@ -447,7 +447,7 @@ Log.data = {
   avg(v) {
     if (v === undefined) return;
     return typeof v !== 'object' || v.length === 0 ?
-      '-' : v.length === 0 ? 0 : Log.data.sum(v) / v.length;
+      0 : v.length === 0 ? 0 : Log.data.sum(v) / v.length;
   },
 
   /**
