@@ -661,7 +661,7 @@ var Log = {
         tLSN.innerHTML = lhn.toFixed(2);
         tLSX.innerHTML = lhx.toFixed(2);
         tASD.innerHTML = asd.toFixed(2);
-        // tLPT.innerHTML = lpt.toFixed(2);
+        tLPT.innerHTML = `${lpt.toFixed(2)}%`;
         tFOC.innerHTML = foc.toFixed(2);
 
         tSTK.innerHTML = Log.data.streak();
@@ -696,7 +696,7 @@ var Log = {
         LNH.innerHTML = Log.data.min(Log.cache.dur).toFixed(2);
         LXH.innerHTML = Log.data.max(Log.cache.dur).toFixed(2);
         ASD.innerHTML = Log.data.avg(Log.cache.dur).toFixed(2);
-        LPH.innerHTML = Log.data.lp();
+        LPH.innerHTML = `${Log.data.lp().toFixed(2)}%`;
         ALH.innerHTML = Log.data.avgLh().toFixed(2);
         SCC.innerHTML = Log.cache.sec.length;
         PRC.innerHTML = Log.cache.pro.length;

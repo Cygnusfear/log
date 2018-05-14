@@ -32,7 +32,7 @@ Log.journal = {
     jLSN.innerHTML = Log.data.min(dur).toFixed(2);
     jLSX.innerHTML = Log.data.max(dur).toFixed(2);
     jASD.innerHTML = Log.data.avg(dur).toFixed(2);
-    jLPT.innerHTML = Log.data.lp(ent);
+    jLPT.innerHTML = `${Log.data.lp(ent).toFixed(2)}%`;
     jFT.innerHTML = Log.data.proFocus(Log.data.listPro(ent)).toFixed(2);
 
     for (let i = 0, l = ent.length; i < l; i++) {

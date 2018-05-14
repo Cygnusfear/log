@@ -494,7 +494,7 @@ Log.data = {
     let n = diff << 0;
     n = n === diff ? n : n + 1;
 
-    return `${(Log.data.lh(entries) / (24 * n) * 100).toFixed(2)}%`;
+    return Log.data.lh(entries) / (24 * n) * 100;
   },
 
   /**
