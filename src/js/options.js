@@ -13,6 +13,7 @@ Log.options = {
       secDetailCache = {};
       proDetailCache = {};
       journalCache = {};
+      console.log('localStorage updated')
       Log.refresh();
     },
 
@@ -22,6 +23,7 @@ Log.options = {
     config() {
       dataStore.set('config', user.config);
       Log.config = user.config;
+      console.log('Config updated')
       Log.options.update.localStorage();
     },
 
@@ -29,8 +31,14 @@ Log.options = {
      * Update palette
      */
     palette() {
+      if (user.palette === {}) {
+        console.error('Sector palette is empty');
+        return;
+      }
+
       dataStore.set('palette', user.palette);
       Log.palette = user.palette;
+      console.log('Sector palette updated')
       Log.options.update.localStorage();
     },
 
@@ -38,8 +46,14 @@ Log.options = {
      * Update project palette
      */
     projectPalette() {
+      if (user.projectPalette === {}) {
+        console.error('Project palette is empty');
+        return;
+      }
+
       dataStore.set('projectPalette', user.projectPalette);
       Log.projectPalette = user.projectPalette;
+      console.log('Project palette updated')
       Log.options.update.localStorage();
     },
 
@@ -47,8 +61,14 @@ Log.options = {
      * Update log
      */
     log() {
+      if (user.log.length === 0) {
+        console.error('User log is empty');
+        return;
+      }
+
       dataStore.set('log', user.log);
       Log.log = Log.data.parse(user.log);
+      console.log('Log updated')
       Log.options.update.localStorage();
     },
 

@@ -741,7 +741,6 @@ var Log = {
   },
 
   load() {
-    console.log('Styling components...')
     ui.style.backgroundColor = Log.config.ui.bg;
     ui.style.color = Log.config.ui.colour;
 
@@ -754,14 +753,16 @@ var Log = {
     delModal.style.backgroundColor = Log.config.ui.bg;
     delModal.style.color = Log.config.ui.colour;
 
+    console.log('Components styled')
+
     if (user.log.length === 0) {
       Log.nav.index = 5;
       Log.tab('gui', 'sect', 'tab');
       return;
     }
 
-    console.log('Generating session cache...')
     Log.gen.cache();
+    console.log('Session cache generated');
 
     Log.timer(Log.status());
 
@@ -798,6 +799,8 @@ var Log = {
     Log.vis.line(Log.data.line(mn), visual);
     Log.display(user.log, 100);
     Log.journal.cal();
+
+    console.info('APP READY')
   },
 
   refresh() {
@@ -812,16 +815,17 @@ var Log = {
       projectPalette: dataStore.get('projectPalette') || {},
       log: dataStore.get('log') || [],
     }
+    console.log('User object created')
 
     try {
-      console.log('Installing config...')
       Log.config = user.config;
-      console.log('Installing sector palette...')
+      console.log('Config installed')
       Log.palette = user.palette;
-      console.log('Installing project palette...')
+      console.log('Sector palette installed')
       Log.projectPalette = user.projectPalette;
-      console.log('Installing logs...')
+      console.log('Project palette installed')
       Log.log = Log.data.parse(user.log);
+      console.log('Logs installed');
     } catch (e) {
       console.error('User log data contains errors');
       new window.Notification('There is something wrong with this file.');

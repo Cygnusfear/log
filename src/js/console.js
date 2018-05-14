@@ -166,8 +166,10 @@ Log.console = {
       return;
     }
 
+    console.log('Installing new path...')
     Log.path = path[0];
-    localStorage.setItem('logDataPath', path[0]);
+    console.log(Log.path)
+    localStorage.setItem('logDataPath', Log.path);
     dataStore.path = Log.path;
 
     localStorage.setItem('user', s);
