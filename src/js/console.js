@@ -166,8 +166,10 @@ Log.console = {
       return;
     }
 
+    console.log('Installing new path...')
     Log.path = path[0];
-    localStorage.setItem('logDataPath', path[0]);
+    console.log(Log.path)
+    localStorage.setItem('logDataPath', Log.path);
     dataStore.path = Log.path;
 
     localStorage.setItem('user', s);
@@ -175,9 +177,13 @@ Log.console = {
 
     try {
       Log.config = user.config;
+      console.log('Config installed')
       Log.palette = user.palette;
+      console.log('Sector palette installed')
       Log.projectPalette = user.projectPalette;
+      console.log('Project palette installed')
       Log.log = Log.data.parse(user.log);
+      console.log('Logs installed');
     } catch (e) {
       console.error('User log data contains errors');
       new window.Notification('There is something wrong with this file.');
@@ -186,6 +192,8 @@ Log.console = {
 
     Log.reset();
     Log.load();
+
+    Log.options.update.all();
 
     new window.Notification('Log data was successfully imported.');
   },
