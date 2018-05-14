@@ -10,6 +10,9 @@ Log.options = {
      */
     localStorage() {
       localStorage.setItem('user', JSON.stringify(user));
+      secDetailCache = {};
+      proDetailCache = {};
+      journalCache = {};
       Log.refresh();
     },
 

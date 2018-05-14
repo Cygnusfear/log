@@ -1,4 +1,4 @@
-const journalCache = {};
+let journalCache = {};
 
 Log.journal = {
 

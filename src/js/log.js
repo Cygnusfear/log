@@ -15,8 +15,8 @@ const mainSectors = [phc, pdc, dyc, ovc, pth, pdh, secBars, proBars, secList, pr
 const secSectors = [secChart, sPKH, sPKD, proFocDetail, proLeg, sFoc, secLog];
 const proSectors = [proChart, secFocDetail, secLeg, pPKH, pPKD, pFoc, proLog];
 
-const secDetailCache = {};
-const proDetailCache = {};
+let secDetailCache = {};
+let proDetailCache = {};
 
 var Log = {
 
@@ -299,6 +299,10 @@ var Log = {
 
     localStorage.setItem('user', JSON.stringify(user));
     dataStore.set('log', user.log);
+
+    secDetailCache = {};
+    proDetailCache = {};
+    journalCache = {};
 
     document.getElementById('editModal').close();
     Log.modalFocus = false;
