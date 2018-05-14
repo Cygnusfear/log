@@ -242,7 +242,7 @@ var Log = {
 
     delModal.showModal();
 
-    delConfirm.setAttribute('onclick', `Log.console.delete(${i})`);
+    delConfirm.setAttribute('onclick', `Log.console.delete('${i}')`);
   },
 
   /**
