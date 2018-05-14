@@ -76,6 +76,8 @@ Log.journal = {
   cal() {
     const sort = Log.data.sortEnt(Log.data.entries.byPeriod(new Date(2018, 0, 1), new Date(2018, 11, 31)));
 
+    if (sort === undefined || sort.length === 0) return;
+
     const sf = ent => {
       const list = Log.data.listSec(ent);
       let a = 0;
