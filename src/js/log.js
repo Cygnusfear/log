@@ -132,7 +132,7 @@ var Log = {
         rc.innerHTML = '—';
       } else {
         tc.innerHTML = `${st} – ${Log.time.stamp(Log.time.convert(arr[i].e))}`;
-        rc.innerHTML = Log.time.duration(arr[i].s, arr[i].e).toFixed(2);
+        rc.innerHTML = Log.stat(Log.time.duration(arr[i].s, arr[i].e));
       }
 
       sc.innerHTML = arr[i].c;
@@ -146,6 +146,18 @@ var Log = {
       nc.className = 'pr0'
       nc.innerHTML = arr[i].d;
     }
+  },
+
+  /**
+   * Display a stat
+   * @param {number} value - Value
+   * @returns {string} Stat
+   */
+  stat(value) {
+    if (Log.config.ui.stat === 'human') {
+      const split = value.toString().split('.');
+      return `${split[0]}:${`0${(Number(`0.${split[1]}`) * 60).toFixed(0)}`.substr(-2)}`;
+    } else return `${value.toFixed(2)} h`;
   },
 
   /**
@@ -331,10 +343,10 @@ var Log = {
         `Updated ${Log.time.timeago(Log.time.parse(ent.slice(-1)[0].e) * 1E3)}`;
 
       sEnt.innerHTML = his.length;
-      sLHH.innerHTML = Log.data.sum(dur).toFixed(2);
-      sLNH.innerHTML = Log.data.min(dur).toFixed(2);
-      sLXH.innerHTML = Log.data.max(dur).toFixed(2);
-      sASD.innerHTML = Log.data.avg(dur).toFixed(2);
+      sLHH.innerHTML = Log.stat(Log.data.sum(dur));
+      sLNH.innerHTML = Log.stat(Log.data.min(dur));
+      sLXH.innerHTML = Log.stat(Log.data.max(dur));
+      sASD.innerHTML = Log.stat(Log.data.avg(dur));
       sPHH.innerHTML = Log.data.peakHour(pkh);
       sPDH.innerHTML = Log.data.peakDay(pkd);
       sSTK.innerHTML = Log.data.streak(Log.data.sortEnt(his));
@@ -437,10 +449,10 @@ var Log = {
         `Updated ${Log.time.timeago(Log.time.parse(ent.slice(-1)[0].e) * 1E3)}`;
 
       pEnt.innerHTML = his.length;
-      pLHH.innerHTML = Log.data.sum(dur).toFixed(2);
-      pLNH.innerHTML = Log.data.min(dur).toFixed(2);
-      pLXH.innerHTML = Log.data.max(dur).toFixed(2);
-      pASD.innerHTML = Log.data.avg(dur).toFixed(2);
+      pLHH.innerHTML = Log.stat(Log.data.sum(dur));
+      pLNH.innerHTML = Log.stat(Log.data.min(dur));
+      pLXH.innerHTML = Log.stat(Log.data.max(dur));
+      pASD.innerHTML = Log.stat(Log.data.avg(dur));
       pPHH.innerHTML = Log.data.peakHour(pkh);
       pPDH.innerHTML = Log.data.peakDay(pkd);
       pSTK.innerHTML = Log.data.streak(Log.data.sortEnt(his));
@@ -657,10 +669,10 @@ var Log = {
         const foc = Log.data.proFocus(Log.data.listPro(en));
         const enc = en.length;
 
-        tLHT.innerHTML = lh.toFixed(2);
-        tLSN.innerHTML = lhn.toFixed(2);
-        tLSX.innerHTML = lhx.toFixed(2);
-        tASD.innerHTML = asd.toFixed(2);
+        tLHT.innerHTML = Log.stat(lh);
+        tLSN.innerHTML = Log.stat(lhn);
+        tLSX.innerHTML = Log.stat(lhx);
+        tASD.innerHTML = Log.stat(asd);
         tLPT.innerHTML = `${lpt.toFixed(2)}%`;
         tFOC.innerHTML = foc.toFixed(2);
 
@@ -692,10 +704,10 @@ var Log = {
        * @param {Object} mn - Overview entries
        */
       details(mn) {
-        LHH.innerHTML = Log.data.sum(Log.cache.dur).toFixed(2);
-        LNH.innerHTML = Log.data.min(Log.cache.dur).toFixed(2);
-        LXH.innerHTML = Log.data.max(Log.cache.dur).toFixed(2);
-        ASD.innerHTML = Log.data.avg(Log.cache.dur).toFixed(2);
+        LHH.innerHTML = Log.stat(Log.data.sum(Log.cache.dur));
+        LNH.innerHTML = Log.stat(Log.data.min(Log.cache.dur));
+        LXH.innerHTML = Log.stat(Log.data.max(Log.cache.dur));
+        ASD.innerHTML = Log.stat(Log.data.avg(Log.cache.dur));
         LPH.innerHTML = `${Log.data.lp().toFixed(2)}%`;
         ALH.innerHTML = Log.data.avgLh().toFixed(2);
         SCC.innerHTML = Log.cache.sec.length;

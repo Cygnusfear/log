@@ -160,4 +160,12 @@ Log.options = {
     user.config.system.timeFormat = f;
     Log.options.update.config();
   },
+
+  setStat(f) {
+    if (f === undefined) return;
+    if (typeof f !== 'string' || f.length === 0) return;
+    if (['decimal', 'human'].indexOf(f) === -1) return;
+    user.config.ui.stat = f;
+    Log.options.update.config();
+  }
 };

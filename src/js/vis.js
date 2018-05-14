@@ -248,7 +248,7 @@ Log.vis = {
       itm.setAttribute('onclick', `Log.detail.${key}('${arr[i][0]}')`);
 
       nam.innerHTML = arr[i][0];
-      dur.innerHTML = arr[i][1].toFixed(2);
+      dur.innerHTML = Log.stat(arr[i][1]);
 
       bar.style.backgroundColor = col || Log.config.ui.colour;
       bar.style.width = `${wid}%`;

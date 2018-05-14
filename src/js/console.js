@@ -73,6 +73,9 @@ Log.console = {
       case 'clock':
         Log.options.setTimeFormat(s[1]);
         break;
+      case 'stat':
+        Log.options.setStat(s[1]);
+        break;
       case 'import':
         Log.console.importUser();
         break;

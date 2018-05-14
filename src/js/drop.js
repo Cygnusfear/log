@@ -29,6 +29,7 @@ window.addEventListener('drop', e => {
       user.config.ui.accent = o.config.ui.accent || '#eb4e32';
       user.config.ui.colourMode = o.config.ui.colourMode || 'sector';
       user.config.ui.view = o.config.ui.view || 28;
+      user.config.ui.stat = o.config.ui.stat || 'decimal';
 
       user.config.system.calendar = o.config.system.calendar || 'gregorian';
       user.config.system.timeFormat = o.config.system.timeFormat || '24';

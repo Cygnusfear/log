@@ -639,6 +639,12 @@
             <p>calendar gregorian</p>
           </div>
 
+          <p class="mb3 m">Stats are displayed as decimals by default. 30 minutes translates to 0.5 h. If you prefer a more intuitive format (i.e. 1:30 instead of 1.50):</p>
+          <div class="mb4 bl pl3 m">
+            <p class="mb2">stat human</p>
+            <p>stat decimal</p>
+          </div>
+
           <p class="mb3 m">To change the time format:</p>
           <div class="mb4 bl pl3 m">
             <p class="mb2">time 12 <span class="o8">// 12-hour time</span></p>
@@ -822,7 +828,8 @@
             colourMode: 'sector',
             font: 'sans-serif',
             view: 28,
-            tableView: 50
+            tableView: 50,
+            stat: 'decimal'
           },
           system: {
             calendar: 'gregorian',
