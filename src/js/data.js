@@ -678,7 +678,7 @@ Log.data = {
           ) / 86400 * 100;
 
           set[i][set[i].length] = {
-            col: sort[i][o][colour] || colour,
+            col: sort[i][o][colour] || Log.config.ui.colour,
             pos: `${lastHeight}%`,
             wh: `${height}%`
           }
@@ -737,7 +737,7 @@ Log.data = {
 
         data[i][data[i].length] = {
           id: sort[i][o].id,
-          col: sort[i][o][colour] || colour,
+          col: sort[i][o][colour] || Log.config.ui.colour,
           mg: `${dp - lastPosition}%`,
           wd: `${width}%`
         }

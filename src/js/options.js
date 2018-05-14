@@ -110,21 +110,22 @@ Log.options = {
 
   /**
    * Set sector colour code
-   * @param {number} m - Sector (0) or project (1)
-   * @param {string} s - Sector or project
+   * @param {string} m - Sector or project
+   * @param {string} s - Sector or project name
    * @param {string} c - Colour
    */
   setColourCode(m, s, c) {
     if (m === undefined || s === undefined || c === undefined) return;
-    if (typeof m !== 'number' || m < 0 || m > 1) return;
+    if (typeof m !== 'string') return;
+    if (['sector', 'sec', 'project', 'pro'].indexOf(m) === -1)
     if (typeof s !== 'string' || s.length === 0) return;
     if (typeof c !== 'string' || c.length === 0) return;
 
-    if (m === 0) {
+    if (m === 'sector' || m === 'sec') {
       user.palette[s] = c;
       Log.options.update.palette();
     } else {
-      user.projectPalette[p] = c;
+      user.projectPalette[s] = c;
       Log.options.update.projectPalette();
     }
   },

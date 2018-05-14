@@ -62,6 +62,11 @@ Log.console = {
       case 'cm':
         Log.options.setColourMode(s[1]);
         break;
+      case 'colourcode':
+      case 'colorcode':
+      case 'cc':
+        Log.options.setColourCode(p[1], p[2], p[3]);
+        break;
       case 'view':
         Log.options.setView(Number(s[1]));
         break;
