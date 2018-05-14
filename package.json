@@ -17,7 +17,7 @@
     "electron-reload": "^1.2.2"
   },
   "dependencies": {
-    "headless-work-timer": "0.0.3",
-    "aequirys": "1.1.1"
+    "headless-work-timer": "^0.0.3",
+    "aequirys": "^1.1.1"
   }
 }
