@@ -741,6 +741,7 @@ var Log = {
   },
 
   load() {
+    console.log('Styling components...')
     ui.style.backgroundColor = Log.config.ui.bg;
     ui.style.color = Log.config.ui.colour;
 
@@ -759,6 +760,7 @@ var Log = {
       return;
     }
 
+    console.log('Generating session cache...')
     Log.gen.cache();
 
     Log.timer(Log.status());
@@ -804,7 +806,6 @@ var Log = {
   },
 
   init() {
-    console.log('Installing user data...')
     user = {
       config: dataStore.get('config') || {},
       palette: dataStore.get('palette') || {},
@@ -812,11 +813,14 @@ var Log = {
       log: dataStore.get('log') || [],
     }
 
-    console.log('Installing data and config...')
     try {
+      console.log('Installing config...')
       Log.config = user.config;
+      console.log('Installing sector palette...')
       Log.palette = user.palette;
+      console.log('Installing project palette...')
       Log.projectPalette = user.projectPalette;
+      console.log('Installing logs...')
       Log.log = Log.data.parse(user.log);
     } catch (e) {
       console.error('User log data contains errors');
