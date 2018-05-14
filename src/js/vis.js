@@ -386,6 +386,7 @@ Log.vis = {
   /**
    * Create chart lines
    * @param {Object} con - Container
+   * @param {number} [avg] - Average log hours
    */
   gridLines(con, avg = undefined) {
     if (con === undefined) return;
@@ -419,9 +420,8 @@ Log.vis = {
     if (avg !== undefined) {
       const al = document.createElement('div');
       al.className = 'psa wf bt';
-      al.style.bottom = `${(avg * 10000).toFixed(2)}%`;
-      al.style.backgroundColor = 'red !important';
-      al.style.color = 'red'
+      al.style.bottom = `${avg}%`;
+      al.style.color = `${Log.config.ui.accent}`
       con.appendChild(al);
     }
   },
