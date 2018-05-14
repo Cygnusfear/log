@@ -665,7 +665,7 @@ Log.data = {
         set[i][set[i].length] = {
           col: colour,
           pos: '0%',
-          wh: Log.data.lp(sort[i])
+          wh: `${Log.data.lp(sort[i])}%`
         }
       } else {
         for (let o = 0; o < l; o++) {
