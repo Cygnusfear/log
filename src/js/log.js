@@ -73,11 +73,7 @@ var Log = {
       m %= 60;
       s %= 60;
 
-      if (Log.config.system.timeFormat === 'decimal') {
-        clock.innerHTML = Log.time.toDecimal(~~((new Date().getTime() - l) / 1E3));
-      } else {
-        clock.innerHTML = `${`0${h}`.substr(-2)}:${`0${m}`.substr(-2)}:${`0${s}`.substr(-2)}`;
-      }
+      clock.innerHTML = `${`0${h}`.substr(-2)}:${`0${m}`.substr(-2)}:${`0${s}`.substr(-2)}`;
     }, 1E3);
   },
 
