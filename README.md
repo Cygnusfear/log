@@ -2,38 +2,35 @@
 
 ![MIT](https://joshavanier.github.io/badges/svg/mit.svg)
 
-**Log** is a simple log and time-tracker available for Linux, macOS, and Windows. Download it [here](https://joshavanier.itch.io/log).
-
-### Features
-
-- Write log entries
-- Log data visualisations and statistics
+**Log** is a log and time-tracker available for Linux, macOS, and Windows. Download it [here](https://joshavanier.itch.io/log).
 
 ### Commands
-To use the console, simply type.
 
-- `import` - Import existing log data
-- `export` - Export log data
-- `start "Sector" "Project" "Description"` - Start a log entry (alt: `begin`)
-- `stop` - Stop a log entry (alt: `end`)
-- `pause` - Pause a log session
-- `continue` - Continue the last log session (alt: `resume`)
-- `edit {ID} {attribute} "Lorem ipsum"` - Edit an entry's attributes
-- `set bg #fff` - Set the interface's background colour
-- `set colour red` - Set the interface's text colour
-- `set accent blue` - Set the interface's accent colour
-- `set sector "Sector Name" {colour}` - Set a colour code for your sector
-- `set project "Project Name" {colour}` - Set a colour code for your project
-- `set colourmode {sector/project}` - Set colour mode (colour code the charts by sector or project)
-- `set view x` - View only data from the past x days
-- `set calendar gregorian` - Set to use a certain calendar system: Gregorian, [Desamber](http://wiki.xxiivv.com/#Desamber), [MONOCAL](https://monochromatic.co/writing/monocal-20), [Aequirys](https://joshavanier.github.io/aequirys)
-- `set time 24` - Set the time format to 12- or 24-hours
--  `rename {sector/project} "Old Name" "New Name"` - Rename a sector or project. This will update all entries that are filed under that sector or project
+| Description | Command |
+| ----------- | ------- |
+| Import data | `import` |
+| Export data | `export` |
+| Start an entry | `start "Sector" "Project" "Description"` |
+| End an entry | `end` or `stop` |
+| Pause a session | `pause` |
+| Resume last session | `resume` or `continue` |
+| Edit an entry | `edit {ID} {attribute} "Lorem ipsum"` |
+| Set the interface's background colour | `bg {colour}` |
+| Set the interface's text colour | `colour {colour}` |
+| Set the interface's accent colour | `accent {colour}` |
+| Set a sector's colour code | `set sector "Sector Name" {colour}` |
+| Set a project's colour code | `set project "Project Name" {colour}` |
+| Set colour mode | `colourmode {sector/project}` |
+| Set view | `view {x}` |
+| Set calendar | `calendar {desamber/monocal/gregorian}` |
+| Set stat display mode | `stat {human/decimal}` |
+| Set time format | `time {12/24/decimal}` |
+| Rename a sector or project | `rename {sector/project} "Old Name" "New Name"` |
 
 ### Development
 
 ```
-git clone git@github.com:joshavanier/log.git
+git clone https://github.com/joshavanier/log.git
 cd log
 npm install
 npm start
