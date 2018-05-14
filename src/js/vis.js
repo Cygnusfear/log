@@ -27,8 +27,8 @@ Log.vis = {
       if (data[i].length === 0) continue;
       for (let o = 0, ol = data[i].length; o < ol; o++) {
         const entry = entryEl.cloneNode();
-        const detail = user.log[data[i][o].id];
-        entry.title = `${detail.c} - ${detail.t} - ${detail.d}`;
+        // const detail = user.log[data[i][o].id];
+        // entry.title = `${detail.c} - ${detail.t} - ${detail.d}`;
         entry.style.backgroundColor = data[i][o].col;
         entry.style.marginLeft = data[i][o].mg;
         entry.style.width = data[i][o].wd;
