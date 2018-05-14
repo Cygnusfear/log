@@ -29,12 +29,16 @@ Log.time = {
     if (t === undefined) return;
     if (typeof t !== 'object') return;
 
-    return t in toHexCache ?
-      toHexCache[t] :
-      toHexCache[t] = (new Date(
-        t.getFullYear(), t.getMonth(), t.getDate(),
-        t.getHours(), t.getMinutes(), t.getSeconds(),
-      ).getTime() / 1E3).toString(16)
+    // return t in toHexCache ?
+    //   toHexCache[t] :
+    //   toHexCache[t] = (new Date(
+    //     t.getFullYear(), t.getMonth(), t.getDate(),
+    //     t.getHours(), t.getMinutes(), t.getSeconds(),
+    //   ).getTime() / 1E3).toString(16)
+    return (new Date(
+      t.getFullYear(), t.getMonth(), t.getDate(),
+      t.getHours(), t.getMinutes(), t.getSeconds(),
+    ).getTime() / 1E3).toString(16);
   },
 
   /**
