@@ -6,6 +6,6 @@ Name=Log
 Comment=Log and time-tracking utility
 Path=/usr/bin
 Exec=log
-Icon=icon.png
+Icon=log
 Terminal=false
 Categories=Productivity;
