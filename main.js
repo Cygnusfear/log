@@ -1,7 +1,8 @@
 const {
   app,
   BrowserWindow,
-  webFrame
+  webFrame,
+  Menu
 } = require('electron');
 
 if (process.argv[2] && process.argv[2] === 'dev') {
@@ -26,6 +27,26 @@ app.on('ready', _ => {
   win.on('closed', _ => {
     win = null
   })
+
+  if (process.platform === 'darwin') {
+    var menu = Menu.buildFromTemplate([
+      {
+        label: app.getName(),
+        submenu: [
+          {role: 'about'},
+          {type: 'separator'},
+          {role: 'minimize'},
+          {role: 'hide'},
+          {role: 'hideothers'},
+          {role: 'unhide'},
+          {type: 'separator'},
+          {role: 'quit'}
+        ]
+      }
+    ]);
+
+    Menu.setApplicationMenu(menu);
+  }
 })
 
 app.on('window-all-closed', _ => {
