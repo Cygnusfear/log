@@ -13,7 +13,7 @@ let win
 
 app.on('ready', _ => {
   win = new BrowserWindow({
-    icon: `${__dirname}/icon.ico`,
+    icon: __dirname + '/icon.ico',
     backgroundColor: '#0c0c0c',
     autoHideMenuBar: true,
     resizable: false,
