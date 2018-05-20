@@ -1,3 +1,5 @@
+'use strict';
+
 class Store {
   constructor(opts) {
     this.path = opts.path;
@@ -28,7 +30,8 @@ function parseDataFile(filePath, defaults) {
   try {
     return JSON.parse(fs.readFileSync(filePath));
   } catch (error) {
-    return defaults;
+    console.error('Something went wrong with file parsing')
+    // return defaults;
   }
 }
 

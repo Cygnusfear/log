@@ -89,114 +89,71 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
-#topbar {
-  grid-column-start: 1;
-  grid-column-end: 4;
-}
-
-#main {
-  grid-row-start: 2;
-  grid-column-start: 1;
-  grid-column-end: 4;
-}
-
 #container {
   display: grid;
   grid-template-rows: 10% 90%;
-  grid-template-columns: auto;
-  grid-template-areas:
-    "topbar"
-    "main";
+  grid-template-columns: 100%;
 }
 
-#ovwTop {
-  grid-column-start: 1;
-  grid-column-end: 4;
-}
-
-#ovwSideA {
-  display: grid;
-  grid-row-gap: 5%;
-  grid-template-rows: 5% 25% 25%;
-  grid-template-areas:
-    "peakHours"
-    "peakDays";
-}
-
-#ovwCenter {
-  display: grid;
-  grid-row-gap: 5%;
-  grid-template-rows: 15% 50% 30%;
-  grid-template-areas:
-    "lastEntry"
-    "ovc"
-    "todayStats";
-}
-
-#ovwSideB {
-  display: grid;
-  grid-row-gap: 5%;
-  grid-template-rows: 47.5% 47.5%;
-  grid-template-areas:
-    "peakDays"
-    "ovwSideBA";
-}
-
-#ovw {
+#overview {
   display: grid;
   grid-column-gap: 2.5%;
   grid-row-gap: 5%;
   grid-template-rows: 10% 85%;
   grid-template-columns: 15% 65% 15%;
-  grid-template-areas:
-    "ovwTop"
-    "ovwSideA ovwCenter ovwSideB";
 }
 
-#lis {
+#overviewTop {
+  grid-column-start: 1;
+  grid-column-end: 4;
+}
+
+#overviewLeft {
+  display: grid;
+  grid-row-gap: 5%;
+  grid-template-rows: 5% 25% 25%;
+}
+
+#overviewCenter {
+  display: grid;
+  grid-row-gap: 5%;
+  grid-template-rows: 15% 50% 30%;
+}
+
+#overviewRight {
+  display: grid;
+  grid-row-gap: 5%;
+  grid-template-rows: 47.5% 47.5%;
+}
+
+#details {
   grid-column-gap: 5%;
   grid-template-columns: 10% 85%;
-  grid-template-areas:
-    "lisSideA lisCenter";
 }
 
-#sec {
+#sectorDetails {
   grid-column-gap: 5%;
   grid-template-columns: 75% 20%;
-  grid-template-areas:
-    "secDetails secList";
 }
 
-#secStat {
+#sectorStats {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 45% auto auto auto;
-  grid-template-areas:
-    "secChart"
-    "secStats"
-    "secPeaks"
-    "secFocus";
 }
 
-#pro {
+#projectDetails {
   grid-column-gap: 5%;
   grid-template-columns: 75% 20%;
-  grid-template-areas:
-    "proDetails proList";
 }
 
-#proStat {
+#projectStats {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 45% auto auto auto;
-  grid-template-areas:
-    "proChart"
-    "proStats"
-    "proPeaks"
-    "proFocus";
 }
 
-#vis {
+#visualisation {
   grid-row-gap: 2.5%;
   grid-template-rows: 5% 90%;
   grid-template-columns: auto;
@@ -205,7 +162,7 @@ body {
     "visual";
 }
 
-#gui {
+#guide {
   grid-column-gap: 2.5%;
   grid-template-columns: 15% 40% 40%;
   grid-template-areas:

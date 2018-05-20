@@ -1,50 +1,50 @@
+'use strict';
+
 Log.vis = {
 
-  /**
-   * Display line visualisation
-   * @param {Object[]} data - Data
-   * @param {Object} con - Container
-   */
-  line(data, con) {
-    if (data === undefined || con === undefined) return;
-
-    const l = data.length;
-
-    if (typeof data !== 'object' || l === 0) return;
+  axisLines(con, avg = undefined) {
+    if (con === undefined) return;
     if (typeof con !== 'object' || con === null) return;
 
+    con.innerHTML = '';
+
     const frag = document.createDocumentFragment();
-    const rowEl = document.createElement('div');
-    const entryEl = document.createElement('div');
+    const div = document.createElement('div');
+    const cl = 'psa wf bt o1';
 
-    rowEl.className = 'db wf sh1 mt2 mb2 visRow';
-    entryEl.className = 'psr t0 hf mb1 lf';
+    div.className = cl;
 
-    for (let i = 0; i < l; i++) {
-      const row = rowEl.cloneNode();
-      frag.appendChild(row);
+    const l1 = div.cloneNode();
+    const l2 = div.cloneNode();
+    const l3 = div.cloneNode();
+    const l4 = div.cloneNode();
+    const l5 = div.cloneNode();
 
-      if (data[i].length === 0) continue;
-      for (let o = 0, ol = data[i].length; o < ol; o++) {
-        const entry = entryEl.cloneNode();
-        // const detail = user.log[data[i][o].id];
-        // entry.title = `${detail.c} - ${detail.t} - ${detail.d}`;
-        entry.style.backgroundColor = data[i][o].col;
-        entry.style.marginLeft = data[i][o].mg;
-        entry.style.width = data[i][o].wd;
-        row.appendChild(entry);
-      }
+    l5.className = `${cl} b0`;
+
+    l4.style.top = '75%';
+    l3.style.top = '50%';
+    l2.style.top = '25%';
+
+    frag.appendChild(l1);
+    frag.appendChild(l2);
+    frag.appendChild(l3);
+    frag.appendChild(l4);
+    frag.appendChild(l5);
+
+    if (avg !== undefined) {
+      if (typeof avg !== 'number' || avg === 0) return;
+      const ind = document.createElement('div');
+      ind.style.color = `${Log.config.ui.accent}`;
+      ind.style.bottom = `${avg}%`;
+      ind.className = 'psa wf bt';
+      frag.appendChild(ind);
     }
 
     con.appendChild(frag);
   },
 
-  /**
-   * Display a bar visualisation
-   * @param {Object[]} data - Data
-   * @param {Object} con - Container
-   */
-  bar(data, con) {
+  barChart(data, con) {
     if (data === undefined || con === undefined) return;
 
     const l = data.set.length;
@@ -52,96 +52,280 @@ Log.vis = {
     if (typeof data !== 'object' || l === 0) return;
     if (typeof con !== 'object' || con === null) return;
 
-    Log.vis.gridLines(con, data.avg);
+    con.innerHTML = '';
+
+    Log.vis.axisLines(con, data.avg);
 
     const frag = document.createDocumentFragment();
-    const columnEl = document.createElement('div');
-    const entryEl = document.createElement('div');
+    const col = document.createElement('div');
+    const ent = document.createElement('div');
 
-    columnEl.className = 'dib psr hf';
-    columnEl.style.width = `${100 / Log.config.ui.view}%`;
-    entryEl.className = 'psa sw1';
+    col.style.width = `${100 / Log.config.ui.view}%`;
+    col.className = 'dib psr hf';
+
+    ent.className = 'psa sw1';
 
     for (let i = 0; i < l; i++) {
-      const column = columnEl.cloneNode();
-      frag.appendChild(column);
+      const c = col.cloneNode();
+
+      frag.appendChild(c);
 
       if (data.set[i].length === 0) continue;
       for (let o = 0, ol = data.set[i].length; o < ol; o++) {
-        const entry = entryEl.cloneNode();
-        entry.style.backgroundColor = data.set[i][o].col;
-        entry.style.bottom = data.set[i][o].pos;
-        entry.style.height = data.set[i][o].wh;
-        column.appendChild(entry);
+        const e = ent.cloneNode();
+
+        e.style.backgroundColor = data.set[i][o].col;
+        e.style.bottom = data.set[i][o].pos;
+        e.style.height = data.set[i][o].wh;
+
+        c.appendChild(e);
       }
     }
 
     con.appendChild(frag);
   },
 
-  /**
-   * Display a day chart
-   * @param {Object} [date] - Date
-   * @param {Object} [con] - Container
-   */
-  day(date = new Date(), con = dyc) {
-    if (typeof date !== 'object') return;
+  dayChart(ent, con) {
+    if (ent === undefined || con === undefined) return;
+
+    const l = ent.length;
+
+    if (typeof ent !== 'object' || l === 0) return;
     if (typeof con !== 'object' || con === null) return;
 
-    const frag = document.createDocumentFragment();
-    const ent = Log.data.entries.byDate(date);
-    if (ent.length === 0) return;
+    con.innerHTML = '';
 
-    let colour = '';
+    const frag = document.createDocumentFragment();
+    const entryEl = document.createElement('span');
+
+    let colour = Log.config.ui.colour;
+    let lastPercentage = 0;
+    let lastWidth = 0;
+
     switch (Log.config.ui.colourMode) {
       case 'sector':
-      case 'sec':
         colour = 'sc';
         break;
       case 'project':
-      case 'pro':
         colour = 'pc';
         break;
       default:
-        colour = Log.config.ui.colour;
         break;
     }
 
-    let lastWidth = 0;
-    let lastPercentage = 0;
+    entryEl.className = 'hf lf';
 
-    const enEl = document.createElement('span');
-    enEl.className = 'hf lf';
-
-    for (let i = 0, l = ent.length; i < l; i++) {
+    for (let i = 0; i < l; i++) {
       if (ent[i].e === undefined) continue;
 
-      const wd = ent[i].dur * 3600 / 86400 * 100;
-      const en = enEl.cloneNode();
-      const dp = Log.utils.calcDP(ent[i].s);
+      const width = ent[i].dur * 3600 / 86400 * 100;
+      const entry = entryEl.cloneNode();
+      const dp = Log.calcDurPercent(ent[i].s);
 
-      en.style.marginLeft = `${dp - (lastWidth + lastPercentage)}%`;
-      en.style.backgroundColor = ent[i][colour] || colour;
-      en.style.width = `${wd}%`;
-      en.title = `${ent[i].c} - ${ent[i].t} - ${ent[i].d}`;
+      entry.style.marginLeft = `${dp - (lastWidth + lastPercentage)}%`;
+      entry.title = `${ent[i].c} - ${ent[i].t} - ${ent[i].d}`;
+      entry.style.backgroundColor = ent[i][colour] || colour;
+      entry.style.width = `${width}%`;
 
-      frag.appendChild(en);
+      frag.appendChild(entry);
 
-      lastWidth = wd;
+      lastWidth = width;
       lastPercentage = dp;
     }
 
     con.appendChild(frag);
   },
 
-  /**
-   * Display peak days chart
-   * @param {number} mode - Hours (0) or days (1)
-   * @param {Object[]} peaks - Peaks
-   * @param {Object} con - Container
-   */
+  focusBar(mode, val, con) {
+    if (mode === undefined || val === undefined || con === undefined) return;
+    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
+
+    const l = val.length;
+
+    if (typeof val !== 'object' || l === 0) return;
+    if (typeof container !== 'object' || con === null) return;
+
+    con.innerHTML = '';
+
+    const pal = mode === 0 ? Log.palette : Log.projectPalette;
+    const frag = document.createDocumentFragment();
+    const div = document.createElement('div');
+
+    div.className = 'hf lf';
+
+    for (let i = 0; i < l; i++) {
+      const seg = div.cloneNode();
+      seg.style.backgroundColor = pal[val[i][0]] || Log.config.ui.colour;
+      seg.style.width = `${val[i][1]}%`;
+      frag.appendChild(seg);
+    }
+
+    con.appendChild(frag);
+  },
+
+  focusChart(mode, ent, con = focusChart) {
+    if (mode === undefined) return;
+
+    const l = ent.length;
+
+    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
+    if (typeof ent !== 'object' || l === 0) return;
+    if (typeof con !== 'object' || con === null) return;
+
+    con.innerHTML = '';
+
+    const func = mode === 0 ? Log.data.listSectors : Log.data.listProjects;
+    const frag = document.createDocumentFragment();
+    const col = document.createElement('div');
+    const core = document.createElement('div');
+
+    col.style.width = `${100 / l}%`;
+    col.className = 'dib hf';
+
+    core.style.backgroundColor = Log.config.ui.colour;
+    core.className = 'psa sw1 b0';
+
+    for (let i = 0; i < l; i++) {
+      const list = func(ent[i]);
+      const cl = col.cloneNode();
+      const cr = core.cloneNode();
+
+      cr.style.height = `${list === undefined ? 0 : 1 / list.length * 100}%`;
+
+      cl.appendChild(cr);
+      frag.appendChild(cl);
+    }
+
+    con.appendChild(frag);
+  },
+
+  legend(mode, val, con) {
+    if (mode === undefined || val === undefined || con === undefined) return;
+    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
+
+    const l = val.length;
+
+    if (typeof val !== 'object' || l === 0) return;
+    if (typeof con !== 'object' || con === null) return;
+
+    con.innerHTML = '';
+
+    const frag = document.createDocumentFragment();
+    const itemEl = document.createElement('li');
+    const iconEl = document.createElement('div');
+    const infoEl = document.createElement('div');
+
+    let nav = 'Log.nav.toSectorDetail';
+    let pal = Log.palette;
+
+    if (mode === 1) {
+      nav = 'Log.nav.toProjectDetail';
+      pal = Log.projectPalette;
+    }
+
+    iconEl.className = 'dib sh3 sw3 mr2 brf vm c-pt';
+    infoEl.className = 'dib vm sw6 elip tnum';
+    itemEl.className = 'c3 mb3 f6 lhc';
+
+    for (let i = 0; i < l; i++) {
+      const item = itemEl.cloneNode();
+      const icon = iconEl.cloneNode();
+      const info = infoEl.cloneNode();
+
+      icon.style.backgroundColor = pal[val[i][0]] || Log.config.ui.colour;
+      info.innerHTML = `${val[i][1].toFixed(2)}% ${val[i][0]}`;
+      icon.setAttribute('onclick', `${nav}('${val[i][0]}')`);
+
+      item.appendChild(icon);
+      item.appendChild(info);
+      frag.appendChild(item);
+    }
+
+    con.appendChild(frag);
+  },
+
+  list(mode, sort, con, ent = Log.log) {
+    if (mode === undefined || sort === undefined || con === undefined) return;
+    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
+
+    const l = sort.length;
+
+    if (typeof sort !== 'object' || l === 0) return;
+    if (typeof con !== 'object' || con === null) return;
+    if (typeof ent !== 'object' || ent.length === 0) return;
+
+    con.innerHTML = '';
+
+    const frag = document.createDocumentFragment();
+    const lh = Log.data.logHours(ent);
+
+    let func = Log.data.getEntriesBySector;
+    let pal = Log.palette;
+    let key = 'Sector';
+
+    if (mode === 1) {
+      func = Log.data.getEntriesByProject;
+      pal = Log.projectPalette;
+      key = 'Project';
+    }
+
+    const itemEl = document.createElement('li');
+    const nameEl = document.createElement('span');
+    const durEl = document.createElement('span');
+    const barEl = document.createElement('div');
+
+    nameEl.className = 'dib xw6 elip';
+    durEl.className = 'rf tnum';
+    barEl.className = 'sh1';
+
+    for (let i = 0; i < l; i++) {
+      const colour = Log.config.ui.colourMode === 'none' ?
+        Log.config.ui.colour : pal[sort[i][0]];
+
+      const item = itemEl.cloneNode();
+      const name = nameEl.cloneNode();
+      const dur = durEl.cloneNode();
+      const bar = barEl.cloneNode();
+
+      name.innerHTML = sort[i][0];
+      dur.innerHTML = Log.displayStat(sort[i][1]);
+
+      item.setAttribute('onclick', `Log.nav.to${key}Detail('${sort[i][0]}')`);
+      item.className = `${i === l - 1 ? 'mb0' : 'mb4'} c-pt`;
+
+      bar.style.width = `${Log.data.logHours(func(sort[i][0], ent)) / lh * 100}%`;
+      bar.style.backgroundColor = colour || Log.config.ui.colour;
+
+      item.appendChild(name);
+      item.appendChild(dur);
+      item.appendChild(bar);
+      frag.appendChild(item);
+    }
+
+    con.appendChild(frag);
+  },
+
+  meterLines(con) {
+    if (con === undefined) return;
+    if (typeof con !== 'object') return;
+
+    const frag = document.createDocumentFragment();
+    const line = document.createElement('div');
+
+    for (let i = 0, x = 0; i < 24; i++) {
+      const l = line.cloneNode();
+      l.className = `psa ${i % 2 === 0 ? 'h5' : 'hf'} br o7`;
+      l.style.left = `${x += 4.17}%`;
+      frag.appendChild(l);
+    }
+
+    con.appendChild(frag);
+  },
+
   peakChart(mode, peaks, con) {
-    if (mode === undefined || peaks === undefined || con === undefined) return;
+    if (
+      mode === undefined || peaks === undefined || con === undefined
+    ) return;
 
     const l = peaks.length;
 
@@ -149,296 +333,81 @@ Log.vis = {
     if (typeof peaks !== 'object' || l === 0) return;
     if (typeof con !== 'object' || con === null) return;
 
+    con.innerHTML = '';
+
     const frag = document.createDocumentFragment();
+    const columnEl = document.createElement('div');
+    const mantleEl = document.createElement('div');
+    const coreEl = document.createElement('div');
     const max = Math.max(...peaks);
 
-    let now, label;
+    let now = new Date().getHours();
+    let label = 'Log.setTimeLabel';
 
-    if (mode === 0) {
-      now = (new Date()).getHours();
-      label = 'Log.label.setTime';
-    } else {
-      now = (new Date()).getDay();
-      label = 'Log.label.setDay';
+    if (mode === 1) {
+      now = new Date().getDay();
+      label = 'Log.setDayLabel';
     }
 
-    const colEl = document.createElement('div');
-    const innEl = document.createElement('div');
-    const corEl = document.createElement('div');
-
-    colEl.className = 'dib hf psr';
-    colEl.style.width = `${100 / l}%`;
-    corEl.className = 'psa b0 sw1 c-pt hoverCol';
-    innEl.className = 'sw1 hf cn';
+    columnEl.className = 'dib hf psr';
+    columnEl.style.width = `${100 / l}%`;
+    mantleEl.className = 'sw1 hf cn';
+    coreEl.className = 'psa b0 sw1 c-pt hoverCol';
 
     for (let i = 0; i < l; i++) {
-      const col = colEl.cloneNode();
-      const inn = innEl.cloneNode();
-      const cor = corEl.cloneNode();
+      const column = columnEl.cloneNode();
+      const mantle = mantleEl.cloneNode();
+      const core = coreEl.cloneNode();
 
-      cor.setAttribute('onmouseover', `${label}(${i})`);
-      cor.setAttribute('onmouseout', `${label}()`);
-
-      cor.style.backgroundColor = i === now ?
+      core.style.height = `${peaks[i] / max * 100}%`;
+      core.style.backgroundColor = i === now ?
         Log.config.ui.accent : Log.config.ui.colour;
 
-      cor.style.height = `${peaks[i] / max * 100}%`;
+      core.setAttribute('onmouseover', `${label}(${i})`);
+      core.setAttribute('onmouseout', `${label}()`);
 
-      inn.appendChild(cor);
-      col.appendChild(inn);
-      frag.appendChild(col);
+      mantle.appendChild(core);
+      column.appendChild(mantle);
+      frag.appendChild(column);
     }
 
     con.appendChild(frag);
   },
 
-  /**
-   * List sectors or projects
-   * @param {number} mode - Sector (0) or project (1)
-   * @param {number} val - Hours (0) or percentages (1)
-   * @param {Object} con - Container
-   * @param {Object[]} [ent] - Entries
-   */
-  list(mode, val, con, ent = Log.log) {
-    if (mode === undefined || val === undefined || con === undefined) return;
-    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
-    if (typeof val !== 'number' || val < 0 || val > 1) return;
-    if (typeof con !== 'object' || con === null) return;
-    if (typeof ent !== 'object' || ent.length === 0) return;
+  visualisation(data) {
+    if (data === undefined) return;
 
+    const l = data.length;
+
+    if (typeof data !== 'object' || l === 0) return;
+
+    const con = document.getElementById('visual');
     const frag = document.createDocumentFragment();
-    const arr = Log.data.sortValues(ent, mode, val);
-    const lhe = Log.data.lh(ent);
+    const ent = document.createElement('div');
+    const row = document.createElement('div');
 
-    let col = '';
-    let wid = 0;
-    let key = '';
-    let palette = {};
-
-    if (mode === 0) {
-      key = 'sec';
-      palette = Log.palette;
-    } else {
-      key = 'pro';
-      palette = Log.projectPalette;
-    }
-
-    const namEl = document.createElement('span');
-    const durEl = document.createElement('span');
-    const barEl = document.createElement('div');
-
-    namEl.className = 'dib xw6 elip';
-    durEl.className = 'rf tnum';
-    barEl.className = 'sh1';
-
-    for (let i = 0, l = arr.length; i < l; i++) {
-      const itm = document.createElement('li')
-      const nam = namEl.cloneNode();
-      const dur = durEl.cloneNode();
-      const bar = barEl.cloneNode();
-
-      wid = mode === 0 ?
-        Log.data.lh(Log.data.entries.bySec(arr[i][0], ent)) / lhe * 100 :
-        Log.data.lh(Log.data.entries.byPro(arr[i][0], ent)) / lhe * 100;
-
-      col = Log.config.ui.colourMode === 'none' ?
-        Log.config.ui.colour : palette[arr[i][0]];
-
-      itm.className = `${i === arr.length - 1 ? 'mb0' : 'mb4'} c-pt`;
-      itm.setAttribute('onclick', `Log.detail.${key}('${arr[i][0]}')`);
-
-      nam.innerHTML = arr[i][0];
-      dur.innerHTML = Log.stat(arr[i][1]);
-
-      bar.style.backgroundColor = col || Log.config.ui.colour;
-      bar.style.width = `${wid}%`;
-
-      itm.appendChild(nam);
-      itm.appendChild(dur);
-      itm.appendChild(bar);
-      frag.appendChild(itm);
-    }
-
-    con.appendChild(frag);
-  },
-
-  /**
-   * Display a focus distribution bar
-   * @param {number} mod - Sector (0) or project (1)
-   * @param {Object[]} [ent] - Entries
-   * @param {Object} [con] - Container
-   */
-  focusBar(mod, ent = Log.log, con = focusBar) {
-    if (mod === undefined) return;
-    if (typeof mod !== 'number' || mod < 0 || mod > 1) return;
-    if (typeof ent !== 'object' || ent.length === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    const frag = document.createDocumentFragment();
-    const val = Log.data.sortValues(ent, mod, 1);
-    const pal = mod === 0 ? Log.palette : Log.projectPalette;
-    const divEl = document.createElement('div');
-
-    divEl.className = 'hf lf';
-
-    for (let i = 0, l = val.length; i < l; i++) {
-      const div = divEl.cloneNode();
-      div.style.backgroundColor = pal[val[i][0]] || Log.config.ui.colour;
-      div.style.width = `${val[i][1]}%`;
-      frag.appendChild(div);
-    }
-
-    con.appendChild(frag);
-  },
-
-  /**
-   * Create legend
-   * @param {number} mod - Sector (0) or project (1)
-   * @param {Object[]} [ent] - Entries
-   * @param {string} [con] - Container
-   */
-  legend(mod, ent = Log.log, con = document.getElementById('legend')) {
-    if (mod === undefined) return;
-    if (typeof mod !== 'number' || mod < 0 || mod > 1) return;
-    if (typeof ent !== 'object' || ent.length === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    const frag = document.createDocumentFragment();
-    const val = Log.data.sortValues(ent, mod, 1);
-    let pal, nav;
-
-    if (mod === 0) {
-      pal = Log.palette;
-      nav = 'Log.nav.toSecDetail';
-    } else {
-      pal = Log.projectPalette;
-      nav = 'Log.nav.toProDetail';
-    }
-
-    const itmEl = document.createElement('li');
-    const icoEl = document.createElement('div');
-    const infEl = document.createElement('div');
-
-    itmEl.className = 'c3 mb3 f6 lhc';
-    icoEl.className = 'dib sh3 sw3 mr2 brf vm c-pt';
-    infEl.className = 'dib vm sw6 elip tnum';
-
-    for (let i = 0, l = val.length; i < l; i++) {
-      const col = pal[val[i][0]] || Log.config.ui.colour;
-      const itm = itmEl.cloneNode();
-      const ico = icoEl.cloneNode();
-      const inf = infEl.cloneNode();
-
-      ico.style.backgroundColor = col;
-      ico.setAttribute('onclick', `${nav}('${val[i][0]}')`);
-      inf.innerHTML = `${val[i][1].toFixed(2)}% ${val[i][0]}`;
-
-      itm.appendChild(ico);
-      itm.appendChild(inf);
-      frag.appendChild(itm);
-    }
-
-    con.appendChild(frag);
-  },
-
-  /**
-   * Display a focus chart
-   * @param {number} mod - Sector (0) or project (1)
-   * @param {Object[]} [ent] - Entries
-   * @param {string} [con] - Container
-   */
-  focusChart(mod, ent = Log.log, con = focusChart) {
-    if (mod === undefined) return;
-    if (typeof mod !== 'number' || mod < 0 || mod > 1) return;
-    if (typeof ent !== 'object' || ent.length === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    const frag = document.createDocumentFragment();
-    const set = Log.data.sortEnt(ent);
-    const l = set.length;
-    const wid = `${100 / l}%`;
-    const listFunc = mod === 0 ?
-      Log.data.listSec : Log.data.listPro;
-
-    const colEl = document.createElement('div');
-    const innEl = document.createElement('div');
-
-    colEl.className = 'dib hf';
-    colEl.style.width = `${100 / l}%`;
-
-    innEl.className = 'psa sw1 b0';
-    innEl.style.backgroundColor = Log.config.ui.colour;
-
-    for (let i = 0; i < l; i++) {
-      const list = listFunc(set[i]);
-      const col = colEl.cloneNode();
-      const inn = innEl.cloneNode();
-
-      inn.style.height = `${list === undefined ? 0 : 1 / list.length * 100}%`;
-
-      col.appendChild(inn);
-      frag.appendChild(col);
-    }
-
-    con.appendChild(frag);
-  },
-
-  /**
-   * Create chart lines
-   * @param {Object} con - Container
-   * @param {number} [avg] - Average log hours
-   */
-  gridLines(con, avg = undefined) {
-    if (con === undefined) return;
-    if (typeof con !== 'object' || con === null) return;
+    row.className = 'db wf sh1 mt2 mb2 visRow';
+    ent.className = 'psr t0 hf mb1 lf';
 
     con.innerHTML = '';
 
-    const d1 = document.createElement('div');
-    const d2 = document.createElement('div');
-    const d3 = document.createElement('div');
-    const d4 = document.createElement('div');
-    const d5 = document.createElement('div');
-    const cl = 'psa wf bt o1';
+    for (let i = 0; i < l; i++) {
+      const r = row.cloneNode();
 
-    d5.className = `${cl} b0`;
-    d4.className = cl;
-    d3.className = cl;
-    d2.className = cl;
-    d1.className = cl;
+      frag.appendChild(r);
 
-    d4.style.top = '75%';
-    d3.style.top = '50%';
-    d2.style.top = '25%';
+      if (data[i].length === 0) continue;
+      for (let o = 0, ol = data[i].length; o < ol; o++) {
+        const e = ent.cloneNode();
 
-    con.appendChild(d1);
-    con.appendChild(d2);
-    con.appendChild(d3);
-    con.appendChild(d4);
-    con.appendChild(d5);
+        e.style.backgroundColor = data[i][o].col;
+        e.style.marginLeft = data[i][o].mg;
+        e.style.width = data[i][o].wd;
 
-    if (avg !== undefined) {
-      const al = document.createElement('div');
-      al.className = 'psa wf bt';
-      al.style.bottom = `${avg}%`;
-      al.style.color = `${Log.config.ui.accent}`
-      con.appendChild(al);
+        r.appendChild(e);
+      }
     }
-  },
 
-  /**
-   * Create meter lines
-   * @param {Object} c - Container
-   */
-  meterLines(c) {
-    if (c === undefined) return;
-    if (typeof c !== 'object') return;
-    for (let i = 0, l = 0; i < 24; i++) {
-      l += 4.17;
-      const d = document.createElement('div');
-      d.className = `psa ${i % 2 === 0 ? 'h5' : 'hf'} br o7`;
-      d.style.left = `${l}%`;
-      c.appendChild(d);
-    }
+    con.appendChild(frag);
   },
 };

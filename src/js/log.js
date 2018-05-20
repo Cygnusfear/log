@@ -1,6 +1,6 @@
 /**
  * Log
- * A log and time-tracking system
+ * A log and time-tracking utility
  *
  * @author Josh Avanier
  * @license MIT
@@ -9,27 +9,20 @@
 'use strict';
 
 let user = {};
-
-const mainSectors = [phc, pdc, dyc, ovc, pth, pdh, secBars, proBars, secList, proList, visual, logbook, focusChart, secFocBar, secLegSum, jDyc, jEnt, cal];
-
-const secSectors = [secChart, sPKH, sPKD, proFocDetail, proLeg, sFoc, secLog];
-const proSectors = [proChart, secFocDetail, secLeg, pPKH, pPKD, pFoc, proLog];
-
 let secDetailCache = {};
 let proDetailCache = {};
 
 var Log = {
 
   path: '',
-  modalFocus: false,
+  modalMode: false,
 
-  log: [],
   config: {},
+  log: [],
   palette: {},
   projectPalette: {},
-  clock: {},
 
-  bin: [],
+  clock: {},
 
   keyEventInitialized: false,
 
@@ -41,27 +34,19 @@ var Log = {
     pkh: [],
     pkd: [],
     pro: [],
-    sec: []
+    sec: [],
   },
 
-  cmdIndex: 0,
+  commanderIndex: 0,
 
-  /**
-   * Get log status; true means a session is in progress
-   * @returns {boolean} Log status
-   */
   status() {
     if (Log.log.length === 0) return;
     return Log.log.slice(-1)[0].e === undefined;
   },
 
-  /**
-   * Display a session timer
-   * @param {boolean} status - Log status
-   */
-  timer(status) {
-    if (!status) return;
-    const l = Log.time.convert(Log.log.slice(-1)[0].s).getTime();
+  timer() {
+    if (!Log.status()) return;
+    const l = Log.time.toEpoch(Log.log.slice(-1)[0].s).getTime();
     const clock = document.getElementById('timer');
 
     Log.clock = setInterval(_ => {
@@ -77,22 +62,12 @@ var Log = {
     }, 1E3);
   },
 
-  /**
-   * Play a sound effect
-   * @param {string} sound - name of the sound file in /media
-   */
-  playSoundEffect(sound) {
+  playSound(sound) {
     const audio = new Audio(`${__dirname}/media/${sound}.mp3`);
     audio.play();
   },
 
-  /**
-   * Display a log table
-   * @param {Object[]} [ent] - Entries
-   * @param {number} [num] - Number of entries to show
-   * @param {string} [con] - Container
-   */
-  display(ent = user.log, num = 50, con = logbook) {
+  displayEntryTable(ent = user.log, num = 50, con = logbook) {
     if (typeof ent !== 'object' || ent.length === 0) return;
     if (typeof num !== 'number') return;
     if (typeof con !== 'object' || con === null) return;
@@ -100,56 +75,50 @@ var Log = {
     const arr = ent.slice(ent.length - num).reverse();
 
     for (let i = 0, l = arr.length; i < l; i++) {
-      const rw = con.insertRow(i);
-      const ic = rw.insertCell(0); // ID
-      const dc = rw.insertCell(1); // date
-      const tc = rw.insertCell(2); // time
-      const rc = rw.insertCell(3); // duration
-      const sc = rw.insertCell(4); // sector
-      const pc = rw.insertCell(5); // project
-      const nc = rw.insertCell(6); // description
+      const row = con.insertRow(i);
+      const id = row.insertCell(0);
+      const date = row.insertCell(1);
+      const time = row.insertCell(2);
+      const span = row.insertCell(3);
+      const sec = row.insertCell(4);
+      const pro = row.insertCell(5);
+      const desc = row.insertCell(6);
 
-      const dt = Log.time.convert(arr[i].s);
-      const st = Log.time.stamp(dt);
+      const startDate = Log.time.toEpoch(arr[i].s);
+      const startTime = Log.time.stamp(startDate);
 
-      rw.id = `tr-${ent.length - i - 1}`;
+      row.id = `tr-${ent.length - i - 1}`;
 
-      ic.setAttribute('onclick', `Log.edit(${ent.length - i - 1})`);
+      id.setAttribute('onclick', `Log.edit(${ent.length - i - 1})`);
+      id.className = 'pl0 c-pt hover';
+      id.innerHTML = ent.length - i;
 
-      ic.className = 'pl0 c-pt hover';
-      ic.innerHTML = ent.length - i;
-
-      dc.className = 'c-pt hover';
-      dc.innerHTML = Log.time.displayDate(dt);
-      dc.setAttribute('onclick', `Log.nav.toJournal('${arr[i].s}')`);
+      date.setAttribute('onclick', `Log.nav.toJournal('${arr[i].s}')`);
+      date.innerHTML = Log.time.displayDate(startDate);
+      date.className = 'c-pt hover';
 
       if (arr[i].e === undefined) {
-        tc.innerHTML = st;
-        rc.innerHTML = '—';
+        time.innerHTML = startTime;
+        span.innerHTML = '—';
       } else {
-        tc.innerHTML = `${st} – ${Log.time.stamp(Log.time.convert(arr[i].e))}`;
-        rc.innerHTML = Log.stat(Log.time.duration(arr[i].s, arr[i].e));
+        time.innerHTML = `${startTime} – ${Log.time.stamp(Log.time.toEpoch(arr[i].e))}`;
+        span.innerHTML = Log.displayStat(Log.time.duration(arr[i].s, arr[i].e));
       }
 
-      sc.innerHTML = arr[i].c;
-      sc.className = 'c-pt hover';
-      sc.setAttribute('onclick', `Log.nav.toSecDetail('${arr[i].c}')`);
+      sec.setAttribute('onclick', `Log.nav.toSectorDetail('${arr[i].c}')`);
+      sec.className = 'c-pt hover';
+      sec.innerHTML = arr[i].c;
 
-      pc.innerHTML = arr[i].t;
-      pc.className = 'c-pt hover';
-      pc.setAttribute('onclick', `Log.nav.toProDetail('${arr[i].t}')`);
+      pro.setAttribute('onclick', `Log.nav.toProjectDetail('${arr[i].t}')`);
+      pro.className = 'c-pt hover';
+      pro.innerHTML = arr[i].t;
 
-      nc.className = 'pr0'
-      nc.innerHTML = arr[i].d;
+      desc.className = 'pr0'
+      desc.innerHTML = arr[i].d;
     }
   },
 
-  /**
-   * Display a stat
-   * @param {number} value - Value
-   * @returns {string} Stat
-   */
-  stat(value) {
+  displayStat(value) {
     if (Log.config.ui.stat === 'human') {
       const split = value.toString().split('.');
       return `${split[0]}:${`0${(Number(`0.${split[1]}`) * 60).toFixed(0)}`.substr(-2)}`;
@@ -166,7 +135,7 @@ var Log = {
     editStart.value = '';
     editEnd.value = '';
 
-    editID.innerHTML = `Entry #${id + 1}`;
+    editID.innerHTML = `Entry ${id + 1}`;
 
     editEntryID.value = id;
 
@@ -174,17 +143,17 @@ var Log = {
     editProject.value = entry.t;
     editDesc.value = entry.d;
 
-    const start = Log.time.convert(entry.s);
+    const start = Log.time.toEpoch(entry.s);
 
     editStart.value = `${start.getFullYear()}-${`0${start.getMonth() + 1}`.substr(-2)}-${`0${start.getDate()}`.substr(-2)}T${`0${start.getHours()}`.substr(-2)}:${`0${start.getMinutes()}`.substr(-2)}:${`0${start.getSeconds()}`.substr(-2)}`;
 
     if (entry.e !== undefined) {
-      const end = Log.time.convert(entry.e);
+      const end = Log.time.toEpoch(entry.e);
 
       editEnd.value = `${end.getFullYear()}-${`0${end.getMonth() + 1}`.substr(-2)}-${`0${end.getDate()}`.substr(-2)}T${`0${end.getHours()}`.substr(-2)}:${`0${end.getMinutes()}`.substr(-2)}:${`0${end.getSeconds()}`.substr(-2)}`;
     }
 
-    Log.modalFocus = true;
+    Log.modalMode = true;
     document.getElementById('editModal').showModal();
   },
 
@@ -228,14 +197,19 @@ var Log = {
         const dc = document.createElement('p');
 
         li.className = 'f6 lhc pb3 mb3';
+
         id.className = 'mr3 o7';
         id.innerHTML = i;
+
         tm.className = 'mr3 o7';
-        tm.innerHTML = `${Log.time.stamp(Log.time.convert(ent.s))} &ndash; ${Log.time.stamp(Log.time.convert(ent.e))}`;
+        tm.innerHTML = `${Log.time.stamp(Log.time.toEpoch(ent.s))} &ndash; ${Log.time.stamp(Log.time.toEpoch(ent.e))}`;
+
         sc.className = 'mr3 o7';
         sc.innerHTML = ent.c;
+
         pr.className = 'o7';
         pr.innerHTML = ent.t;
+
         dc.className = 'f4 lhc';
         dc.innerHTML = ent.d;
 
@@ -248,16 +222,16 @@ var Log = {
       });
     }
 
-    delModal.showModal();
-
     delConfirm.setAttribute('onclick', `Log.deleteIt('${i}')`);
+
+    delModal.showModal();
   },
 
   /**
    * Hacky solution
    */
   deleteIt(i) {
-    Log.console.delete(i);
+    Log.console.deleteEntry(i);
     delModal.close();
   },
 
@@ -301,248 +275,239 @@ var Log = {
     journalCache = {};
 
     document.getElementById('editModal').close();
-    Log.modalFocus = false;
+    Log.modalMode = false;
 
     Log.refresh();
   },
 
-  detail: {
+  sectorDetails(sec = Log.cache.sec.sort()[0]) {
+    if (typeof sec !== 'string' || sec.length === 0) return;
 
-    /**
-     * View sector details
-     * @param {string} sec - Sector
-     */
-    sec(sec = Log.cache.sec.sort()[0]) {
-      if (typeof sec !== 'string' || sec.length === 0) return;
+    let ent = [];
+    let his = [];
+    let dur = [];
+    let pkh = [];
+    let pkd = [];
 
-      secSectors.map(e => e.innerHTML = '');
+    if (sec in secDetailCache) {
+      ent = secDetailCache[sec].ent;
+      his = secDetailCache[sec].his;
+      dur = secDetailCache[sec].dur;
+      pkh = secDetailCache[sec].pkh;
+      pkd = secDetailCache[sec].pkd;
+    } else {
+      ent = Log.data.getEntriesBySector(
+        sec, Log.data.getRecentEntries(Log.config.ui.view - 1)
+      );
 
-      let ent = [];
-      let his = [];
-      let dur = [];
-      let pkh = [];
-      let pkd = [];
+      his = Log.data.getEntriesBySector(sec);
+      dur = Log.data.listDurations(his);
+      pkh = Log.data.peakHours(his);
+      pkd = Log.data.peakDays(his);
 
-      if (sec in secDetailCache) {
-        ent = secDetailCache[sec].ent;
-        his = secDetailCache[sec].his;
-        dur = secDetailCache[sec].dur;
-        pkh = secDetailCache[sec].pkh;
-        pkd = secDetailCache[sec].pkd;
+      secDetailCache[sec] = {
+        ent, his, dur, pkh, pkd
+      };
+    }
+
+    const sortHis = Log.data.sortEntries(his);
+    const el = ent.length;
+
+    sectorTitle.innerHTML = sec;
+
+    sectorLastUpdate.innerHTML = ent.length === 0 ?
+      `No activity in the past ${Log.config.ui.view} days` :
+      `Updated ${Log.time.timeago(Log.time.convert(ent.slice(-1)[0].e) * 1E3)}`;
+
+    sSUM.innerHTML = Log.displayStat(Log.data.calcSum(dur));
+    sMIN.innerHTML = Log.displayStat(Log.data.calcMin(dur));
+    sMAX.innerHTML = Log.displayStat(Log.data.calcMax(dur));
+    sAVG.innerHTML = Log.displayStat(Log.data.calcAvg(dur));
+    sENC.innerHTML = his.length;
+    sSTK.innerHTML = Log.data.streak(sortHis);
+    sPHH.innerHTML = Log.data.peakHour(pkh);
+    sPDH.innerHTML = Log.data.peakDay(pkd);
+
+    Log.vis.peakChart(0, pkh, sPKH);
+    Log.vis.peakChart(1, pkd, sPKD);
+
+    if (ent.length !== 0) {
+      const foci = Log.data.listFocus(1, sortHis);
+      const sortEnt = Log.data.sortEntries(ent);
+      const pfSortVal = Log.data.sortValues(his, 1, 1);
+
+      Log.vis.barChart(Log.data.bar(sortEnt, 'project'), sectorOverviewChart);
+      Log.vis.focusChart(1, sortEnt, sFoc);
+
+      sFavg.innerHTML = Log.data.calcAvg(foci).toFixed(2);
+      sFmin.innerHTML = Log.data.calcMin(foci).toFixed(2);
+      sFmax.innerHTML = Log.data.calcMax(foci).toFixed(2);
+
+      Log.vis.focusBar(1, pfSortVal, proFocDetail);
+      Log.vis.legend(1, pfSortVal, proLeg);
+    }
+
+    if (typeof ent !== 'object' || ent.length === 0) return;
+
+    const arr = Log.data.getEntriesBySector(sec);
+    const rev = arr.slice(arr.length - 100).reverse();
+
+    sectorLogs.innerHTML = '';
+
+    for (let i = 0, l = rev.length; i < l; i++) {
+      const row = sectorLogs.insertRow(i);
+      const id = row.insertCell(0);
+      const date = row.insertCell(1);
+      const time = row.insertCell(2);
+      const span = row.insertCell(3);
+      const pro = row.insertCell(4);
+      const desc = row.insertCell(5);
+
+      const startDate = Log.time.toEpoch(rev[i].s);
+      const startTime = Log.time.stamp(startDate);
+
+      id.innerHTML = rev[i].id + 1;
+      id.className = 'pl0';
+
+      date.innerHTML = Log.time.displayDate(startDate);
+
+      if (rev[i].e === undefined) {
+        time.innerHTML = startTimestartTime;
+        span.innerHTML = '–';
       } else {
-        ent = Log.data.entries.bySec(
-          sec, Log.data.recEnt(Log.config.ui.view - 1)
-        );
-
-        his = Log.data.entries.bySec(sec);
-        dur = Log.data.listDur(his);
-        pkh = Log.data.peakHours(his);
-        pkd = Log.data.peakDays(his);
-
-        secDetailCache[sec] = {
-          ent, his, dur, pkh, pkd
-        }
+        time.innerHTML = `${startTime}–${Log.time.stamp(Log.time.toEpoch(rev[i].e))}`;
+        span.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
       }
 
-      secTtl.innerHTML = sec;
+      pro.setAttribute('onclick', `Log.nav.toProjectDetail('${rev[i].t}')`);
+      pro.innerHTML = rev[i].t;
+      pro.className = 'c-pt';
 
-      sectorLastUpdate.innerHTML = ent.length === 0 ?
-        `No activity in the past ${Log.config.ui.view} days` :
-        `Updated ${Log.time.timeago(Log.time.parse(ent.slice(-1)[0].e) * 1E3)}`;
-
-      sEnt.innerHTML = his.length;
-      sLHH.innerHTML = Log.stat(Log.data.sum(dur));
-      sLNH.innerHTML = Log.stat(Log.data.min(dur));
-      sLXH.innerHTML = Log.stat(Log.data.max(dur));
-      sASD.innerHTML = Log.stat(Log.data.avg(dur));
-      sPHH.innerHTML = Log.data.peakHour(pkh);
-      sPDH.innerHTML = Log.data.peakDay(pkd);
-      sSTK.innerHTML = Log.data.streak(Log.data.sortEnt(his));
-
-      Log.vis.peakChart(0, pkh, sPKH);
-      Log.vis.peakChart(1, pkd, sPKD);
-
-      if (ent.length !== 0) {
-        const foc = Log.data.listFocus(1, Log.data.sortEnt(his));
-
-        Log.vis.bar(Log.data.bar(ent, 'project'), secChart);
-        Log.vis.focusChart(1, ent, sFoc);
-
-        sFavg.innerHTML = Log.data.avg(foc).toFixed(2);
-        sFmin.innerHTML = Log.data.min(foc).toFixed(2);
-        sFmax.innerHTML = Log.data.max(foc).toFixed(2);
-
-        Log.vis.focusBar(1, his, proFocDetail);
-        Log.vis.legend(1, his, proLeg);
-      }
-
-      if (typeof ent !== 'object' || ent.length === 0) return;
-
-      const arr = Log.data.entries.bySec(sec);
-      const rev = arr.slice(arr.length - 100).reverse();
-
-      for (let i = 0, l = rev.length; i < l; i++) {
-        const rw = secLog.insertRow(i);
-
-        const ic = rw.insertCell(0); // ID
-        const dc = rw.insertCell(1); // date
-        const tc = rw.insertCell(2); // time
-        const rc = rw.insertCell(3); // duration
-        const pc = rw.insertCell(4); // project
-        const nc = rw.insertCell(5); // description
-
-        const dt = Log.time.convert(rev[i].s);
-        const st = Log.time.stamp(dt);
-
-        ic.className = 'pl0';
-        ic.innerHTML = rev[i].id + 1;
-        dc.innerHTML = Log.time.displayDate(dt);
-
-        if (rev[i].e === undefined) {
-          tc.innerHTML = st;
-          rc.innerHTML = '–';
-        } else {
-          tc.innerHTML = `${st}–${Log.time.stamp(Log.time.convert(rev[i].e))}`;
-          rc.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
-        }
-
-        pc.className = 'c-pt';
-        pc.setAttribute('onclick', `Log.nav.toProDetail('${rev[i].t}')`);
-        pc.innerHTML = rev[i].t;
-        nc.className = 'pr0';
-        nc.innerHTML = rev[i].d;
-      }
-    },
-
-    /**
-     * View project details
-     * @param {string} pro - Project
-     */
-    pro(pro = Log.cache.pro.sort()[0]) {
-      if (typeof pro !== 'string' || pro.length === 0) return;
-
-      proSectors.map(e => e.innerHTML = '');
-
-      let ent = [];
-      let his = [];
-      let dur = [];
-      let pkh = [];
-      let pkd = [];
-
-      if (pro in proDetailCache) {
-        ent = proDetailCache[pro].ent;
-        his = proDetailCache[pro].his;
-        dur = proDetailCache[pro].dur;
-        pkh = proDetailCache[pro].pkh;
-        pkd = proDetailCache[pro].pkd;
-      } else {
-        ent = Log.data.entries.byPro(
-          pro, Log.data.recEnt(Log.config.ui.view - 1)
-        );
-
-        his = Log.data.entries.byPro(pro);
-        dur = Log.data.listDur(his);
-        pkh = Log.data.peakHours(his);
-        pkd = Log.data.peakDays(his);
-
-        proDetailCache[pro] = {
-          ent, his, dur, pkh, pkd
-        }
-      }
-
-      proTtl.innerHTML = pro;
-
-      proLastUpdate.innerHTML = ent.length === 0 ?
-        `No activity in the past ${Log.config.ui.view} days` :
-        `Updated ${Log.time.timeago(Log.time.parse(ent.slice(-1)[0].e) * 1E3)}`;
-
-      pEnt.innerHTML = his.length;
-      pLHH.innerHTML = Log.stat(Log.data.sum(dur));
-      pLNH.innerHTML = Log.stat(Log.data.min(dur));
-      pLXH.innerHTML = Log.stat(Log.data.max(dur));
-      pASD.innerHTML = Log.stat(Log.data.avg(dur));
-      pPHH.innerHTML = Log.data.peakHour(pkh);
-      pPDH.innerHTML = Log.data.peakDay(pkd);
-      pSTK.innerHTML = Log.data.streak(Log.data.sortEnt(his));
-
-      Log.vis.peakChart(0, pkh, pPKH);
-      Log.vis.peakChart(1, pkd, pPKD);
-
-      if (ent.length !== 0) {
-        const foc = Log.data.listFocus(0, Log.data.sortEnt(his));
-
-        Log.vis.bar(Log.data.bar(ent), proChart);
-        Log.vis.focusChart(0, ent, pFoc);
-
-        pFavg.innerHTML = Log.data.avg(foc).toFixed(2);
-        pFmin.innerHTML = Log.data.min(foc).toFixed(2);
-        pFmax.innerHTML = Log.data.max(foc).toFixed(2);
-
-        Log.vis.focusBar(0, his, secFocDetail);
-        Log.vis.legend(0, his, secLeg);
-      }
-
-      const arr = Log.data.entries.byPro(pro);
-      const rev = arr.slice(arr.length - 100).reverse();
-
-      for (let i = 0, l = rev.length; i < l; i++) {
-        const rw = proLog.insertRow(i);
-
-        const ic = rw.insertCell(0); // ID
-        const dc = rw.insertCell(1); // date
-        const tc = rw.insertCell(2); // time
-        const rc = rw.insertCell(3); // duration
-        const sc = rw.insertCell(4); // sector
-        const nc = rw.insertCell(5); // description
-
-        const dt = Log.time.convert(rev[i].s);
-        const st = Log.time.stamp(dt);
-
-        ic.className = 'pl0';
-        ic.innerHTML = rev[i].id + 1;
-        dc.innerHTML = Log.time.displayDate(dt);
-
-        if (rev[i].e === undefined) {
-          tc.innerHTML = `${st}`;
-          rc.innerHTML = '–';
-        } else {
-          tc.innerHTML = `${st}–${Log.time.stamp(Log.time.convert(rev[i].e))}`;
-          rc.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
-        }
-
-        sc.className = 'c-pt';
-        sc.setAttribute('onclick', `Log.nav.toSecDetail('${rev[i].c}')`);
-        sc.innerHTML = rev[i].c;
-        nc.className = 'pr0';
-        nc.innerHTML = rev[i].d;
-      }
+      desc.innerHTML = rev[i].d;
+      desc.className = 'pr0';
     }
   },
 
-  utils: {
+  projectDetails(pro = Log.cache.pro.sort()[0]) {
+    if (typeof pro !== 'string' || pro.length === 0) return;
 
-    /**
-     * Calculate DP
-     */
-    calcDP(a) {
-      if (a === undefined) return;
+    let ent = [];
+    let his = [];
+    let dur = [];
+    let pkh = [];
+    let pkd = [];
 
-      const s = Log.time.convert(a);
-      const y = s.getFullYear();
-      const m = s.getMonth();
-      const d = s.getDate();
+    if (pro in proDetailCache) {
+      ent = proDetailCache[pro].ent;
+      his = proDetailCache[pro].his;
+      dur = proDetailCache[pro].dur;
+      pkh = proDetailCache[pro].pkh;
+      pkd = proDetailCache[pro].pkd;
+    } else {
+      ent = Log.data.getEntriesByProject(
+        pro, Log.data.getRecentEntries(Log.config.ui.view - 1)
+      );
 
-      return ((
-        new Date(y, m, d, s.getHours(), s.getMinutes(), s.getSeconds())
-      ).getTime() / 1E3 - (
-          new Date(y, m, d)
-        ).getTime() / 1E3) / 86400 * 100;
+      his = Log.data.getEntriesByProject(pro);
+      dur = Log.data.listDurations(his);
+      pkh = Log.data.peakHours(his);
+      pkd = Log.data.peakDays(his);
+
+      proDetailCache[pro] = {
+        ent, his, dur, pkh, pkd
+      }
+    }
+
+    const sortHis = Log.data.sortEntries(his);
+    const el = ent.length;
+
+    projectTitle.innerHTML = pro;
+
+    projectLastUpdate.innerHTML = el === 0 ?
+      `No activity in the past ${Log.config.ui.view} days` :
+      `Updated ${Log.time.timeago(Log.time.convert(ent.slice(-1)[0].e) * 1E3)}`;
+
+    pSUM.innerHTML = Log.displayStat(Log.data.calcSum(dur));
+    pMIN.innerHTML = Log.displayStat(Log.data.calcMin(dur));
+    pMAX.innerHTML = Log.displayStat(Log.data.calcMax(dur));
+    pAVG.innerHTML = Log.displayStat(Log.data.calcAvg(dur));
+    pENC.innerHTML = his.length;
+    pSTK.innerHTML = Log.data.streak(sortHis);
+    pPHH.innerHTML = Log.data.peakHour(pkh);
+    pPDH.innerHTML = Log.data.peakDay(pkd);
+
+    Log.vis.peakChart(0, pkh, pPKH);
+    Log.vis.peakChart(1, pkd, pPKD);
+
+    if (el !== 0) {
+      const foci = Log.data.listFocus(0, sortHis);
+      const sortEnt = Log.data.sortEntries(ent);
+      const sfSortVal = Log.data.sortValues(his, 0, 1);
+
+      Log.vis.barChart(Log.data.bar(sortEnt), projectOverviewChart);
+      Log.vis.focusChart(0, sortEnt, pFoc);
+
+      pFavg.innerHTML = Log.data.calcAvg(foci).toFixed(2);
+      pFmin.innerHTML = Log.data.calcMin(foci).toFixed(2);
+      pFmax.innerHTML = Log.data.calcMax(foci).toFixed(2);
+
+      Log.vis.focusBar(0, sfSortVal, sectorFocusDistribution);
+      Log.vis.legend(0, sfSortVal, sectorLegend);
+    }
+
+    const arr = Log.data.getEntriesByProject(pro);
+    const rev = arr.slice(arr.length - 100).reverse();
+
+    projectLogs.innerHTML = '';
+
+    for (let i = 0, l = rev.length; i < l; i++) {
+      const row = projectLogs.insertRow(i);
+      const id = row.insertCell(0);
+      const date = row.insertCell(1);
+      const time = row.insertCell(2);
+      const span = row.insertCell(3);
+      const sec = row.insertCell(4);
+      const desc = row.insertCell(5);
+
+      const startDate = Log.time.toEpoch(rev[i].s);
+      const startTime = Log.time.stamp(startDate);
+
+      id.innerHTML = rev[i].id + 1;
+      id.className = 'pl0';
+
+      date.innerHTML = Log.time.displayDate(startDate);
+
+      if (rev[i].e === undefined) {
+        time.innerHTML = `${startTime}`;
+        span.innerHTML = '–';
+      } else {
+        time.innerHTML = `${startTime}–${Log.time.stamp(Log.time.toEpoch(rev[i].e))}`;
+        span.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
+      }
+
+      sec.setAttribute('onclick', `Log.nav.toSectorDetail('${rev[i].c}')`);
+      sec.innerHTML = rev[i].c;
+      sec.className = 'c-pt';
+
+      desc.innerHTML = rev[i].d;
+      desc.className = 'pr0';
     }
   },
 
-  /**
-   * Open a tab
-   */
+  calcDurPercent(hex) {
+    if (hex === undefined) return;
+    if (typeof hex !== 'string' || hex.length === 0) return;
+
+    const s = Log.time.toEpoch(hex);
+
+    return (
+      s.getTime() / 1E3 -
+      (new Date(
+        s.getFullYear(), s.getMonth(), s.getDate()
+      )).getTime() / 1E3
+    ) / 86400 * 100;
+  },
+
   tab(s, g, t, v = false) {
     const x = document.getElementsByClassName(g);
     const b = document.getElementsByClassName(t);
@@ -563,36 +528,24 @@ var Log = {
       `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
   },
 
-  /**
-   * Peak chart column labels
-   */
-  label: {
+  setDayLabel(day = new Date().getDay()) {
+    currentDay.innerHTML = days[day].substring(0, 3);
+  },
 
-    /**
-     * Show current hour
-     * @param {number} h - Hour
-     */
-    setTime(h = (new Date).getHours()) {
-      currentHour.innerHTML = `${h}:00`;
-    },
-
-    /**
-     * Show current day
-     * @param {number} d - Day
-     */
-    setDay(d = (new Date).getDay()) {
-      currentDay.innerHTML = days[d].substring(0, 3);
-    }
+  setTimeLabel(hour = new Date().getHours()) {
+    currentHour.innerHTML = `${hour}:00`;
   },
 
   reset() {
     clearInterval(Log.clock);
     document.getElementById('timer').innerHTML = '00:00:00';
-    mainSectors.map(e => e.innerHTML = '');
   },
 
   nav: {
-    menu: ['ovw', 'lis', 'vis', 'tab', 'jou', 'gui'],
+    menu: [
+      'overview', 'details', 'visualisation', 'entries', 'journal', 'guide'
+    ],
+
     index: 0,
 
     horizontal() {
@@ -600,144 +553,114 @@ var Log = {
       Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
     },
 
-    /**
-     * Navigate to journal entry
-     * @param {string} h - Hexadecimal time
-     */
     toJournal(h) {
-      Log.tab('jou', 'sect', 'tab');
+      Log.tab('journal', 'sect', 'tab');
       Log.journal.translate(h);
     },
 
-    /**
-     * Navigate to sector detail
-     * @param {string} s - Sector
-     */
-    toSecDetail(s) {
-      Log.tab('lis', 'sect', 'tab');
-      Log.tab('sec', 'subsect', 'subtab', true);
-      Log.detail.sec(s);
+    toSectorDetail(s) {
+      Log.tab('details', 'sect', 'tab');
+      Log.tab('sectorDetails', 'subsect', 'subtab', true);
+      Log.sectorDetails(s);
     },
 
-    /**
-     * Navigate to project detail
-     * @param {string} p - Project
-     */
-    toProDetail(p) {
-      Log.tab('lis', 'sect', 'tab');
-      Log.tab('pro', 'subsect', 'subtab', true);
-      Log.detail.pro(p);
+    toProjectDetail(p) {
+      Log.tab('details', 'sect', 'tab');
+      Log.tab('projectDetails', 'subsect', 'subtab', true);
+      Log.projectDetails(p);
     }
   },
 
-  gen: {
+  generateSessionCache() {
+    Log.cache.sortEnt = Log.data.sortEntries();
+    Log.cache.sec = Log.data.listSectors();
+    Log.cache.pro = Log.data.listProjects();
+    Log.cache.proFoc = Log.data.listFocus(1);
+    Log.cache.pkh = Log.data.peakHours();
+    Log.cache.pkd = Log.data.peakDays();
+    Log.cache.dur = Log.data.listDurations();
+    Log.cache.entByDay = Log.data.getEntriesByDay(new Date().getDay());
 
-    /**
-     * Generate session cache
-     */
-    cache() {
-      Log.cache.sortEnt = Log.data.sortEnt();
-      Log.cache.sec = Log.data.listSec();
-      Log.cache.pro = Log.data.listPro();
-      Log.cache.proFoc = Log.data.listFocus(1);
-      Log.cache.pkh = Log.data.peakHours();
-      Log.cache.pkd = Log.data.peakDays();
-      Log.cache.dur = Log.data.listDur();
-      Log.cache.entByDay = Log.data.entries.byDay(new Date().getDay());
-    },
+    console.log('Session cache generated');
+  },
 
-    stats: {
+  todayStats(ent) {
+    if (typeof ent !== 'object' || ent.length === 0) return;
 
-      /**
-       * Calculate and display today's stats
-       * @param {Object} en - Today's entries
-       */
-      today(en) {
-        const dur = Log.data.listDur(en);
-        const now = Log.log.slice(-1)[0];
-        const nowDate = Log.time.convert(now.s);
-        const st = Log.time.stamp(nowDate);
+    const dur = Log.data.listDurations(ent);
+    const now = Log.log.slice(-1)[0];
+    const nowDate = Log.time.toEpoch(now.s);
+    const st = Log.time.stamp(nowDate);
 
-        const yesterday = Log.data.entries.byDate(nowDate.subtractDays(1));
-        const yDur = Log.data.listDur(yesterday);
+    const yesterday = Log.data.getEntriesByDate(nowDate.addDays(-1));
+    const yDur = Log.data.listDurations(yesterday);
+    const yFoc = Log.data.projectFocus(Log.data.listProjects(yesterday));
 
-        const ylh = Log.data.sum(yDur);
-        const ylhn = Log.data.min(yDur);
-        const ylhx = Log.data.max(yDur);
-        const yasd = Log.data.avg(yDur);
-        const ylpt = Log.data.lp(yesterday);
-        const yfoc = Log.data.proFocus(Log.data.listPro(yesterday));
-        const yenc = yesterday.length;
+    const sum = Log.data.calcSum(dur);
+    const min = Log.data.calcMin(dur);
+    const max = Log.data.calcMax(dur);
+    const avg = Log.data.calcAvg(dur);
+    const cov = Log.data.coverage(ent);
+    const foc = Log.data.projectFocus(Log.data.listProjects(ent));
+    const enc = ent.length;
 
-        const lh = Log.data.sum(dur);
-        const lhn = Log.data.min(dur);
-        const lhx = Log.data.max(dur);
-        const asd = Log.data.avg(dur);
-        const lpt = Log.data.lp(en);
-        const foc = Log.data.proFocus(Log.data.listPro(en));
-        const enc = en.length;
+    const lhTrend = Log.data.trend(sum, Log.data.calcSum(yDur));
 
-        tLHT.innerHTML = Log.stat(lh);
-        tLSN.innerHTML = Log.stat(lhn);
-        tLSX.innerHTML = Log.stat(lhx);
-        tASD.innerHTML = Log.stat(asd);
-        tLPT.innerHTML = `${lpt.toFixed(2)}%`;
-        tFOC.innerHTML = foc.toFixed(2);
+    tSUM.innerHTML = Log.displayStat(sum);
+    tMIN.innerHTML = Log.displayStat(min);
+    tMAX.innerHTML = Log.displayStat(max);
+    tAVG.innerHTML = Log.displayStat(avg);
+    tCOV.innerHTML = `${cov.toFixed(2)}%`;
+    tFOC.innerHTML = foc.toFixed(2);
+    tSTK.innerHTML = Log.data.streak();
+    tENC.innerHTML = enc;
 
-        tSTK.innerHTML = Log.data.streak();
-        tENC.innerHTML = enc;
+    tSUMtr.innerHTML = lhTrend;
+    tMINtr.innerHTML = Log.data.trend(min, Log.data.calcMin(yDur));
+    tMAXtr.innerHTML = Log.data.trend(max, Log.data.calcMax(yDur));
+    tAVGtr.innerHTML = Log.data.trend(avg, Log.data.calcAvg(yDur));
+    tCOVtr.innerHTML = lhTrend;
+    tFOCtr.innerHTML = Log.data.trend(foc, yFoc);
+    tENCtr.innerHTML = Log.data.trend(enc, yesterday.length);
 
-        tLHTtr.innerHTML = Log.data.trend(lh, ylh);
-        tLSNtr.innerHTML = Log.data.trend(lhn, ylhn);
-        tLSXtr.innerHTML = Log.data.trend(lhx, ylhx);
-        tASDtr.innerHTML = Log.data.trend(asd, yasd);
-        tLPTtr.innerHTML = Log.data.trend(lpt, ylpt);
-        tFOCtr.innerHTML = Log.data.trend(foc, yfoc);
-        tENCtr.innerHTML = Log.data.trend(enc, yenc);
+    leid.innerHTML = user.log.length;
+    ltim.innerHTML = now.e === undefined ?
+      `${st} –` : `${st} – ${Log.time.stamp(Log.time.toEpoch(now.e))}`;
+    lsec.innerHTML = now.c;
+    lpro.innerHTML = now.t;
+    ldsc.innerHTML = now.d;
 
-        leid.innerHTML = user.log.length;
-        ltim.innerHTML = now.e === undefined ?
-          `${st} –` :
-          `${st} – ${Log.time.stamp(Log.time.convert(now.e))}`;
-        lsec.innerHTML = now.c;
-        lpro.innerHTML = now.t;
-        ldsc.innerHTML = now.d;
+    Log.vis.list(0, Log.data.sortValues(ent, 0, 0), secBars, ent);
+    Log.vis.list(1, Log.data.sortValues(ent, 1, 0), proBars, ent);
+  },
 
-        Log.vis.list(0, 0, secBars, en);
-        Log.vis.list(1, 0, proBars, en);
-      },
+  detailStats(ent) {
+    const sortVal = Log.data.sortValues(Log.log, 0, 1);
 
-      /**
-       * Calculate and display Details stats
-       * @param {Object} mn - Overview entries
-       */
-      details(mn) {
-        LHH.innerHTML = Log.stat(Log.data.sum(Log.cache.dur));
-        LNH.innerHTML = Log.stat(Log.data.min(Log.cache.dur));
-        LXH.innerHTML = Log.stat(Log.data.max(Log.cache.dur));
-        ASD.innerHTML = Log.stat(Log.data.avg(Log.cache.dur));
-        LPH.innerHTML = `${Log.data.lp().toFixed(2)}%`;
-        ALH.innerHTML = Log.data.avgLh().toFixed(2);
-        SCC.innerHTML = Log.cache.sec.length;
-        PRC.innerHTML = Log.cache.pro.length;
-        PHH.innerHTML = Log.data.peakHour();
-        PDH.innerHTML = Log.data.peakDay();
-        EHC.innerHTML = user.log.length;
+    SUM.innerHTML = Log.displayStat(Log.data.calcSum(Log.cache.dur));
+    MIN.innerHTML = Log.displayStat(Log.data.calcMin(Log.cache.dur));
+    MAX.innerHTML = Log.displayStat(Log.data.calcMax(Log.cache.dur));
+    AVG.innerHTML = Log.displayStat(Log.data.calcAvg(Log.cache.dur));
+    COV.innerHTML = `${Log.data.coverage().toFixed(2)}%`;
+    DAV.innerHTML = Log.displayStat(Log.data.avgLogHours());
+    SCC.innerHTML = Log.cache.sec.length;
+    PRC.innerHTML = Log.cache.pro.length;
+    PHH.innerHTML = Log.data.peakHour();
+    PDH.innerHTML = Log.data.peakDay();
+    ENC.innerHTML = user.log.length;
 
-        Log.vis.peakChart(0, Log.cache.pkh, pth);
-        Log.vis.peakChart(1, Log.cache.pkd, pdh);
-        Log.vis.focusChart(1, mn);
+    Log.vis.peakChart(0, Log.cache.pkh, pth);
+    Log.vis.peakChart(1, Log.cache.pkd, pdh);
+    Log.vis.focusChart(1, ent);
 
-        if (Log.cache.proFoc.length !== 0) {
-          Favg.innerHTML = Log.data.avg(Log.cache.proFoc).toFixed(2);
-          Fmin.innerHTML = Log.data.min(Log.cache.proFoc).toFixed(2);
-          Fmax.innerHTML = Log.data.max(Log.cache.proFoc).toFixed(2);
-        }
-
-        Log.vis.focusBar(0, Log.log, secFocBar);
-        Log.vis.legend(0, Log.log, secLegSum);
-      }
+    if (Log.cache.proFoc.length !== 0) {
+      Favg.innerHTML = Log.data.calcAvg(Log.cache.proFoc).toFixed(2);
+      Fmin.innerHTML = Log.data.calcMin(Log.cache.proFoc).toFixed(2);
+      Fmax.innerHTML = Log.data.calcMax(Log.cache.proFoc).toFixed(2);
     }
+
+    Log.vis.focusBar(0, sortVal, secFocBar);
+    Log.vis.legend(0, sortVal, secLegSum);
   },
 
   load() {
@@ -753,54 +676,46 @@ var Log = {
     delModal.style.backgroundColor = Log.config.ui.bg;
     delModal.style.color = Log.config.ui.colour;
 
-    console.log('Components styled')
-
     if (user.log.length === 0) {
       Log.nav.index = 5;
       Log.tab('gui', 'sect', 'tab');
       return;
     }
 
-    Log.gen.cache();
-    console.log('Session cache generated');
+    Log.generateSessionCache();
 
-    Log.timer(Log.status());
+    Log.timer();
 
-    const mn = Log.data.recEnt(Log.config.ui.view - 1);
+    const overviewEntries = Log.data.getRecentEntries(Log.config.ui.view - 1);
+    const sortOverview = Log.data.sortEntries(overviewEntries);
+    const entriesToday = Log.data.getEntriesByDate();
 
-    Log.label.setTime();
-    Log.label.setDay();
+    Log.setTimeLabel();
+    Log.setDayLabel();
 
-    Log.vis.peakChart(0, Log.data.peakHours(Log.data.sortEntByDay()[new Date().getDay()]), phc);
+    Log.vis.peakChart(0, Log.data.peakHours(Log.data.sortEntriesByDay()[new Date().getDay()]), phc);
     Log.vis.peakChart(1, Log.cache.pkd, pdc);
 
-    // if (Log.log.length !== 1) {
-    //   flh.innerHTML = Log.data.forecast.lh();
-    //   fsd.innerHTML = Log.data.forecast.sd();
-    // }
+    Log.vis.dayChart(entriesToday, dayChart);
+    Log.vis.barChart(Log.data.bar(sortOverview), overviewChart);
 
-    Log.vis.day();
-    Log.vis.bar(Log.data.bar(mn), ovc);
-
-    // Today's stats
-    const en = Log.data.entries.byDate();
-    if (en.length !== 0) Log.gen.stats.today(en);
-
-    // Details stats
-    Log.gen.stats.details(mn);
+    Log.todayStats(entriesToday);
+    Log.detailStats(sortOverview);
 
     if (Log.log.length > 1) {
-      Log.detail.sec(Log.data.sortValues(Log.log, 0, 0)[0][0]);
-      Log.vis.list(0, 0, secList);
-      Log.detail.pro(Log.data.sortValues(Log.log, 1, 0)[0][0]);
-      Log.vis.list(1, 0, proList);
+      const sortValSec = Log.data.sortValues(Log.log, 0, 0);
+      const sortValPro = Log.data.sortValues(Log.log, 1, 0);
+
+      Log.sectorDetails(sortValSec[0][0]);
+      Log.vis.list(0, sortValSec, sectorsList);
+
+      Log.projectDetails(sortValPro[0][0]);
+      Log.vis.list(1, sortValPro, projectsList);
     }
 
-    Log.vis.line(Log.data.line(mn), visual);
-    Log.display(user.log, 100);
-    Log.journal.cal();
-
-    console.info('APP READY')
+    Log.vis.visualisation(Log.data.visualisation(sortOverview));
+    Log.displayEntryTable(user.log, 100);
+    Log.journal.displayCalendar();
   },
 
   refresh() {
@@ -810,20 +725,19 @@ var Log = {
 
   init() {
     user = {
-      config: dataStore.get('config') || {},
-      palette: dataStore.get('palette') || {},
-      projectPalette: dataStore.get('projectPalette') || {},
-      log: dataStore.get('log') || [],
+      config: dataStore.get('config'),
+      palette: dataStore.get('palette'),
+      projectPalette: dataStore.get('projectPalette'),
+      log: dataStore.get('log')
     }
-    console.log('User object created')
 
     try {
       Log.config = user.config;
-      console.log('Config installed')
+      console.log('Config installed');
       Log.palette = user.palette;
-      console.log('Sector palette installed')
+      console.log('Sector palette installed');
       Log.projectPalette = user.projectPalette;
-      console.log('Project palette installed')
+      console.log('Project palette installed');
       Log.log = Log.data.parse(user.log);
       console.log('Logs installed');
     } catch (e) {
@@ -832,10 +746,6 @@ var Log = {
       return;
     }
 
-    console.time('Log')
-    Log.load();
-    console.timeEnd('Log')
-
     if (localStorage.hasOwnProperty('logHistory')) {
       Log.console.history = JSON.parse(localStorage.getItem('logHistory'));
     } else {
@@ -843,92 +753,101 @@ var Log = {
       localStorage.setItem('logHistory', JSON.stringify(Log.console.history));
     }
 
-    cmd.addEventListener('submit', _ => {
-      Log.cmdIndex = 0;
-      if (con.value !== '') {
-        if (con.value != Log.console.history[Log.console.history.length - 1]) {
-          Log.console.history.push(con.value);
-        }
-        if (Log.console.history.length >= 100) Log.console.history.shift();
-        localStorage.setItem('logHistory', JSON.stringify(Log.console.history));
-        Log.console.parse(con.value);
-      }
-
-      con.value = '';
-      cmd.style.display = 'none';
-    });
+    console.time('Log');
+    Log.load();
+    console.timeEnd('Log');
 
     if (!Log.keyEventInitialized) {
       Log.keyEventInitialized = true;
 
       document.onkeydown = e => {
-        if (Log.modalFocus) return;
-        if (e.which >= 65 && e.which <= 90) {
-          cmd.style.display = 'block';
-          con.focus();
-        } else if (e.which >= 48 && e.which <= 54 && (e.ctrlKey || e.metaKey)) {
-          Log.nav.index = e.which - 49;
-          Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
-        } else if (e.key === 'Escape') {
-          con.value = '';
-          cmd.style.display = 'none';
-          Log.cmdIndex = 0;
-        } else if (e.which === 38) {
-          cmd.style.display = 'block';
-          con.focus();
-          Log.cmdIndex++;
+        if (Log.modalMode) return;
 
-          const history = Log.console.history.length;
+        const hl = Log.console.history.length;
 
-          if (Log.cmdIndex > history) {
-            Log.cmdIndex = history;
-          }
-
-          con.value = Log.console.history[history - Log.cmdIndex];
-        } else if (e.which === 40) {
-          cmd.style.display = 'block';
-          con.focus();
-          Log.cmdIndex--;
-
-          if (Log.cmdIndex < 1) Log.cmdIndex = 1;
-          con.value = Log.console.history[Log.console.history.length - Log.cmdIndex];
-        } else if (e.key === 'Tab') {
-          e.preventDefault();
-          Log.nav.horizontal();
+        switch (e.which) {
+          case 9: // Tab
+            e.preventDefault();
+            Log.nav.horizontal();
+            break;
+          case 27: // Escape
+            commanderInput.value = '';
+            commander.style.display = 'none';
+            Log.commanderIndex = 0;
+            break;
+          case 38: // Up
+            commander.style.display = 'block';
+            commanderInput.focus();
+            Log.commanderIndex++;
+            if (Log.commanderIndex > hl) Log.commanderIndex = hl;
+            commanderInput.value = Log.console.history[hl - Log.commanderIndex];
+            break;
+          case 40: // Down
+            commander.style.display = 'block';
+            commanderInput.focus();
+            Log.commanderIndex--;
+            if (Log.commanderIndex < 1) Log.commanderIndex = 1;
+            commanderInput.value = Log.console.history[hl - Log.commanderIndex];
+            break;
+          default:
+            break;
         }
 
-        if (e.key === 'o' && (e.ctrlKey || e.metaKey)) {
-          e.preventDefault();
-          Log.console.importUser();
+        if (e.which >= 65 && e.which <= 90) {
+          commander.style.display = 'block';
+          commanderInput.focus();
           return;
         }
 
-        if (e.key === 'e' && (e.ctrlKey || e.metaKey)) {
-          e.preventDefault();
-          Log.console.exportUser();
+        if (e.which >= 48 && e.which <= 54 && (e.ctrlKey || e.metaKey)) {
+          Log.nav.index = e.which - 49;
+          Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
+          return;
         }
       };
     }
 
-    const modal = document.getElementById('entryModal');
-    const modalB = document.getElementById('editModal');
+    commander.addEventListener('submit', _ => {
+      Log.commanderIndex = 0;
 
-    document.addEventListener('click', ({target}) => target === modal && modal.close());
+      const val = commanderInput.value;
 
-    modalB.onkeydown = e => {
-      (e.key === 'Escape') && (Log.modalFocus = false);
+      if (val !== '') {
+        const hl = Log.console.history.length;
+
+        if (val != Log.console.history[hl - 1]) {
+          Log.console.history[hl] = val;
+        }
+
+        if (hl >= 100) Log.console.history.shift();
+
+        localStorage.setItem('logHistory', JSON.stringify(Log.console.history));
+        Log.console.parse(val);
+      }
+
+      commanderInput.value = '';
+      commander.style.display = 'none';
+    });
+
+
+    document.addEventListener('click', ({target}) => {
+      target === entryModal && entryModal.close()
+    });
+
+    editModal.onkeydown = e => {
+      (e.key === 'Escape') && (Log.modalMode = false);
     }
 
     document.addEventListener('click', ({target}) => {
-      if (target === modalB) {
-        Log.modalFocus = false;
-        modalB.close();
+      if (target === editModal) {
+        Log.modalMode = false;
+        editModal.close();
       }
     });
 
     editForm.addEventListener('submit', _ => {
       Log.update(editEntryID.value);
-      Log.modalFocus = false;
+      Log.modalMode = false;
     });
   }
 };

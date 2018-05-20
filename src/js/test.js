@@ -72,4 +72,4 @@ t('Avg value (empty set)', Log.data.avg([]), 0);
 
 console.log('');
 
-t('Log.journal.display', Log.journal.display(0), undefined);
+t('Log.journal.displayEntry', Log.journal.displayEntry(0), undefined);

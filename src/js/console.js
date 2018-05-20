@@ -1,55 +1,55 @@
+'use strict';
+
 const timer = require('headless-work-timer');
 
 Log.console = {
+
   history: [],
 
-  /**
-   * Parse command
-   * @param {string} i - Input
-   */
-  parse(i) {
-    const p = Log.console.getParams(i);
-    const s = i.split(' ');
+  // TODO: Rewrite
+  parse(input) {
+    const p = Log.console.getParams(input);
+    const s = input.split(' ');
     switch (s[0].toLowerCase()) {
       case 'start':
       case 'begin':
       case 's':
-        Log.console.startLog(i);
+        Log.console.startEntry(input);
         break;
       case 'pomodoro':
       case 'tomato':
       case 'pom':
-        Log.console.startPomodoro(i);
+        Log.console.startPomodoro(input);
         break;
       case 'stop':
       case 'end':
       case 'pause':
-        Log.console.endLog();
+        Log.console.endEntry();
         Log.stopTimer ? Log.stopTimer() : 'noop';
         break;
       case 'resume':
       case 'continue':
-        Log.console.resume();
+        Log.console.resumeEntry();
         break;
       case 'edit':
-        Log.console.edit(p[1], p[2], p[3]);
+        Log.console.editEntry(p[1], p[2], p[3]);
         break;
       case 'delete':
       case 'del':
-        Log.confirmDelete(i);
+        Log.confirmDelete(input);
         break;
       case 'undo':
         Log.console.undo();
         break;
       case 'background':
       case 'bg':
-        Log.options.setBG(s[1]);
+        Log.options.setBackgroundColour(s[1]);
         break;
       case 'colour':
       case 'color':
       case 'foreground':
       case 'fg':
-        Log.options.setColour(s[1]);
+        Log.options.setForegroundColour(s[1]);
         break;
       case 'accent':
       case 'highlight':
@@ -82,10 +82,10 @@ Log.console = {
         Log.options.setStat(s[1]);
         break;
       case 'import':
-        Log.console.importUser();
+        Log.console.importData();
         break;
       case 'export':
-        Log.console.exportUser();
+        Log.console.exportData();
         break;
       case 'rename':
       case 'rn':
@@ -105,26 +105,21 @@ Log.console = {
     }
   },
 
-  /**
-   * Get quoted parameters from string
-   * @param {string} s - String
-   * @return {Object[]} Parameters
-   */
-  getParams(s) {
-    if (s === undefined) return;
-    if (typeof s !== 'string' || !s.includes('"')) return;
+  getParams(input) {
+    if (input === undefined) return;
+    if (typeof input !== 'string' || !input.includes('"')) return;
 
-    const part = s.slice(0, s.indexOf('"') - 1).split(' ');
-    const p = s.split('');
+    const part = input.slice(0, input.indexOf('"') - 1).split(' ');
+    const p = input.split('');
     const params = [];
-    const x = []; // indices
+    const indices = [];
     let param = '';
 
     part.map(e => !e.includes('"') && (params[params.length] = e));
-    p.map((e, i) => e === '"' && (x[x.length] = i));
+    p.map((e, i) => e === '"' && (indices[indices.length] = i));
 
-    for (let i = 0, l = x.length; i < l; i++) {
-      for (let o = x[i] + 1; o < x[i + 1]; o++) {
+    for (let i = 0, l = indices.length; i < l; i++) {
+      for (let o = indices[i] + 1; o < indices[i + 1]; o++) {
         param += p[o];
       }
       params[params.length] = param;
@@ -135,10 +130,7 @@ Log.console = {
     return params;
   },
 
-  /**
-   * Import user data
-   */
-  importUser() {
+  importData() {
     const path = dialog.showOpenDialog({
       properties: ['openFile']
     });
@@ -198,10 +190,7 @@ Log.console = {
     new window.Notification('Log data was successfully imported.');
   },
 
-  /**
-   * Export user data
-   */
-  exportUser() {
+  exportData() {
     const data = JSON.stringify(JSON.parse(localStorage.getItem('user')));
 
     dialog.showSaveDialog(file => {
@@ -216,79 +205,70 @@ Log.console = {
     });
   },
 
-  /**
-   * Start a log entry with pomodoro timing
-   * @param {Object[]} s - Input array
-   */
-  startPomodoro(s) {
+  // TODO: Rewrite
+  startPomodoro(input) {
     const clock = timer()()((state, phaseChanged) => {
       if (phaseChanged) {
         state.phase === 'break' || state.phase === 'longBreak' ?
-          Log.console.endLog() : Log.console.startLog(s);
+          Log.console.endEntry() : Log.console.startEntry(input);
 
         state.phase === 'break' || state.phase === 'longBreak' ?
-          Log.playSoundEffect('timerEnd') : Log.playSoundEffect('timerStart');
+          Log.playSound('timerEnd') : Log.playSound('timerStart');
 
         new window.Notification(`Started ${state.phase}`);
       }
     });
 
     Log.stopTimer = _ => clock.stop();
-    Log.console.startLog(s);
+    Log.console.startEntry(input);
   },
 
-  /**
-   * Start a log entry
-   * @param {Object[]} s - Input array
-   */
-  startLog(s) {
-    if (s === undefined) return;
-    if (user.log.length !== 0 && user.log.slice(-1)[0].e === undefined) Log.console.endLog();
+  // TODO: Rewrite
+  startEntry(input) {
+    if (input === undefined) return;
+    if (user.log.length !== 0 && user.log.slice(-1)[0].e === undefined) Log.console.endEntry();
 
     let p = [];
     let indices = [];
-    let c = ''; // sector
-    let t = ''; // project
-    let d = ''; // description
+    let sector = '';
+    let project = '';
+    let desc = '';
 
-    if (s.includes('"')) {
-      p = s.split('');
+    if (input.includes('"')) {
+      p = input.split('');
 
       p.map((e, i) => e === '"' && (indices[indices.length] = i));
 
-      for (let i = indices[0] + 1; i < indices[1]; i++) c += p[i];
-      for (let i = indices[2] + 1; i < indices[3]; i++) t += p[i];
-      for (let i = indices[4] + 1; i < indices[5]; i++) d += p[i];
+      for (let i = indices[0] + 1; i < indices[1]; i++) sector += p[i];
+      for (let i = indices[2] + 1; i < indices[3]; i++) project += p[i];
+      for (let i = indices[4] + 1; i < indices[5]; i++) desc += p[i];
     } else {
-      if (s.includes(';')) {
-        p = s.split(';');
-      } else if (s.includes('|')) {
-        p = s.split('|');
-      } else if (s.includes(',')) {
-        p = s.split(',');
+      if (input.includes(';')) {
+        p = input.split(';');
+      } else if (input.includes('|')) {
+        p = input.split('|');
+      } else if (input.includes(',')) {
+        p = input.split(',');
       } else return;
 
-      c = p[0].substring(6, p[0].length).trim();
-      t = p[1].trim();
-      d = p[2].trim();
+      sector = p[0].substring(6, p[0].length).trim();
+      project = p[1].trim();
+      desc = p[2].trim();
     }
 
     user.log[user.log.length] = {
-      c,
-      t,
-      d,
       s: Log.time.toHex(new Date()),
-      e: undefined
+      e: undefined,
+      c: sector,
+      t: project,
+      d: desc
     }
 
-    new window.Notification(`Log started: ${c} - ${t} - ${d}`);
+    new window.Notification(`Log started: ${sector} - ${project} - ${desc}`);
     Log.options.update.log();
   },
 
-  /**
-   * End a log entry
-   */
-  endLog() {
+  endEntry() {
     if (Log.log === undefined) return;
     if (Log.log.length === 0) return;
 
@@ -302,10 +282,7 @@ Log.console = {
     Log.options.update.log();
   },
 
-  /**
-   * Resume a paused log entry
-   */
-  resume() {
+  resumeEntry() {
     if (Log.log === undefined) return;
     if (Log.log.length === 0) return;
 
@@ -324,16 +301,13 @@ Log.console = {
     Log.options.update.log();
   },
 
-  /**
-   * Delete one or more logs
-   * @param {string} i - Input
-   */
-  delete(i) {
+  // TODO: Rewrite
+  deleteEntry(input) {
     if (Log.log === undefined) return;
     if (Log.log.length === 0) return;
 
     // all except first word are entry indices
-    const words = i.split(' ').slice(1);
+    const words = input.split(' ').slice(1);
 
     if (words[0] === 'project') {
       user.log.forEach((e, id) => {
@@ -353,41 +327,35 @@ Log.console = {
     Log.options.update.all();
   },
 
-  /**
-   * Edit a log
-   * @param {string} i - Entry ID
-   * @param {string} a - Entry attribute
-   * @param {string} v - Value
-   */
-  edit(i, a, v) {
+  editEntry(i, attribute, value) {
     if (user.log.length === 0) return;
     const id = Number(i) - 1;
 
-    switch (a) {
+    switch (attribute) {
       case 'start':
-        user.log[id].s = Log.time.convertDateTime(v);
+        user.log[id].s = Log.time.convertDateTime(value);
         break;
       case 'end':
-        user.log[id].e = Log.time.convertDateTime(v);
+        user.log[id].e = Log.time.convertDateTime(value);
         break;
       case 'sector':
       case 'sec':
-        user.log[id].c = v;
+        user.log[id].c = value;
         break;
       case 'project':
       case 'title':
       case 'pro':
-        user.log[id].t = v;
+        user.log[id].t = value;
         break;
       case 'description':
       case 'desc':
       case 'dsc':
-        user.log[id].d = v;
+        user.log[id].d = value;
         break;
       case 'duration':
       case 'dur':
-        const dur = parseInt(v, 10) * 60 || 0;
-        user.log[id].e = Log.time.offset(user.log[id].s, dur);
+        const duration = parseInt(value, 10) * 60 || 0;
+        user.log[id].e = Log.time.offset(user.log[id].s, duration);
         break;
       default:
         return;
@@ -396,47 +364,38 @@ Log.console = {
     Log.options.update.all();
   },
 
-  /**
-   * Rename a sector or project
-   * @param {string} m - Sector or project
-   * @param {string} o - Old name
-   * @param {string} n - New name
-   */
-  rename(m, o, n) {
-    if (['sec', 'sector', 'pro', 'project'].indexOf(m) === -1) return;
-    m = (m === 'sector' || m === 'sec') ? 'sector' : 'project';
+  rename(key, oldName, newName) {
+    if (['sec', 'sector', 'pro', 'project'].indexOf(key) === -1) return;
+    key = (key === 'sector' || key === 'sec') ? 'sector' : 'project';
 
-    const nf = _ => {
-      new window.Notification(`The ${m} "${o}" does not exist in your logs`);
+    const notFound = _ => {
+      new window.Notification(`${oldName} does not exist`);
     };
 
-    if (m === 'sector') {
-      if (Log.data.entries.bySec(o).length !== 0) {
+    if (key === 'sector') {
+      if (Log.data.getEntriesBySector(oldName).length !== 0) {
         user.log.map((e) => {
-          if (e.c === o) e.c = n;
+          if (e.c === oldName) e.c = newName;
         });
       } else {
-        nf();
+        notFound();
         return;
       }
     } else {
-      if (Log.data.entries.byPro(o).length !== 0) {
+      if (Log.data.getEntriesByProject(oldName).length !== 0) {
         user.log.map((e) => {
-          if (e.t === o) e.t = n;
+          if (e.t === oldName) e.t = newName;
         });
       } else {
-        nf();
+        notFound();
         return;
       }
     }
 
-    new window.Notification(`The ${m} "${o}" has been renamed to "${n}"`);
+    new window.Notification(`${oldName} has been renamed to ${newName}`);
     Log.options.update.all();
   },
 
-  /**
-   * Invert interface colours
-   */
   invert() {
     const c = user.config.ui.colour;
     const b = user.config.ui.bg;
@@ -447,12 +406,8 @@ Log.console = {
     Log.options.update.config();
   },
 
-  /**
-   * Undo previous command
-   */
   undo() {
-    /* To be implemented */
-
+    /* TODO: To be implemented */
     const i = Log.console.history.slice(-2)[0];
     const p = Log.console.getParams(i);
     const s = i.split(' ');
