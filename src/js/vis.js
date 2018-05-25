@@ -35,7 +35,7 @@ Log.vis = {
     if (avg !== undefined) {
       if (typeof avg !== 'number' || avg === 0) return;
       const ind = document.createElement('div');
-      ind.style.color = `${Log.config.ui.accent}`;
+      ind.style.color = Log.config.ui.accent;
       ind.style.bottom = `${avg}%`;
       ind.className = 'psa wf bt';
       frag.appendChild(ind);
@@ -62,7 +62,6 @@ Log.vis = {
 
     col.style.width = `${100 / Log.config.ui.view}%`;
     col.className = 'dib psr hf';
-
     ent.className = 'psa sw1';
 
     for (let i = 0; i < l; i++) {
@@ -279,9 +278,6 @@ Log.vis = {
     barEl.className = 'sh1';
 
     for (let i = 0; i < l; i++) {
-      const colour = Log.config.ui.colourMode === 'none' ?
-        Log.config.ui.colour : pal[sort[i][0]];
-
       const item = itemEl.cloneNode();
       const name = nameEl.cloneNode();
       const dur = durEl.cloneNode();
@@ -294,7 +290,8 @@ Log.vis = {
       item.className = `${i === l - 1 ? 'mb0' : 'mb4'} c-pt`;
 
       bar.style.width = `${Log.data.logHours(func(sort[i][0], ent)) / lh * 100}%`;
-      bar.style.backgroundColor = colour || Log.config.ui.colour;
+      bar.style.backgroundColor = (Log.config.ui.colourMode === 'none' ?
+        Log.config.ui.colour : pal[sort[i][0]]) || Log.config.ui.colour;
 
       item.appendChild(name);
       item.appendChild(dur);

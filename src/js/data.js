@@ -42,9 +42,6 @@ Log.data = {
     for (let i = l - 1; i >= 0; i--) {
       set[i] = [];
 
-      const sl = ent[i].length;
-      if (sl === 0) continue;
-
       if (Log.config.ui.colourMode === 'none') {
         set[i][set[i].length] = {
           wh: `${Log.data.coverage(ent[i])}%`,
@@ -57,7 +54,7 @@ Log.data = {
 
       let lastHeight = 0;
 
-      for (let o = 0; o < sl; o++) {
+      for (let o = 0; o < ent[i].length; o++) {
         if (ent[i][o].e === undefined) continue;
 
         let height = (
@@ -511,12 +508,9 @@ Log.data = {
     for (let i = l - 1; i >= 0; i--) {
       data[i] = [];
 
-      const sl = ent[i].length;
-      if (sl === 0) continue;
-
       let lastPosition = 0;
 
-      for (let o = 0; o < sl; o++) {
+      for (let o = 0; o < ent[i].length; o++) {
         if (ent[i][o] === undefined) continue;
         const width = ent[i][o].dur * 3600 / 86400 * 100;
         const dp = Log.calcDurPercent(ent[i][o].s);

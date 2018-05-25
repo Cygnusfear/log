@@ -68,11 +68,12 @@ var Log = {
   },
 
   displayEntryTable(ent = user.log, num = 50, con = logbook) {
-    if (typeof ent !== 'object' || ent.length === 0) return;
+    const el = ent.length;
+    if (typeof ent !== 'object' || el === 0) return;
     if (typeof num !== 'number') return;
     if (typeof con !== 'object' || con === null) return;
 
-    const arr = ent.slice(ent.length - num).reverse();
+    const arr = ent.slice(el - num).reverse();
 
     for (let i = 0, l = arr.length; i < l; i++) {
       const row = con.insertRow(i);
@@ -87,11 +88,11 @@ var Log = {
       const startDate = Log.time.toEpoch(arr[i].s);
       const startTime = Log.time.stamp(startDate);
 
-      row.id = `tr-${ent.length - i - 1}`;
+      row.id = `tr-${el - i - 1}`;
 
-      id.setAttribute('onclick', `Log.edit(${ent.length - i - 1})`);
+      id.setAttribute('onclick', `Log.edit(${el - i - 1})`);
       id.className = 'pl0 c-pt hover';
-      id.innerHTML = ent.length - i;
+      id.innerHTML = el - i;
 
       date.setAttribute('onclick', `Log.nav.toJournal('${arr[i].s}')`);
       date.innerHTML = Log.time.displayDate(startDate);
@@ -315,7 +316,7 @@ var Log = {
 
     sectorTitle.innerHTML = sec;
 
-    sectorLastUpdate.innerHTML = ent.length === 0 ?
+    sectorLastUpdate.innerHTML = el === 0 ?
       `No activity in the past ${Log.config.ui.view} days` :
       `Updated ${Log.time.timeago(Log.time.convert(ent.slice(-1)[0].e) * 1E3)}`;
 
@@ -331,7 +332,7 @@ var Log = {
     Log.vis.peakChart(0, pkh, sPKH);
     Log.vis.peakChart(1, pkd, sPKD);
 
-    if (ent.length !== 0) {
+    if (el !== 0) {
       const foci = Log.data.listFocus(1, sortHis);
       const sortEnt = Log.data.sortEntries(ent);
       const pfSortVal = Log.data.sortValues(his, 1, 1);
@@ -347,7 +348,7 @@ var Log = {
       Log.vis.legend(1, pfSortVal, proLeg);
     }
 
-    if (typeof ent !== 'object' || ent.length === 0) return;
+    if (typeof ent !== 'object' || el === 0) return;
 
     const arr = Log.data.getEntriesBySector(sec);
     const rev = arr.slice(arr.length - 100).reverse();
