@@ -82,7 +82,7 @@ Log.time = {
   },
 
   to12Hours(date) {
-    const h = date.getHours();
+    let h = date.getHours();
     const x = h >= 12 ? 'PM' : 'AM';
     return `${`0${(h %= 12) ?
       h : 12}`.slice(-2)}:${`0${date.getMinutes()}`.slice(-2)} ${x}`;
