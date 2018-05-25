@@ -73,6 +73,8 @@ var Log = {
     if (typeof num !== 'number') return;
     if (typeof con !== 'object' || con === null) return;
 
+    con.innerHTML = '';
+
     const arr = ent.slice(el - num).reverse();
 
     for (let i = 0, l = arr.length; i < l; i++) {
