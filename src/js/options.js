@@ -20,8 +20,8 @@ Log.options = {
 
     localStorage() {
       localStorage.setItem('user', JSON.stringify(user));
-      secDetailCache = {};
-      proDetailCache = {};
+      // secDetailCache = {};
+      // proDetailCache = {};
       journalCache = {};
       console.log('localStorage updated')
       Log.refresh();
@@ -82,6 +82,8 @@ Log.options = {
     if (calendar === undefined) return;
     if (typeof calendar !== 'string' || calendar.length === 0) return;
     if (['aequirys', 'monocal', 'gregorian'].indexOf(calendar) === -1) return;
+
+    displayDateCache = {};
 
     user.config.system.calendar = calendar;
     Log.options.update.config();

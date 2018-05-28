@@ -96,40 +96,25 @@ Log.vis = {
 
     const frag = document.createDocumentFragment();
     const entryEl = document.createElement('span');
-
-    let colour = Log.config.ui.colour;
-    let lastPercentage = 0;
-    let lastWidth = 0;
-
-    switch (Log.config.ui.colourMode) {
-      case 'sector':
-        colour = 'sc';
-        break;
-      case 'project':
-        colour = 'pc';
-        break;
-      default:
-        break;
-    }
+    const cm = Log.config.ui.colourMode;
+    const colour = cm === 'sector' ? 'sc' :
+      cm === 'project' ? pc :
+      Log.config.ui.colour;
 
     entryEl.className = 'hf lf';
 
-    for (let i = 0; i < l; i++) {
-      if (ent[i].e === undefined) continue;
-
-      const width = ent[i].dur * 3600 / 86400 * 100;
+    for (let i = 0, lastPosition = 0; i < l; i++) {
+      const width = Number(Log.calcWidth(ent[i].dur).toFixed(2));
+      const dp = Number(Log.calcDurPercent(ent[i].s).toFixed(2));
       const entry = entryEl.cloneNode();
-      const dp = Log.calcDurPercent(ent[i].s);
 
-      entry.style.marginLeft = `${dp - (lastWidth + lastPercentage)}%`;
-      entry.title = `${ent[i].c} - ${ent[i].t} - ${ent[i].d}`;
+      entry.style.marginLeft = `${dp - lastPosition}%`;
       entry.style.backgroundColor = ent[i][colour] || colour;
       entry.style.width = `${width}%`;
 
       frag.appendChild(entry);
 
-      lastWidth = width;
-      lastPercentage = dp;
+      lastPosition = width + dp;
     }
 
     con.appendChild(frag);
@@ -155,25 +140,21 @@ Log.vis = {
     for (let i = 0; i < l; i++) {
       const seg = div.cloneNode();
       seg.style.backgroundColor = pal[val[i][0]] || Log.config.ui.colour;
-      seg.style.width = `${val[i][1]}%`;
+      seg.style.width = `${val[i][1].toFixed(2)}%`;
       frag.appendChild(seg);
     }
 
     con.appendChild(frag);
   },
 
-  focusChart(mode, ent, con = focusChart) {
-    if (mode === undefined) return;
+  focusChart(data, con) {
+    const l = data.length;
 
-    const l = ent.length;
-
-    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
-    if (typeof ent !== 'object' || l === 0) return;
+    if (typeof data !== 'object' || l === 0) return;
     if (typeof con !== 'object' || con === null) return;
 
     con.innerHTML = '';
 
-    const func = mode === 0 ? Log.data.listSectors : Log.data.listProjects;
     const frag = document.createDocumentFragment();
     const col = document.createElement('div');
     const core = document.createElement('div');
@@ -185,11 +166,10 @@ Log.vis = {
     core.className = 'psa sw1 b0';
 
     for (let i = 0; i < l; i++) {
-      const list = func(ent[i]);
       const cl = col.cloneNode();
       const cr = core.cloneNode();
 
-      cr.style.height = `${list === undefined ? 0 : 1 / list.length * 100}%`;
+      cr.style.height = `${(data[i] * 100).toFixed(2)}%`;
 
       cl.appendChild(cr);
       frag.appendChild(cl);
@@ -213,14 +193,7 @@ Log.vis = {
     const itemEl = document.createElement('li');
     const iconEl = document.createElement('div');
     const infoEl = document.createElement('div');
-
-    let nav = 'Log.nav.toSectorDetail';
-    let pal = Log.palette;
-
-    if (mode === 1) {
-      nav = 'Log.nav.toProjectDetail';
-      pal = Log.projectPalette;
-    }
+    const pal = mode === 0 ? Log.palette : Log.projectPalette;
 
     iconEl.className = 'dib sh3 sw3 mr2 brf vm c-pt';
     infoEl.className = 'dib vm sw6 elip tnum';
@@ -233,7 +206,7 @@ Log.vis = {
 
       icon.style.backgroundColor = pal[val[i][0]] || Log.config.ui.colour;
       info.innerHTML = `${val[i][1].toFixed(2)}% ${val[i][0]}`;
-      icon.setAttribute('onclick', `${nav}('${val[i][0]}')`);
+      icon.setAttribute('onclick', `Log.nav.toDetail(${mode}, '${val[i][0]}')`);
 
       item.appendChild(icon);
       item.appendChild(info);
@@ -255,18 +228,9 @@ Log.vis = {
 
     con.innerHTML = '';
 
+    const pal = mode === 0 ? Log.palette : Log.projectPalette;
     const frag = document.createDocumentFragment();
     const lh = Log.data.logHours(ent);
-
-    let func = Log.data.getEntriesBySector;
-    let pal = Log.palette;
-    let key = 'Sector';
-
-    if (mode === 1) {
-      func = Log.data.getEntriesByProject;
-      pal = Log.projectPalette;
-      key = 'Project';
-    }
 
     const itemEl = document.createElement('li');
     const nameEl = document.createElement('span');
@@ -283,15 +247,15 @@ Log.vis = {
       const dur = durEl.cloneNode();
       const bar = barEl.cloneNode();
 
-      name.innerHTML = sort[i][0];
-      dur.innerHTML = Log.displayStat(sort[i][1]);
-
-      item.setAttribute('onclick', `Log.nav.to${key}Detail('${sort[i][0]}')`);
+      item.setAttribute('onclick', `Log.nav.toDetail(${mode}, '${sort[i][0]}')`);
       item.className = `${i === l - 1 ? 'mb0' : 'mb4'} c-pt`;
 
-      bar.style.width = `${Log.data.logHours(func(sort[i][0], ent)) / lh * 100}%`;
+      bar.style.width = `${(sort[i][1] / lh * 100).toFixed(2)}%`;
       bar.style.backgroundColor = (Log.config.ui.colourMode === 'none' ?
         Log.config.ui.colour : pal[sort[i][0]]) || Log.config.ui.colour;
+
+      name.innerHTML = sort[i][0];
+      dur.innerHTML = Log.displayStat(sort[i][1]);
 
       item.appendChild(name);
       item.appendChild(dur);

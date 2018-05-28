@@ -8,30 +8,44 @@ const months = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-const convertCache = {};
-const toHexCache = {};
-const dateCache = {};
+let convertCache = {};
+let toHexCache = {};
+let dateCache = {};
+let toEpochCache = {};
+let displayDateCache = {};
+let timestampCache = {};
+let durationCache = {};
 
 Log.time = {
 
   convert(hex) {
-    return parseInt(hex, 16);
+    return hex in convertCache ?
+      convertCache[hex] : convertCache[hex] = parseInt(hex, 16);
   },
 
   displayDate(d) {
-    switch (Log.config.system.calendar) {
-      case 'aequirys':
-      case 'desamber':
-        return Aequirys.display(Aequirys.convert(d));
-      case 'monocal':
-        return Monocal.short(Monocal.convert(d));
-      default:
-        return `${`0${d.getDate()}`.slice(-2)} ${months[d.getMonth()]} ${d.getFullYear().toString().substr(-2)}`;
+    const date = new Date(d).setHours(0, 0, 0, 0);
+    const format = date => {
+      switch (Log.config.system.calendar) {
+        case 'aequirys':
+        case 'desamber':
+          return Aequirys.display(Aequirys.convert(d));
+        case 'monocal':
+          return Monocal.short(Monocal.convert(d));
+        default:
+          return `${`0${d.getDate()}`.slice(-2)} ${months[d.getMonth()]} ${d.getFullYear().toString().substr(-2)}`;
+      }
     }
+
+    return date in displayDateCache ?
+      displayDateCache[date] : displayDateCache[date] = format(date)
   },
 
   duration(startHex, endHex) {
-    return Log.time.durationSeconds(startHex, endHex) / 3600;
+    const tag = `${startHex}${endHex}`;
+    return tag in durationCache ?
+      durationCache[tag] :
+      durationCache[tag] = Log.time.durationSeconds(startHex, endHex) / 3600;
   },
 
   durationSeconds(startHex, endHex) {
@@ -57,15 +71,21 @@ Log.time = {
   },
 
   stamp(d) {
-    switch (Log.config.system.timeFormat) {
-      case '24':
-        return `${`0${d.getHours()}`.substr(-2)}:${`0${d.getMinutes()}`.substr(-2)}`;
-      case '12':
-        return Log.time.to12Hours(d);
-      default:
-        const t = Log.time.toDecimal(d).toString();
-        return `${t.substr(0, (t.length - 3))}:${t.substr(-3)}`;
+    const hm = `${d.getHours()}${d.getMinutes()}`;
+    const format = date => {
+      switch (Log.config.system.timeFormat) {
+        case '24':
+          return `${`0${d.getHours()}`.substr(-2)}:${`0${d.getMinutes()}`.substr(-2)}`;
+        case '12':
+          return Log.time.to12Hours(d);
+        default:
+          const t = Log.time.toDecimal(d).toString();
+          return `${t.substr(0, (t.length - 3))}:${t.substr(-3)}`;
+      }
     }
+
+    return hm in timestampCache ?
+      timestampCache[hm] : timestampCache[hm] = format(d)
   },
 
   timeago(epoch) {
@@ -102,7 +122,9 @@ Log.time = {
   },
 
   toEpoch(hex) {
-    return new Date(Log.time.convert(hex) * 1E3);
+    return hex in toEpochCache ?
+      toEpochCache[hex] :
+      toEpochCache[hex] = new Date(Log.time.convert(hex) * 1E3);
   },
 
   toHex(date) {
