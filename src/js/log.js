@@ -142,6 +142,7 @@ var Log = {
   displayStat(value) {
     if (Log.config.ui.stat === 'human') {
       const split = value.toString().split('.');
+      if (split.length === 1) split[1] = '0';
       return `${split[0]}:${`0${(Number(`0.${split[1]}`) * 60).toFixed(0)}`.substr(-2)}`;
     } else return value.toFixed(2);
   },
