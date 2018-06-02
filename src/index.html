@@ -431,8 +431,8 @@
       </div>
 
       <div id="entries" class="dn sect hf wf oya hoverScroll">
-        <table class="wf bn">
-          <thead class="f6 al">
+        <table class="wf bn f6">
+          <thead class="al">
             <th class="pl0">ID</th>
             <th>Date</th>
             <th>Time</th>
@@ -441,13 +441,13 @@
             <th>Project</th>
             <th class="pr0">Details</th>
           </thead>
-          <tbody id="logbook" class="nodrag f6"></tbody>
+          <tbody id="logbook" class="nodrag"></tbody>
         </table>
 
         <dialog id="editModal" class="p4 cn bn h6" close>
           <p id="editID" class="mb4 f6 lhc">Entry #000</p>
 
-          <form id="editForm" onsubmit="return false">
+          <form id="editForm" class="nodrag" onsubmit="return false">
             <input id="editEntryID" type="hidden">
             <input id="editSector" class="db wf p2 mb3 bn" type="text" placeholder="Sector">
             <input id="editProject" class="db wf p2 mb3 bn" type="text" placeholder="Project">
@@ -772,7 +772,7 @@
         </div>
       </div>
 
-      <dialog id="delModal" class="p4 cn bn" close>
+      <dialog id="delModal" class="p4 cn bn nodrag" close>
         <p id="delMessage" class="mb4 f6 lhc">Are you sure you want to delete?</p>
 
         <ul id="delList" class="mb3 lsn"></ul>
