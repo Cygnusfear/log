@@ -4,71 +4,40 @@ let journalCache = {};
 
 Log.journal = {
 
-  dialog() {
-    document.getElementById('entryModal').showModal();
-  },
-
   displayCalendar() {
     const sort = Log.data.sortEntries(Log.data.getEntriesByPeriod(new Date(2018, 0, 1), new Date(2018, 11, 31)));
 
     if (sort === undefined || sort.length === 0) return;
 
-    const sf = ent => {
-      const list = Log.data.listSectors(ent);
-      let a = 0;
-      let b = '';
+    cal.innerHTML = '';
 
-      for (let i = list.length - 1; i >= 0; i--) {
-        const x = Log.data.sectorPercentage(list[i], ent);
-        x > a && (a = x, b = list[i]);
-      }
-
-      return b;
-    };
+    const frag = document.createDocumentFragment();
 
     for (let i = 0; i < 26; i++) {
-      const rw = cal.insertRow(i);
+      const row = document.createElement('tr');
+      frag.appendChild(row);
+
       for (let o = 0; o < 14; o++) {
         const id = ((14 * i) + o) + 1;
-        const cell = rw.insertCell(o);
+        const cell = document.createElement('td');
         const pos = sort[id - 1];
 
-        cell.innerHTML = '--';
+        if (pos !== undefined && pos.length !== 0) {
+          const d = Log.time.toEpoch(pos[0].s);
 
-        if (pos === undefined || pos.length === 0) {
-          cell.style.opacity = '.5'
-          continue;
-        }
+          cell.innerHTML = Log.time.displayDate(d);
 
-        let date = '';
-        let d = Log.time.toEpoch(pos[0].s);
-        switch (Log.config.system.calendar) {
-          case 'aequirys':
-          case 'desamber':
-            date = `${Aequirys.month(id)}${`0${Aequirys.date(id)}`.substr(-2)}`;
-            break;
-          case 'monocal':
-            date = Monocal.shorter(Monocal.convert(d)).substring(0, 4);
-            break;
-          default:
-            date = `${months[d.getMonth()].substring(0, 1)}${`0${d.getDate()}`.slice(-2)}`;
-            break;
-        }
-
-        cell.innerHTML = date;
-
-        const foc = sf(pos);
-
-        if (Log.config.ui.colourMode === 'none') {
-          cell.style.borderLeft = `2px solid ${Log.config.ui.colour}`;
+          cell.setAttribute('onclick', `Log.journal.displayEntry(Log.time.toEpoch('${pos[0].s}'))`);
+          cell.title = Log.time.displayDate(d);
         } else {
-          cell.style.borderLeft = `2px solid ${Log.palette[foc] || Log.projectPalette[foc] || Log.config.ui.colour}`;
+          cell.innerHTML = '-';
         }
 
-        cell.setAttribute('onclick', `Log.journal.displayEntry(Log.time.toEpoch('${pos[0].s}'))`);
-        cell.title = Log.time.displayDate(Log.time.toEpoch(pos[0].s));
+        row.appendChild(cell);
       }
     }
+
+    cal.appendChild(frag)
   },
 
   displayEntry(date = new Date()) {
@@ -145,6 +114,6 @@ Log.journal = {
 
     jEnt.appendChild(fragment);
 
-    Log.journal.dialog();
+    document.getElementById('entryModal').showModal();
   },
 };
