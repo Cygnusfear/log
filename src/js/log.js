@@ -292,8 +292,6 @@ var Log = {
     localStorage.setItem('user', JSON.stringify(user));
     dataStore.set('log', user.log);
 
-    secDetailCache = {};
-    proDetailCache = {};
     journalCache = {};
 
     document.getElementById('editModal').close();
@@ -306,15 +304,12 @@ var Log = {
     if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
     if (typeof key !== 'string' || key.length === 0) return;
 
-    let ent = [];
-    let his = [];
-    let dur = [];
-    let pkh = [];
-    let pkd = [];
-
-    let title;
-    let lastUpdate;
+    let ent = [], his = [], dur = [], pkh = [], pkd = [];
+    let title = '', lastUpdate = '';
     let sum, min, max, avg, enc, stk, phh, pdh;
+
+    let entArr = [];
+    let entryTable;
 
     if (mode === 0) {
       ent = Log.data.getEntriesBySector(
@@ -337,6 +332,9 @@ var Log = {
       stk = sSTK;
       phh = sPHH;
       pdh = sPDH;
+
+      entArr = Log.data.getEntriesBySector(key);
+      entryTable = sectorLogs;
     } else {
       ent = Log.data.getEntriesByProject(
         key, Log.data.getRecentEntries(Log.config.ui.view - 1)
@@ -358,6 +356,9 @@ var Log = {
       stk = pSTK;
       phh = pPHH;
       pdh = pPDH;
+
+      entArr = Log.data.getEntriesByProject(key);
+      entryTable = projectLogs;
     }
 
     const sortHis = Log.data.sortEntries(his);
@@ -378,9 +379,62 @@ var Log = {
     phh.innerHTML = Log.data.peakHour(pkh);
     pkd.innerHTML = Log.data.peakDay(pkd);
 
+    if (typeof ent !== 'object' || el === 0) return;
+
     const frag = document.createDocumentFragment();
     const tr = document.createElement('tr');
     const td = document.createElement('td');
+
+    const idCell = td.cloneNode();
+    const spCell = td.cloneNode();
+    const descCell = td.cloneNode();
+
+    idCell.className = 'pl0';
+    spCell.className = 'c-pt';
+    descCell.className = 'pr0';
+
+    const rev = entArr.slice(entArr.length - 100).reverse();
+
+    entryTable.innerHTML = '';
+
+    for (let i = 0, l = rev.length; i < l; i++) {
+      const row = tr.cloneNode();
+      const id = idCell.cloneNode();
+      const date = td.cloneNode();
+      const time = td.cloneNode();
+      const span = td.cloneNode();
+      const pro = spCell.cloneNode();
+      const desc = descCell.cloneNode();
+      const startDate = Log.time.toEpoch(rev[i].s);
+      const startTime = Log.time.stamp(startDate);
+      const detailKey = mode === 0 ? rev[i].t : rev[i].c;
+
+      pro.setAttribute('onclick', `Log.nav.toDetail(${mode === 0 ? 1 : 0}, '${detailKey}')`);
+
+      id.innerHTML = rev[i].id + 1;
+      date.innerHTML = Log.time.displayDate(startDate);
+
+      if (rev[i].e === undefined) {
+        time.innerHTML = startTimestartTime;
+        span.innerHTML = '–';
+      } else {
+        time.innerHTML = `${startTime}–${Log.time.stamp(Log.time.toEpoch(rev[i].e))}`;
+        span.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
+      }
+
+      pro.innerHTML = detailKey;
+      desc.innerHTML = rev[i].d;
+
+      row.appendChild(id);
+      row.appendChild(date);
+      row.appendChild(time);
+      row.appendChild(span);
+      row.appendChild(pro);
+      row.appendChild(desc);
+      frag.appendChild(row);
+    }
+
+    entryTable.appendChild(frag);
 
     if (mode === 0) {
 
@@ -402,59 +456,6 @@ var Log = {
         Log.vis.focusBar(1, pfSortVal, proFocDetail);
         Log.vis.legend(1, pfSortVal, proLeg);
       }
-
-      if (typeof ent !== 'object' || el === 0) return;
-
-      const arr = Log.data.getEntriesBySector(key);
-      const rev = arr.slice(arr.length - 100).reverse();
-
-      const idCell = td.cloneNode();
-      const proCell = td.cloneNode();
-      const descCell = td.cloneNode();
-
-      idCell.className = 'pl0';
-      proCell.className = 'c-pt';
-      descCell.className = 'pr0';
-
-      sectorLogs.innerHTML = '';
-
-      for (let i = 0, l = rev.length; i < l; i++) {
-        const row = tr.cloneNode();
-        const id = idCell.cloneNode();
-        const date = td.cloneNode();
-        const time = td.cloneNode();
-        const span = td.cloneNode();
-        const pro = proCell.cloneNode();
-        const desc = descCell.cloneNode();
-        const startDate = Log.time.toEpoch(rev[i].s);
-        const startTime = Log.time.stamp(startDate);
-
-        pro.setAttribute('onclick', `Log.nav.toProjectDetail('${rev[i].t}')`);
-
-        id.innerHTML = rev[i].id + 1;
-        date.innerHTML = Log.time.displayDate(startDate);
-
-        if (rev[i].e === undefined) {
-          time.innerHTML = startTimestartTime;
-          span.innerHTML = '–';
-        } else {
-          time.innerHTML = `${startTime}–${Log.time.stamp(Log.time.toEpoch(rev[i].e))}`;
-          span.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
-        }
-
-        pro.innerHTML = rev[i].t;
-        desc.innerHTML = rev[i].d;
-
-        row.appendChild(id);
-        row.appendChild(date);
-        row.appendChild(time);
-        row.appendChild(span);
-        row.appendChild(pro);
-        row.appendChild(desc);
-        frag.appendChild(row);
-      }
-
-      sectorLogs.appendChild(frag);
     } else {
 
       Log.vis.peakChart(0, pkh, pPKH);
@@ -475,60 +476,6 @@ var Log = {
         Log.vis.focusBar(0, sfSortVal, sectorFocusDistribution);
         Log.vis.legend(0, sfSortVal, sectorLegend);
       }
-
-      const arr = Log.data.getEntriesByProject(key);
-      const rev = arr.slice(arr.length - 100).reverse();
-
-      projectLogs.innerHTML = '';
-
-      const frag = document.createDocumentFragment();
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-
-      const idCell = td.cloneNode();
-      const secCell = td.cloneNode();
-      const descCell = td.cloneNode();
-
-      idCell.className = 'pl0';
-      secCell.className = 'c-pt';
-      descCell.className = 'pr0';
-
-      for (let i = 0, l = rev.length; i < l; i++) {
-        const row = tr.cloneNode();
-        const id = idCell.cloneNode();
-        const date = td.cloneNode();
-        const time = td.cloneNode();
-        const span = td.cloneNode();
-        const sec = secCell.cloneNode();
-        const desc = descCell.cloneNode();
-        const startDate = Log.time.toEpoch(rev[i].s);
-        const startTime = Log.time.stamp(startDate);
-
-        id.innerHTML = rev[i].id + 1;
-        date.innerHTML = Log.time.displayDate(startDate);
-
-        if (rev[i].e === undefined) {
-          time.innerHTML = `${startTime}`;
-          span.innerHTML = '–';
-        } else {
-          time.innerHTML = `${startTime}–${Log.time.stamp(Log.time.toEpoch(rev[i].e))}`;
-          span.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
-        }
-
-        sec.setAttribute('onclick', `Log.nav.toSectorDetail('${rev[i].c}')`);
-        sec.innerHTML = rev[i].c;
-        desc.innerHTML = rev[i].d;
-
-        row.appendChild(id);
-        row.appendChild(date);
-        row.appendChild(time);
-        row.appendChild(span);
-        row.appendChild(sec);
-        row.appendChild(desc);
-        frag.appendChild(row);
-      }
-
-      projectLogs.appendChild(frag);
     }
   },
 
@@ -621,8 +568,6 @@ var Log = {
     Log.cache.pkh = Log.data.peakHours() || [];
     Log.cache.pkd = Log.data.peakDays() || [];
     Log.cache.dur = Log.data.listDurations() || [];
-
-    console.log('Session cache generated');
   },
 
   todayStats(ent) {
@@ -717,7 +662,7 @@ var Log = {
 
     if (user.log.length === 0) {
       Log.nav.index = 5;
-      Log.tab('gui', 'sect', 'tab');
+      Log.tab('guide', 'sect', 'tab');
       return;
     }
 
@@ -774,13 +719,9 @@ var Log = {
 
     try {
       Log.config = user.config;
-      console.log('Config installed');
       Log.palette = user.palette;
-      console.log('Sector palette installed');
       Log.projectPalette = user.projectPalette;
-      console.log('Project palette installed');
       Log.log = Log.data.parse(user.log);
-      console.log('Logs installed');
     } catch (e) {
       console.error('User log data contains errors');
       new window.Notification('There is something wrong with this file.');
