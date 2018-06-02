@@ -30,8 +30,7 @@ function parseDataFile(filePath, defaults) {
   try {
     return JSON.parse(fs.readFileSync(filePath));
   } catch (error) {
-    console.error('Something went wrong with file parsing')
-    // return defaults;
+    return defaults;
   }
 }
 
