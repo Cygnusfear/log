@@ -100,7 +100,7 @@ Log.journal = {
       time.innerHTML = `${Log.time.stamp(Log.time.toEpoch(ent[i].s))} &ndash; ${Log.time.stamp(Log.time.toEpoch(ent[i].e))}`;
       sector.innerHTML = ent[i].c;
       project.innerHTML = ent[i].t;
-      duration.innerHTML = ent[i].dur.toFixed(2);
+      duration.innerHTML = Log.displayStat(ent[i].dur);
       desc.innerHTML = ent[i].d;
 
       item.appendChild(id);
