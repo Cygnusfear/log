@@ -12,7 +12,7 @@ let user = {};
 let durPercentCache = {};
 let widthCache = {};
 
-var Log = {
+let Log = {
 
   path: '',
   modalMode: false,
@@ -39,12 +39,12 @@ var Log = {
 
   commanderIndex: 0,
 
-  status() {
+  status () {
     if (Log.log.length === 0) return;
     return Log.log.slice(-1)[0].e === undefined;
   },
 
-  timer() {
+  timer () {
     if (!Log.status()) return;
     const l = Log.time.toEpoch(Log.log.slice(-1)[0].s).getTime();
     const clock = document.getElementById('timer');
@@ -62,69 +62,67 @@ var Log = {
     }, 1E3);
   },
 
-  playSound(sound) {
-    const audio = new Audio(`${__dirname}/media/${sound}.mp3`);
-    audio.play();
+  playSound (sound) {
+    new Audio(`${__dirname}/media/${sound}.mp3`).play();
   },
 
-  displayEntryTable(ent = user.log, num = 50, con = logbook) {
+  displayEntries (ent = user.log, num = 50, con = logbook) {
     const el = ent.length;
+
     if (typeof ent !== 'object' || el === 0) return;
     if (typeof num !== 'number') return;
     if (typeof con !== 'object' || con === null) return;
 
+    con.innerHTML = '';
+
     const arr = ent.slice(el - num).reverse();
     const frag = document.createDocumentFragment();
-    const tr = document.createElement('tr');
     const td = document.createElement('td');
+
+    td.className = 'c-pt hover';
+
     const idc = td.cloneNode();
-    const datec = td.cloneNode();
-    const secc = td.cloneNode();
-    const proc = td.cloneNode();
     const descc = td.cloneNode();
 
     idc.className = 'pl0 c-pt hover';
-    datec.className = 'c-pt hover';
-    secc.className = 'c-pt hover';
-    proc.className = 'c-pt hover';
     descc.className = 'pr0';
 
-    con.innerHTML = '';
-
     for (let i = 0, l = arr.length; i < l; i++) {
-      const row = tr.cloneNode();
-      const id = idc.cloneNode();
-      const date = datec.cloneNode();
-      const time = td.cloneNode();
-      const span = td.cloneNode();
-      const sec = secc.cloneNode();
-      const pro = proc.cloneNode();
-      const desc = descc.cloneNode();
-      const startDate = Log.time.toEpoch(arr[i].s);
+      const {s, e, c, t, d} = arr[i];
+      const startDate = Log.time.toEpoch(s);
       const startTime = Log.time.stamp(startDate);
       const entryID = el - i - 1;
+      const row = document.createElement('tr');
+      const id = idc.cloneNode();
+      const date = td.cloneNode();
+      const time = td.cloneNode();
+      const span = td.cloneNode();
+      const sec = td.cloneNode();
+      const pro = td.cloneNode();
+      const dsc = descc.cloneNode();
 
       row.id = `r${entryID}`;
 
       id.setAttribute('onclick', `Log.edit(${entryID})`);
-      date.setAttribute('onclick', `Log.nav.toJournal('${arr[i].s}')`);
-      sec.setAttribute('onclick', `Log.nav.toDetail(0, '${arr[i].c}')`);
-      pro.setAttribute('onclick', `Log.nav.toDetail(1, '${arr[i].t}')`);
+      date.setAttribute('onclick', `Log.nav.toJournal('${s}')`);
+      sec.setAttribute('onclick', `Log.nav.toDetail(0, '${c}')`);
+      pro.setAttribute('onclick', `Log.nav.toDetail(1, '${t}')`);
 
       id.innerHTML = el - i;
       date.innerHTML = Log.time.displayDate(startDate);
 
-      if (arr[i].e === undefined) {
+      if (e === undefined) {
         time.innerHTML = `${startTime} –`;
         span.innerHTML = '—';
       } else {
-        time.innerHTML = `${startTime} – ${Log.time.stamp(Log.time.toEpoch(arr[i].e))}`;
-        span.innerHTML = Log.displayStat(Log.time.duration(arr[i].s, arr[i].e));
+        const endTime = Log.time.stamp(Log.time.toEpoch(e));
+        time.innerHTML = `${startTime} – ${endTime}`;
+        span.innerHTML = Log.displayStat(Log.time.duration(s, e));
       }
 
-      sec.innerHTML = arr[i].c;
-      pro.innerHTML = arr[i].t;
-      desc.innerHTML = arr[i].d;
+      sec.innerHTML = c;
+      pro.innerHTML = t;
+      dsc.innerHTML = d;
 
       row.appendChild(id);
       row.appendChild(date);
@@ -132,47 +130,59 @@ var Log = {
       row.appendChild(span);
       row.appendChild(sec);
       row.appendChild(pro);
-      row.appendChild(desc);
+      row.appendChild(dsc);
       frag.appendChild(row);
     }
 
     con.appendChild(frag);
   },
 
-  displayStat(value) {
-    if (Log.config.ui.stat === 'human') {
-      const split = value.toString().split('.');
-      if (split.length === 1) split[1] = '0';
-      return `${split[0]}:${`0${(Number(`0.${split[1]}`) * 60).toFixed(0)}`.substr(-2)}`;
-    } else return value.toFixed(2);
+  displayStat (val) {
+    if (Log.config.ui.stat === 'decimal') {
+      return val.toFixed(2);
+    } else {
+      const v = val.toString().split('.');
+      if (v.length === 1) v[1] = '0';
+      const mm = `0${(Number(`0.${v[1]}`) * 60).toFixed(0)}`.substr(-2);
+      return `${v[0]}:${mm}`;
+    }
   },
 
   /**
    * Summon Edit modal
    * @param {number} id - Entry ID
    */
-  edit(id) {
-    const entry = user.log[id];
-
+  edit (id) {
     editStart.value = '';
     editEnd.value = '';
 
-    editID.innerHTML = `Entry ${id + 1}`;
+    const entry = user.log[id];
+    const s = Log.time.toEpoch(entry.s);
+    const sy = s.getFullYear();
+    const sm = `0${s.getMonth() + 1}`.substr(-2);
+    const sd = `0${s.getDate()}`.substr(-2);
+    const sh = `0${s.getHours()}`.substr(-2);
+    const sn = `0${s.getMinutes()}`.substr(-2);
+    const ss = `0${s.getSeconds()}`.substr(-2);
 
+    editID.innerHTML = id + 1;
     editEntryID.value = id;
-
     editSector.value = entry.c;
     editProject.value = entry.t;
     editDesc.value = entry.d;
 
-    const start = Log.time.toEpoch(entry.s);
-
-    editStart.value = `${start.getFullYear()}-${`0${start.getMonth() + 1}`.substr(-2)}-${`0${start.getDate()}`.substr(-2)}T${`0${start.getHours()}`.substr(-2)}:${`0${start.getMinutes()}`.substr(-2)}:${`0${start.getSeconds()}`.substr(-2)}`;
+    editStart.value = `${sy}-${sm}-${sd}T${sh}:${sn}:${ss}`;
 
     if (entry.e !== undefined) {
-      const end = Log.time.toEpoch(entry.e);
+      const e = Log.time.toEpoch(entry.e);
+      const ey = e.getFullYear();
+      const em = `0${e.getMonth() + 1}`.substr(-2);
+      const ed = `0${e.getDate()}`.substr(-2);
+      const eh = `0${e.getHours()}`.substr(-2);
+      const en = `0${e.getMinutes()}`.substr(-2);
+      const es = `0${e.getSeconds()}`.substr(-2);
 
-      editEnd.value = `${end.getFullYear()}-${`0${end.getMonth() + 1}`.substr(-2)}-${`0${end.getDate()}`.substr(-2)}T${`0${end.getHours()}`.substr(-2)}:${`0${end.getMinutes()}`.substr(-2)}:${`0${end.getSeconds()}`.substr(-2)}`;
+      editEnd.value = `${ey}-${em}-${ed}T${eh}:${en}:${es}`;
     }
 
     Log.modalMode = true;
@@ -183,7 +193,7 @@ var Log = {
    * Summon Delete modal
    * @param {string} i - Command input
    */
-  confirmDelete(i) {
+  confirmDelete (i) {
     delList.innerHTML = '';
 
     const words = i.split(' ').slice(1);
@@ -209,31 +219,27 @@ var Log = {
         `Are you sure you want to delete the following ${aui.length} entries? This can't be undone.` :
         'Are you sure you want to delete the following entry? This can\'t be undone.' ;
 
+      const span = document.createElement('span');
+      span.className = 'mr3 o7';
+
       aui.forEach(i => {
-        const ent = user.log[Number(i) - 1];
+        const {s, e, c, t, d} = user.log[Number(i) - 1];
+        const start = Log.time.stamp(Log.time.toEpoch(s));
+        const end = Log.time.stamp(Log.time.toEpoch(e));
         const li = document.createElement('li');
-        const id = document.createElement('span');
-        const tm = document.createElement('span');
-        const sc = document.createElement('span');
+        const id = span.cloneNode();
+        const tm = span.cloneNode();
+        const sc = span.cloneNode();
         const pr = document.createElement('span');
         const dc = document.createElement('p');
 
         li.className = 'f6 lhc pb3 mb3';
-
-        id.className = 'mr3 o7';
         id.innerHTML = i;
+        tm.innerHTML = `${start} &ndash; ${end}`;
+        sc.innerHTML = c;
 
-        tm.className = 'mr3 o7';
-        tm.innerHTML = `${Log.time.stamp(Log.time.toEpoch(ent.s))} &ndash; ${Log.time.stamp(Log.time.toEpoch(ent.e))}`;
-
-        sc.className = 'mr3 o7';
-        sc.innerHTML = ent.c;
-
-        pr.className = 'o7';
-        pr.innerHTML = ent.t;
-
-        dc.className = 'f4 lhc';
-        dc.innerHTML = ent.d;
+        Object.assign(pr, {className: 'o7', innerHTML: t});
+        Object.assign(dc, {className: 'f4 lhc', innerHTML: d});
 
         li.appendChild(id);
         li.appendChild(tm);
@@ -245,14 +251,13 @@ var Log = {
     }
 
     delConfirm.setAttribute('onclick', `Log.deleteIt('${i}')`);
-
     delModal.showModal();
   },
 
   /**
    * Hacky solution
    */
-  deleteIt(i) {
+  deleteIt (i) {
     Log.console.deleteEntry(i);
     delModal.close();
   },
@@ -261,33 +266,35 @@ var Log = {
    * Update entry
    * @param {number} id - Entry ID
    */
-  update(id) {
+  update (id) {
     const row = document.getElementById(`r${id}`);
-    const children = row.childNodes;
-    const start = new Date(editStart.value);
-    const end = editEnd.value === '' ? '' : new Date(editEnd.value);
-    const startHex = Log.time.toHex(start);
-    const endHex = end === '' ? undefined : Log.time.toHex(end);
+    const nodes = row.childNodes;
+    const s = new Date(editStart.value);
+    const e = editEnd.value === '' ? '' : new Date(editEnd.value);
+    const sh = Log.time.toHex(s);
+    const eh = e === '' ? undefined : Log.time.toHex(e);
 
-    children[1].innerHTML = Log.time.displayDate(start);
+    nodes[1].innerHTML = Log.time.displayDate(s);
 
-    if (endHex === undefined) {
-      children[2].innerHTML = Log.time.stamp(start);
-      children[3].innerHTML = '—';
+    if (eh === undefined) {
+      nodes[2].innerHTML = Log.time.stamp(s);
+      nodes[3].innerHTML = '—';
     } else {
-      children[2].innerHTML = `${Log.time.stamp(start)} – ${Log.time.stamp(end)}`;
-      children[3].innerHTML = Log.time.duration(startHex, endHex).toFixed(2);
+      nodes[2].innerHTML = `${Log.time.stamp(s)} – ${Log.time.stamp(e)}`;
+      nodes[3].innerHTML = Log.time.duration(sh, eh).toFixed(2);
     }
 
-    children[4].innerHTML = editSector.value;
-    children[5].innerHTML = editProject.value;
-    children[6].innerHTML = editDesc.value;
+    nodes[4].innerHTML = editSector.value;
+    nodes[5].innerHTML = editProject.value;
+    nodes[6].innerHTML = editDesc.value;
 
-    user.log[id].s = startHex;
-    user.log[id].e = endHex;
-    user.log[id].c = editSector.value;
-    user.log[id].t = editProject.value;
-    user.log[id].d = editDesc.value;
+    Object.assign(user.log[id], {
+      s: sh,
+      e: eh,
+      c: editSector.value,
+      t: editProject.value,
+      d: editDesc.value
+    })
 
     localStorage.setItem('user', JSON.stringify(user));
     dataStore.set('log', user.log);
@@ -300,7 +307,7 @@ var Log = {
     Log.refresh();
   },
 
-  viewDetails(mode, key) {
+  viewDetails (mode, key) {
     if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
     if (typeof key !== 'string' || key.length === 0) return;
 
@@ -381,10 +388,12 @@ var Log = {
 
     if (typeof ent !== 'object' || el === 0) return;
 
+    entryTable.innerHTML = '';
+
+    const rev = entArr.slice(entArr.length - 100).reverse();
     const frag = document.createDocumentFragment();
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-
     const idCell = td.cloneNode();
     const spCell = td.cloneNode();
     const descCell = td.cloneNode();
@@ -393,39 +402,39 @@ var Log = {
     spCell.className = 'c-pt';
     descCell.className = 'pr0';
 
-    const rev = entArr.slice(entArr.length - 100).reverse();
-
-    entryTable.innerHTML = '';
-
     for (let i = 0, l = rev.length; i < l; i++) {
+      const {s, e, c, t, d, id} = rev[i];
+      const startDate = Log.time.toEpoch(s);
+      const startTime = Log.time.stamp(startDate);
+      const detailKey = mode === 0 ? t : c;
       const row = tr.cloneNode();
-      const id = idCell.cloneNode();
+      const idd = idCell.cloneNode();
       const date = td.cloneNode();
       const time = td.cloneNode();
       const span = td.cloneNode();
       const pro = spCell.cloneNode();
       const desc = descCell.cloneNode();
-      const startDate = Log.time.toEpoch(rev[i].s);
-      const startTime = Log.time.stamp(startDate);
-      const detailKey = mode === 0 ? rev[i].t : rev[i].c;
 
-      pro.setAttribute('onclick', `Log.nav.toDetail(${mode === 0 ? 1 : 0}, '${detailKey}')`);
+      pro.setAttribute(
+        'onclick', `Log.nav.toDetail(${mode === 0 ? 1 : 0}, '${detailKey}')`
+      );
 
-      id.innerHTML = rev[i].id + 1;
+      idd.innerHTML = id + 1;
       date.innerHTML = Log.time.displayDate(startDate);
 
       if (rev[i].e === undefined) {
         time.innerHTML = startTimestartTime;
         span.innerHTML = '–';
       } else {
-        time.innerHTML = `${startTime}–${Log.time.stamp(Log.time.toEpoch(rev[i].e))}`;
-        span.innerHTML = Log.time.duration(rev[i].s, rev[i].e).toFixed(2);
+        const end = Log.time.stamp(Log.time.toEpoch(e));
+        time.innerHTML = `${startTime}–${end}`;
+        span.innerHTML = Log.time.duration(s, e).toFixed(2);
       }
 
       pro.innerHTML = detailKey;
-      desc.innerHTML = rev[i].d;
+      desc.innerHTML = d;
 
-      row.appendChild(id);
+      row.appendChild(idd);
       row.appendChild(date);
       row.appendChild(time);
       row.appendChild(span);
@@ -437,7 +446,6 @@ var Log = {
     entryTable.appendChild(frag);
 
     if (mode === 0) {
-
       Log.vis.peakChart(0, pkh, sPKH);
       Log.vis.peakChart(1, pkd, sPKD);
 
@@ -457,7 +465,6 @@ var Log = {
         Log.vis.legend(1, pfSortVal, proLeg);
       }
     } else {
-
       Log.vis.peakChart(0, pkh, pPKH);
       Log.vis.peakChart(1, pkd, pPKD);
 
@@ -479,12 +486,12 @@ var Log = {
     }
   },
 
-  calcDurPercent(hex) {
-    if (hex in durPercentCache) {
-      return durPercentCache[hex];
+  calcDurPercent (h) {
+    if (h in durPercentCache) {
+      return durPercentCache[h];
     } else {
-      const s = Log.time.toEpoch(hex);
-      return durPercentCache[hex] = (
+      const s = Log.time.toEpoch(h);
+      return durPercentCache[h] = (
         s.getTime() / 1E3 -
         (new Date(
           s.getFullYear(), s.getMonth(), s.getDate()
@@ -493,12 +500,12 @@ var Log = {
     }
   },
 
-  calcWidth(dur) {
+  calcWidth (dur) {
     return dur in widthCache ? widthCache[dur] :
-      widthCache[dur] = dur * 360 / 8640 * 100
+      widthCache[dur] = dur * 360 / 8640 * 100;
   },
 
-  tab(s, g, t, v = false) {
+  tab (s, g, t, v = false) {
     const x = document.getElementsByClassName(g);
     const b = document.getElementsByClassName(t);
     const n = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl o5 mr3`;
@@ -518,15 +525,15 @@ var Log = {
       `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
   },
 
-  setDayLabel(day = new Date().getDay()) {
-    currentDay.innerHTML = days[day].substring(0, 3);
+  setDayLabel (d = new Date().getDay()) {
+    currentDay.innerHTML = days[d].substring(0, 3);
   },
 
-  setTimeLabel(hour = new Date().getHours()) {
-    currentHour.innerHTML = `${hour}:00`;
+  setTimeLabel (h = new Date().getHours()) {
+    currentHour.innerHTML = `${h}:00`;
   },
 
-  reset() {
+  reset () {
     clearInterval(Log.clock);
     document.getElementById('timer').innerHTML = '00:00:00';
   },
@@ -538,56 +545,58 @@ var Log = {
 
     index: 0,
 
-    horizontal() {
-      Log.nav.index = Log.nav.index === 5 ? 0 : Log.nav.index + 1;
-      Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
+    horizontal () {
+      const {nav, tab} = Log;
+      nav.index = nav.index === 5 ? 0 : nav.index + 1;
+      tab(nav.menu[nav.index], 'sect', 'tab');
     },
 
-    toJournal(h) {
+    toJournal (h) {
       Log.tab('journal', 'sect', 'tab');
       Log.journal.translate(h);
     },
 
-    toDetail(mode, key) {
-      if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
+    toDetail (mod, key) {
+      if (typeof mod !== 'number' || mod < 0 || mod > 1) return;
       if (typeof key !== 'string' || key.length === 0) return;
 
-      const section = mode === 0 ? 'sectorDetails' : 'projectDetails';
+      const s = mod === 0 ? 'sectorDetails' : 'projectDetails';
 
       Log.tab('details', 'sect', 'tab');
-      Log.tab(section, 'subsect', 'subtab', true);
-      Log.viewDetails(mode, key);
+      Log.tab(s, 'subsect', 'subtab', true);
+      Log.viewDetails(mod, key);
     }
   },
 
-  generateSessionCache() {
-    Log.cache.sortEnt = Log.data.sortEntries();
-    Log.cache.sec = Log.data.listSectors() || [];
-    Log.cache.pro = Log.data.listProjects() || [];
-    Log.cache.proFoc = Log.data.listFocus(1) || [];
-    Log.cache.pkh = Log.data.peakHours() || [];
-    Log.cache.pkd = Log.data.peakDays() || [];
-    Log.cache.dur = Log.data.listDurations() || [];
+  generateSessionCache () {
+    const {data} = Log;
+    Object.assign(Log.cache, {
+      sortEnt: data.sortEntries(),
+      sec: data.listSectors() || [],
+      pro: data.listProjects() || [],
+      proFoc: data.listFocus(1) || [],
+      pkh: data.peakHours() || [],
+      pkd: data.peakDays() || [],
+      dur: data.listDurations() || []
+    });
   },
 
-  todayStats(ent) {
+  todayStats (ent) {
     if (typeof ent !== 'object' || ent.length === 0) return;
 
     const dur = Log.data.listDurations(ent);
     const now = Log.log.slice(-1)[0];
     const nowDate = Log.time.toEpoch(now.s);
     const st = Log.time.stamp(nowDate);
-
-    const yesterday = Log.data.getEntriesByDate(nowDate.addDays(-1));
-    const yDur = Log.data.listDurations(yesterday);
-
+    const yd = Log.data.getEntriesByDate(nowDate.addDays(-1));
+    const yDur = Log.data.listDurations(yd);
     const sum = Log.data.calcSum(dur);
     const min = Log.data.calcMin(dur);
     const max = Log.data.calcMax(dur);
     const avg = Log.data.calcAvg(dur);
     const foc = Log.data.projectFocus(Log.data.listProjects(ent));
+    const yfoc = Log.data.projectFocus(Log.data.listProjects(yd));
     const enc = ent.length;
-
     const lhTrend = Log.data.trend(sum, Log.data.calcSum(yDur));
 
     tSUM.innerHTML = Log.displayStat(sum);
@@ -604,8 +613,8 @@ var Log = {
     tMAXtr.innerHTML = Log.data.trend(max, Log.data.calcMax(yDur));
     tAVGtr.innerHTML = Log.data.trend(avg, Log.data.calcAvg(yDur));
     tCOVtr.innerHTML = lhTrend;
-    tFOCtr.innerHTML = Log.data.trend(foc, Log.data.projectFocus(Log.data.listProjects(yesterday)));
-    tENCtr.innerHTML = Log.data.trend(enc, yesterday.length);
+    tFOCtr.innerHTML = Log.data.trend(foc, yfoc);
+    tENCtr.innerHTML = Log.data.trend(enc, yd.length);
 
     leid.innerHTML = user.log.length;
     ltim.innerHTML = now.e === undefined ?
@@ -618,7 +627,7 @@ var Log = {
     Log.vis.list(1, Log.data.sortValues(ent, 1, 0), proBars, ent);
   },
 
-  detailStats(ent) {
+  detailStats (ent) {
     const sortVal = Log.data.sortValues(Log.log, 0, 1);
 
     SUM.innerHTML = Log.displayStat(Log.data.calcSum(Log.cache.dur));
@@ -647,18 +656,13 @@ var Log = {
     Log.vis.legend(0, sortVal, secLegSum);
   },
 
-  load() {
-    ui.style.backgroundColor = Log.config.ui.bg;
-    ui.style.color = Log.config.ui.colour;
+  load () {
+    const {bg, colour} = Log.config.ui;
 
-    editModal.style.backgroundColor = Log.config.ui.bg;
-    editModal.style.color = Log.config.ui.colour;
-
-    entryModal.style.backgroundColor = Log.config.ui.bg;
-    entryModal.style.color = Log.config.ui.colour;
-
-    delModal.style.backgroundColor = Log.config.ui.bg;
-    delModal.style.color = Log.config.ui.colour;
+    Object.assign(ui.style, {backgroundColor: bg, color: colour});
+    Object.assign(editModal.style, {backgroundColor: bg, color: colour});
+    Object.assign(entryModal.style, {backgroundColor: bg, color: colour});
+    Object.assign(delModal.style, {backgroundColor: bg, color: colour});
 
     if (user.log.length === 0) {
       Log.nav.index = 5;
@@ -698,18 +702,18 @@ var Log = {
     }
 
     Log.vis.visualisation(Log.data.visualisation(sortOverview));
-    Log.displayEntryTable(user.log, 50);
+    Log.displayEntries(user.log, 50);
     Log.journal.displayCalendar();
 
     Log.timer();
   },
 
-  refresh() {
+  refresh () {
     Log.reset();
     Log.load();
   },
 
-  init() {
+  init () {
     user = {
       config: dataStore.get('config'),
       palette: dataStore.get('palette'),
@@ -745,7 +749,19 @@ var Log = {
       document.onkeydown = e => {
         if (Log.modalMode) return;
 
-        const hl = Log.console.history.length;
+        if (e.which >= 65 && e.which <= 90) {
+          commander.style.display = 'block';
+          commanderInput.focus();
+          return;
+        }
+
+        if (e.which >= 48 && e.which <= 54 && (e.ctrlKey || e.metaKey)) {
+          Log.nav.index = e.which - 49;
+          Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
+          return;
+        }
+
+        const l = Log.console.history.length;
 
         switch (e.which) {
           case 9: // Tab
@@ -761,30 +777,18 @@ var Log = {
             commander.style.display = 'block';
             commanderInput.focus();
             Log.commanderIndex++;
-            if (Log.commanderIndex > hl) Log.commanderIndex = hl;
-            commanderInput.value = Log.console.history[hl - Log.commanderIndex];
+            if (Log.commanderIndex > l) Log.commanderIndex = l;
+            commanderInput.value = Log.console.history[l - Log.commanderIndex];
             break;
           case 40: // Down
             commander.style.display = 'block';
             commanderInput.focus();
             Log.commanderIndex--;
             if (Log.commanderIndex < 1) Log.commanderIndex = 1;
-            commanderInput.value = Log.console.history[hl - Log.commanderIndex];
+            commanderInput.value = Log.console.history[l - Log.commanderIndex];
             break;
           default:
             break;
-        }
-
-        if (e.which >= 65 && e.which <= 90) {
-          commander.style.display = 'block';
-          commanderInput.focus();
-          return;
-        }
-
-        if (e.which >= 48 && e.which <= 54 && (e.ctrlKey || e.metaKey)) {
-          Log.nav.index = e.which - 49;
-          Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
-          return;
         }
       };
     }
@@ -792,32 +796,28 @@ var Log = {
     commander.addEventListener('submit', _ => {
       Log.commanderIndex = 0;
 
-      const val = commanderInput.value;
+      const v = commanderInput.value;
 
-      if (val !== '') {
-        const hl = Log.console.history.length;
+      if (v !== '') {
+        const l = Log.console.history.length;
 
-        if (val != Log.console.history[hl - 1]) {
-          Log.console.history[hl] = val;
-        }
-
-        if (hl >= 100) Log.console.history.shift();
+        if (v != Log.console.history[l - 1]) Log.console.history[l] = v;
+        if (l >= 100) Log.console.history.shift();
 
         localStorage.setItem('logHistory', JSON.stringify(Log.console.history));
-        Log.console.parse(val);
+        Log.console.parse(v);
       }
 
       commanderInput.value = '';
       commander.style.display = 'none';
     });
 
-
     document.addEventListener('click', ({target}) => {
       target === entryModal && entryModal.close()
     });
 
     editModal.onkeydown = e => {
-      (e.key === 'Escape') && (Log.modalMode = false);
+      if (e.key === 'Escape') Log.modalMode = false;
     }
 
     document.addEventListener('click', ({target}) => {

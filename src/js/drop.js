@@ -15,7 +15,7 @@ window.addEventListener('drop', e => {
   for (const file_id in files) {
     const file = files[file_id];
 
-    if (file.name.indexOf('.json') === -1) {
+    if (file.name.indexOf('.json') < 0) {
       console.log('skipped', file);
       continue;
     }

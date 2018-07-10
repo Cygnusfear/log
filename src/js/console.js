@@ -7,9 +7,10 @@ Log.console = {
   history: [],
 
   // TODO: Rewrite
-  parse(input) {
+  parse (input) {
     const p = Log.console.getParams(input);
     const s = input.split(' ');
+
     switch (s[0].toLowerCase()) {
       case 'start':
       case 'begin':
@@ -105,7 +106,7 @@ Log.console = {
     }
   },
 
-  getParams(input) {
+  getParams (input) {
     if (input === undefined) return;
     if (typeof input !== 'string' || !input.includes('"')) return;
 
@@ -130,7 +131,7 @@ Log.console = {
     return params;
   },
 
-  importData() {
+  importData () {
     const path = dialog.showOpenDialog({
       properties: ['openFile']
     });
@@ -144,7 +145,9 @@ Log.console = {
     try {
       s = fs.readFileSync(path[0], 'utf-8');
     } catch (e) {
-      new window.Notification('An error occured while trying to load this file.');
+      new window.Notification(
+        'An error occured while trying to load this file.'
+      );
       return;
     }
 
@@ -154,7 +157,9 @@ Log.console = {
     } catch (e) {
       console.error(e)
       console.error('Parse failed. Check file')
-      new window.Notification('There is something wrong with this file. Import failed.')
+      new window.Notification(
+        'There is something wrong with this file. Import failed.'
+      );
       return;
     }
 
@@ -190,7 +195,7 @@ Log.console = {
     new window.Notification('Log data was successfully imported.');
   },
 
-  exportData() {
+  exportData () {
     const data = JSON.stringify(JSON.parse(localStorage.getItem('user')));
 
     dialog.showSaveDialog(file => {
@@ -206,7 +211,7 @@ Log.console = {
   },
 
   // TODO: Rewrite
-  startPomodoro(input) {
+  startPomodoro (input) {
     const clock = timer()()((state, phaseChanged) => {
       if (phaseChanged) {
         state.phase === 'break' || state.phase === 'longBreak' ?
@@ -224,24 +229,24 @@ Log.console = {
   },
 
   // TODO: Rewrite
-  startEntry(input) {
+  startEntry (input) {
     if (input === undefined) return;
     if (user.log.length !== 0 && user.log.slice(-1)[0].e === undefined) Log.console.endEntry();
 
     let p = [];
     let indices = [];
-    let sector = '';
-    let project = '';
-    let desc = '';
+    let sec = '';
+    let pro = '';
+    let dsc = '';
 
     if (input.includes('"')) {
       p = input.split('');
 
       p.map((e, i) => e === '"' && (indices[indices.length] = i));
 
-      for (let i = indices[0] + 1; i < indices[1]; i++) sector += p[i];
-      for (let i = indices[2] + 1; i < indices[3]; i++) project += p[i];
-      for (let i = indices[4] + 1; i < indices[5]; i++) desc += p[i];
+      for (let i = indices[0] + 1; i < indices[1]; i++) sec += p[i];
+      for (let i = indices[2] + 1; i < indices[3]; i++) pro += p[i];
+      for (let i = indices[4] + 1; i < indices[5]; i++) dsc += p[i];
     } else {
       if (input.includes(';')) {
         p = input.split(';');
@@ -251,24 +256,23 @@ Log.console = {
         p = input.split(',');
       } else return;
 
-      sector = p[0].substring(6, p[0].length).trim();
-      project = p[1].trim();
-      desc = p[2].trim();
+      sec = p[0].substring(6, p[0].length).trim();
+      pro = p[1].trim();
+      dsc = p[2].trim();
     }
 
     user.log[user.log.length] = {
       s: Log.time.toHex(new Date()),
-      e: undefined,
-      c: sector,
-      t: project,
-      d: desc
+      c: sec,
+      t: pro,
+      d: dsc
     }
 
-    new window.Notification(`Log started: ${sector} - ${project} - ${desc}`);
+    new window.Notification(`Started: ${sec} - ${pro} - ${dsc}`);
     Log.options.update.log();
   },
 
-  endEntry() {
+  endEntry () {
     if (Log.log === undefined) return;
     if (Log.log.length === 0) return;
 
@@ -278,11 +282,11 @@ Log.console = {
     last.e = Log.time.toHex(new Date());
     clearInterval(timer);
 
-    new window.Notification(`Log ended: ${last.c} - ${last.t} - ${last.d}`);
+    new window.Notification(`Ended: ${last.c} - ${last.t} - ${last.d}`);
     Log.options.update.log();
   },
 
-  resumeEntry() {
+  resumeEntry () {
     if (Log.log === undefined) return;
     if (Log.log.length === 0) return;
 
@@ -297,12 +301,12 @@ Log.console = {
       d: last.d
     }
 
-    new window.Notification(`Log resumed: ${last.c} - ${last.t} - ${last.d}`);
+    new window.Notification(`Resumed: ${last.c} - ${last.t} - ${last.d}`);
     Log.options.update.log();
   },
 
   // TODO: Rewrite
-  deleteEntry(input) {
+  deleteEntry (input) {
     if (Log.log === undefined) return;
     if (Log.log.length === 0) return;
 
@@ -327,7 +331,7 @@ Log.console = {
     Log.options.update.all();
   },
 
-  editEntry(i, attribute, value) {
+  editEntry (i, attribute, value) {
     if (user.log.length === 0) return;
     const id = Number(i) - 1;
 
@@ -364,8 +368,8 @@ Log.console = {
     Log.options.update.all();
   },
 
-  rename(key, oldName, newName) {
-    if (['sec', 'sector', 'pro', 'project'].indexOf(key) === -1) return;
+  rename (key, oldName, newName) {
+    if (['sec', 'sector', 'pro', 'project'].indexOf(key) < 0) return;
     key = (key === 'sector' || key === 'sec') ? 'sector' : 'project';
 
     const notFound = _ => {
@@ -396,17 +400,15 @@ Log.console = {
     Log.options.update.all();
   },
 
-  invert() {
+  invert () {
     const c = user.config.ui.colour;
     const b = user.config.ui.bg;
-
     user.config.ui.colour = b;
     user.config.ui.bg = c;
-
     Log.options.update.config();
   },
 
-  undo() {
+  undo () {
     /* TODO: To be implemented */
     const i = Log.console.history.slice(-2)[0];
     const p = Log.console.getParams(i);

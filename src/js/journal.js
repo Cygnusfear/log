@@ -4,7 +4,7 @@ let journalCache = {};
 
 Log.journal = {
 
-  displayCalendar() {
+  displayCalendar () {
     const sort = Log.data.sortEntries(Log.data.getEntriesByPeriod(new Date(2018, 0, 1), new Date(2018, 11, 31)));
 
     if (sort === undefined || sort.length === 0) return;
@@ -23,14 +23,14 @@ Log.journal = {
         const pos = sort[id - 1];
 
         if (pos !== undefined && pos.length !== 0) {
-          const d = Log.time.toEpoch(pos[0].s);
-
-          cell.innerHTML = Log.time.displayDate(d);
-
-          cell.setAttribute('onclick', `Log.journal.displayEntry(Log.time.toEpoch('${pos[0].s}'))`);
-          cell.title = Log.time.displayDate(d);
+          const d = Log.time.displayDate(Log.time.toEpoch(pos[0].s));
+          Object.assign(cell, {innerHTML: d, title: d});
+          cell.setAttribute(
+            'onclick',
+            `Log.journal.displayEntry(Log.time.toEpoch('${pos[0].s}'))`
+          );
         } else {
-          cell.innerHTML = '-';
+          cell.innerHTML = '-----';
         }
 
         row.appendChild(cell);
@@ -40,7 +40,7 @@ Log.journal = {
     cal.appendChild(frag)
   },
 
-  displayEntry(date = new Date()) {
+  displayEntry (date = new Date()) {
     if (typeof date !== 'object') return;
 
     let ent = [];
@@ -54,8 +54,8 @@ Log.journal = {
     const l = ent.length;
     if (l === 0) return;
 
-    const fragment = document.createDocumentFragment();
-    const durations = Log.data.listDurations(ent);
+    const frag = document.createDocumentFragment();
+    const dur = Log.data.listDurations(ent);
 
     jDyc.innerHTML = '';
     jEnt.innerHTML = '';
@@ -64,55 +64,54 @@ Log.journal = {
 
     Log.vis.dayChart(ent, jDyc);
 
-    jSUM.innerHTML = Log.displayStat(Log.data.calcSum(durations));
-    jMIN.innerHTML = Log.displayStat(Log.data.calcMin(durations));
-    jMAX.innerHTML = Log.displayStat(Log.data.calcMax(durations));
-    jAVG.innerHTML = Log.displayStat(Log.data.calcAvg(durations));
+    jSUM.innerHTML = Log.displayStat(Log.data.calcSum(dur));
+    jMIN.innerHTML = Log.displayStat(Log.data.calcMin(dur));
+    jMAX.innerHTML = Log.displayStat(Log.data.calcMax(dur));
+    jAVG.innerHTML = Log.displayStat(Log.data.calcAvg(dur));
     jCOV.innerHTML = `${Log.data.coverage(ent).toFixed(2)}%`;
     jFOC.innerHTML = Log.data.projectFocus(Log.data.listProjects(ent)).toFixed(2);
 
     const itemEl = document.createElement('li');
-    const idEl = document.createElement('span');
-    const timeEl = document.createElement('span');
-    const sectorEl = document.createElement('span');
-    const projectEl = document.createElement('span');
-    const durationEl = document.createElement('span');
+    const spanEl = document.createElement('span');
+    const proEl = document.createElement('span');
+    const durEl = document.createElement('span');
     const descEl = document.createElement('p');
 
+    spanEl.className = 'mr3 o7';
     itemEl.className = 'f6 lhc pb3 mb3';
-    idEl.className = 'mr3 o7';
-    timeEl.className = 'mr3 o7';
-    sectorEl.className = 'mr3 o7';
-    projectEl.className = 'o7';
-    durationEl.className = 'rf o7';
+    proEl.className = 'o7';
+    durEl.className = 'rf o7';
     descEl.className = 'f4 lhc';
 
     for (let i = 0; i < l; i++) {
+      const {id, s, e, c, t, d, dur} = ent[i];
+      const st = Log.time.stamp(Log.time.toEpoch(s));
+      const et = Log.time.stamp(Log.time.toEpoch(e));
       const item = itemEl.cloneNode();
-      const id = idEl.cloneNode();
-      const time = timeEl.cloneNode();
-      const sector = sectorEl.cloneNode();
-      const project = projectEl.cloneNode();
-      const duration = durationEl.cloneNode();
+      const idd = spanEl.cloneNode();
+      const time = spanEl.cloneNode();
+      const sec = spanEl.cloneNode();
+      const pro = proEl.cloneNode();
+      const span = durEl.cloneNode();
       const desc = descEl.cloneNode();
 
-      id.innerHTML = ent[i].id + 1;
-      time.innerHTML = `${Log.time.stamp(Log.time.toEpoch(ent[i].s))} &ndash; ${Log.time.stamp(Log.time.toEpoch(ent[i].e))}`;
-      sector.innerHTML = ent[i].c;
-      project.innerHTML = ent[i].t;
-      duration.innerHTML = Log.displayStat(ent[i].dur);
-      desc.innerHTML = ent[i].d;
+      idd.innerHTML = id + 1;
+      time.innerHTML = `${st} &ndash; ${et}`;
+      sec.innerHTML = c;
+      pro.innerHTML = t;
+      span.innerHTML = Log.displayStat(dur);
+      desc.innerHTML = d;
 
-      item.appendChild(id);
+      item.appendChild(idd);
       item.appendChild(time);
-      item.appendChild(sector);
-      item.appendChild(project);
-      item.appendChild(duration);
+      item.appendChild(sec);
+      item.appendChild(pro);
+      item.appendChild(span);
       item.appendChild(desc);
-      fragment.appendChild(item);
+      frag.appendChild(item);
     }
 
-    jEnt.appendChild(fragment);
+    jEnt.appendChild(frag);
 
     document.getElementById('entryModal').showModal();
   },
