@@ -2,12 +2,7 @@
 
 Log.vis = {
 
-  axisLines (con, avg = undefined) {
-    if (con === undefined) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    con.innerHTML = '';
-
+  axisLines (avg = undefined) {
     const frag = document.createDocumentFragment();
     const div = document.createElement('div');
     const cl = 'psa wf bt o1';
@@ -41,24 +36,21 @@ Log.vis = {
       frag.appendChild(ind);
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
-  barChart (data, con) {
-    if (data === undefined || con === undefined) return;
+  barChart (data) {
+    if (data === undefined) return;
 
     const l = data.set.length;
 
     if (typeof data !== 'object' || l === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    con.innerHTML = '';
-
-    Log.vis.axisLines(con, data.avg);
 
     const frag = document.createDocumentFragment();
     const column = document.createElement('div');
     const entry = document.createElement('div');
+
+    frag.appendChild(Log.vis.axisLines(data.avg));
 
     column.style.width = `${100 / Log.config.ui.view}%`;
     column.className = 'dib psr hf';
@@ -77,16 +69,15 @@ Log.vis = {
       }
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
-  dayChart (ent, con) {
-    if (ent === undefined || con === undefined) return;
+  dayChart (ent) {
+    if (ent === undefined) return;
 
     const l = ent.length;
 
     if (typeof ent !== 'object' || l === 0) return;
-    if (typeof con !== 'object' || con === null) return;
 
     const {colourMode, colour} = Log.config.ui;
     const frag = document.createDocumentFragment();
@@ -95,7 +86,6 @@ Log.vis = {
       colourMode === 'project' ? pc : colour;
 
     entryEl.className = 'hf lf';
-    con.innerHTML = '';
 
     for (let i = 0, lastPosition = 0; i < l; i++) {
       const {s, dur} = ent[i];
@@ -113,19 +103,16 @@ Log.vis = {
       lastPosition = width + dp;
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
-  focusBar (mode, val, con) {
-    if (mode === undefined || val === undefined || con === undefined) return;
+  focusBar (mode, val) {
+    if (mode === undefined || val === undefined) return;
     if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
 
     const l = val.length;
 
     if (typeof val !== 'object' || l === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    con.innerHTML = '';
 
     const pal = mode === 0 ? Log.palette : Log.projectPalette;
     const frag = document.createDocumentFragment();
@@ -142,16 +129,13 @@ Log.vis = {
       frag.appendChild(seg);
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
-  focusChart (data, con) {
+  focusChart (data) {
     const l = data.length;
 
     if (typeof data !== 'object' || l === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    con.innerHTML = '';
 
     const frag = document.createDocumentFragment();
     const col = document.createElement('div');
@@ -173,19 +157,16 @@ Log.vis = {
       frag.appendChild(cl);
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
-  legend (mode, val, con) {
-    if (mode === undefined || val === undefined || con === undefined) return;
+  legend (mode, val) {
+    if (mode === undefined || val === undefined) return;
     if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
 
     const l = val.length;
 
     if (typeof val !== 'object' || l === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    con.innerHTML = '';
 
     const frag = document.createDocumentFragment();
     const itemEl = document.createElement('li');
@@ -212,20 +193,17 @@ Log.vis = {
       frag.appendChild(item);
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
-  list (mode, sort, con, ent = Log.log) {
-    if (mode === undefined || sort === undefined || con === undefined) return;
+  list (mode, sort, ent = Log.log) {
+    if (mode === undefined || sort === undefined) return;
     if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
 
     const l = sort.length;
 
     if (typeof sort !== 'object' || l === 0) return;
-    if (typeof con !== 'object' || con === null) return;
     if (typeof ent !== 'object' || ent.length === 0) return;
-
-    con.innerHTML = '';
 
     const pal = mode === 0 ? Log.palette : Log.projectPalette;
     const frag = document.createDocumentFragment();
@@ -264,13 +242,10 @@ Log.vis = {
       frag.appendChild(item);
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
-  meterLines (c) {
-    if (c === undefined) return;
-    if (typeof c !== 'object') return;
-
+  meterLines () {
     const f = document.createDocumentFragment();
 
     for (let i = 0, x = 0; i < 24; i++) {
@@ -280,21 +255,16 @@ Log.vis = {
       f.appendChild(l);
     }
 
-    c.appendChild(f);
+    return f;
   },
 
-  peakChart (mode, peaks, con) {
-    if (
-      mode === undefined || peaks === undefined || con === undefined
-    ) return;
+  peakChart (mode, peaks) {
+    if (mode === undefined || peaks === undefined) return;
 
     const l = peaks.length;
 
     if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
     if (typeof peaks !== 'object' || l === 0) return;
-    if (typeof con !== 'object' || con === null) return;
-
-    con.innerHTML = '';
 
     const frag = document.createDocumentFragment();
     const columnEl = document.createElement('div');
@@ -335,7 +305,7 @@ Log.vis = {
       frag.appendChild(column);
     }
 
-    con.appendChild(frag);
+    return frag;
   },
 
   visualisation (data) {
@@ -346,13 +316,11 @@ Log.vis = {
     if (typeof data !== 'object' || l === 0) return;
 
     const frag = document.createDocumentFragment();
-    const con = document.getElementById('visual');
     const row = document.createElement('div');
     const ent = document.createElement('div');
 
     row.className = 'db wf sh1 mt2 mb2 visRow';
     ent.className = 'psr t0 hf mb1 lf';
-    con.innerHTML = '';
 
     for (let i = 0; i < l; i++) {
       const r = row.cloneNode();
@@ -367,6 +335,6 @@ Log.vis = {
       }
     }
 
-    con.appendChild(frag);
+    return frag;
   }
 };

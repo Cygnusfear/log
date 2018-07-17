@@ -103,24 +103,24 @@ body {
   grid-template-columns: 15% 65% 15%;
 }
 
-#overviewTop {
+#ovwTop {
   grid-column-start: 1;
   grid-column-end: 4;
 }
 
-#overviewLeft {
+#ovwLeft {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 5% 25% 25%;
 }
 
-#overviewCenter {
+#ovwCenter {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 15% 50% 30%;
 }
 
-#overviewRight {
+#ovwRight {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 47.5% 47.5%;
@@ -211,7 +211,7 @@ dialog[open], dialog::backdrop {
 }
 
 #editModal {
-  width: 300px;
+  width: 360px;
   height: auto;
 }
 
