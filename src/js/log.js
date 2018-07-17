@@ -192,7 +192,7 @@ let Log = {
    */
   deleteIt (i) {
     Log.console.deleteEntry(i);
-    delModal.close();
+    // delModal.close();
   },
 
   /**

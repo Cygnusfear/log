@@ -1278,7 +1278,15 @@ Log.ui = {
   },
 
   delModal () {
-    const modal = document.createElement('dialog');
+    const modal = Object.assign(document.createElement('dialog'), {
+      id: 'delModal',
+      className: 'p4 cn bn nodrag'
+    });
+
+    Object.assign(modal.style, {
+      backgroundColor: Log.config.ui.bg,
+      color: Log.config.ui.colour
+    });
 
     modal.appendChild(Object.assign(document.createElement('p'), {
       id: 'delMessage', className: 'mb4 f6 lhc'
@@ -1287,10 +1295,11 @@ Log.ui = {
       id: 'delList', className: 'mb3 lsn'
     }));
     modal.appendChild(Object.assign(document.createElement('button'), {
-      id: 'delConfirm', className: 'p2 br1 bn f6'
+      id: 'delConfirm', className: 'p2 br1 bn f6', innerHTML: 'Delete'
     }));
     modal.appendChild(Object.assign(document.createElement('button'), {
       className: 'p2 br1 bn f6 lhc',
+      innerHTML: 'Cancel',
       onclick: () => {
         Log.modalMode = false;
         modal.close();
