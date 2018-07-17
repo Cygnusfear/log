@@ -4,12 +4,12 @@ let journalCache = {};
 
 Log.journal = {
 
-  displayCalendar () {
+  displayCalendar (con) {
     const sort = Log.data.sortEntries(Log.data.getEntriesByPeriod(new Date(2018, 0, 1), new Date(2018, 11, 31)));
 
     if (sort === undefined || sort.length === 0) return;
 
-    cal.innerHTML = '';
+    con.innerHTML = '';
 
     const frag = document.createDocumentFragment();
 
@@ -37,7 +37,7 @@ Log.journal = {
       }
     }
 
-    cal.appendChild(frag)
+    con.appendChild(frag)
   },
 
   displayEntry (date = new Date()) {
