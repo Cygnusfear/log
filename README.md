@@ -1,11 +1,8 @@
 [![Screenshot](screenshot.png)](https://joshavanier.itch.io/log/)
 
-![MIT](https://joshavanier.github.io/badges/svg/mit.svg)
-
 **Log** is a log and time-tracker available for Linux, macOS, and Windows. Download it [here](https://joshavanier.itch.io/log).
 
-### Commands
-
+#### Commands
 | Description | Command |
 | ----------- | ------- |
 | Import data | `import` |
@@ -27,8 +24,7 @@
 | Set time format | `time {12/24/decimal}` |
 | Rename a sector or project | `rename {sector/project} "Old Name" "New Name"` |
 
-### Development
-
+#### Development
 ```
 git clone https://github.com/joshavanier/log.git
 cd log
@@ -40,4 +36,6 @@ npm start
 
 Josh Avanier
 
-[![@joshavanier](https://joshavanier.github.io/badges/svg/twitter.svg)](https://twitter.com/joshavanier) [![Memex](https://joshavanier.github.io/badges/svg/website.svg)](https://joshavanier.github.io)
+**[Twitter](https://twitter.com/joshavanier)** &middot; **[Memex](https://joshavanier.github.io)**
+
+**MIT**
