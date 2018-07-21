@@ -47,8 +47,7 @@ Log.time = {
       case '12':
         return Log.time.to12Hours(d);
       default:
-        const t = Log.time.toDecimal(d).toString();
-        return `${t.substr(0, (t.length - 3))}:${t.substr(-3)}`;
+        return Log.time.toDecimal(d);
     }
   },
 
@@ -124,7 +123,12 @@ Log.time = {
   },
 
   toDecimal (d) {
-    return parseInt((d - new Date(d).setHours(0, 0, 0, 0)) / 864 * 10);
+    const b = new Date(
+      d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0
+    );
+    const val = (d - b) / 8640 / 10000;
+    const t = val.toFixed(6).substr(2,6);
+    return `${t.substr(0, 3)}:${t.substr(-3)}`;
   },
 
   toEpoch (h) {
