@@ -1,5 +1,10 @@
 'use strict';
 
+const oa = (el, params) => {
+  if (typeof el === 'string') el = document.createElement(el);
+  return Object.assign(el, params);
+}
+
 Log.ui = {
 
   build () {
@@ -10,43 +15,31 @@ Log.ui = {
       Log.cache.sortEnt.slice(-1)[0];
 
     const f = document.createDocumentFragment();
-    const c = Object.assign(document.createElement('div'), {
-      id: 'container', className: 'hf'
-    });
-    const m = Object.assign(document.createElement('div'), {id: 'main'});
-    const m1 = Object.assign(document.createElement('div'), {
-      id: 'overview', className: 'sect hf wf'
-    });
-    const m2 = Object.assign(document.createElement('div'), {
-      id: 'details', className: 'dn sect hf wf'
-    });
-    const m3 = Object.assign(document.createElement('div'), {
-      id: 'visualisation', className: 'nodrag dn sect hf oya oxh'
-    });
-    const m4 = Object.assign(document.createElement('div'), {
-      id: 'entries', className: 'dn sect hf wf oya hoverScroll'
-    });
-    const m5 = Object.assign(document.createElement('div'), {
-      id: 'journal', className: 'dn sect hf wf oya hoverScroll'
-    });
-    const m6 = Object.assign(document.createElement('div'), {
-      id: 'guide', className: 'dn sect hf wf oys oxh'
-    });
+    const m = document.createElement('main');
+
+    const c = oa('div', {id: 'container', className: 'hf'});
+    const o = oa('div', {id: 'OVW', className: 'sect'});
+    const d = oa('div', {id: 'DTL', className: 'dn sect'});
+    const v = oa('div', {id: 'VIS', className: 'nodrag dn sect oya oxh'});
+    const e = oa('div', {id: 'ENT', className: 'dn sect oya hvs'});
+    const j = oa('div', {id: 'JOU', className: 'dn sect oya hvs'});
+    const g = oa('div', {id: 'GUI', className: 'dn sect hf wf oys oxh'});
 
     f.append(c);
       c.append(Log.ui.header.build());
       c.append(m);
-        m1.append(Log.ui.overview.build(et, so));
-        m.append(m1);
-        m2.append(Log.ui.details.build(so));
-        m.append(m2);
-        m3.append(Log.ui.visualisation(so));
-        m.append(m3);
-        m4.append(Log.ui.entries.build());
-        m.append(m4);
-        m5.append(Log.ui.journal.build());
-        m.append(m5);
-        m.append(m6);
+        m.append(o);
+          o.append(Log.ui.overview.build(et, so));
+        m.append(d);
+          d.append(Log.ui.details.build(so));
+        m.append(v);
+          v.append(Log.ui.visualisation(so));
+        m.append(e);
+          e.append(Log.ui.entries.build());
+        m.append(j);
+          j.append(Log.ui.journal.build());
+        m.append(g);
+          // g.append(Log.ui.guide.build());
       c.append(Log.ui.delModal());
     f.append(Log.ui.commander());
 
@@ -56,13 +49,10 @@ Log.ui = {
   header: {
 
     build () {
-      const h = Object.assign(document.createElement('header'), {
-        className: 'mb2 f6 lhc'
-      });
+      const h = oa('header', {className: 'mb2 f6 lhc'});
+      const t = oa('h1', {className: 'dib mr3 f5 upc tk', innerHTML: 'Log'});
 
-      h.appendChild(Object.assign(document.createElement('h1'), {
-        className: 'dib mr3 f5 upc tk', innerHTML: 'Log'
-      }));
+      h.appendChild(t);
       h.appendChild(Log.ui.header.nav());
       h.appendChild(Log.ui.header.clock());
 
@@ -71,47 +61,46 @@ Log.ui = {
 
     nav () {
       const f = document.createDocumentFragment();
-      const b = Object.assign(document.createElement('button'), {
-        className: 'pv1 tab on bg-cl o5 mr3'
-      });
+      const b = oa('button', {className: 'pv1 tab on bg-cl o5 mr3'});
 
-      f.append(Object.assign(b.cloneNode(), {
-        id: 'b-overview', innerHTML: 'Overview',
+      f.append(oa(b.cloneNode(), {
         className: 'pv1 tab on bg-cl of mr3',
-        onclick: () => Log.tab('overview')
+        id: 'b-OVW', innerHTML: 'Overview',
+        onclick: () => Log.tab('OVW')
       }));
-      f.append(Object.assign(b.cloneNode(), {
-        id: 'b-details', innerHTML: 'Details',
-        onclick: () => Log.tab('details')
+
+      f.append(oa(b.cloneNode(), {
+        id: 'b-DTL', innerHTML: 'Details',
+        onclick: () => Log.tab('DTL')
       }));
-      f.append(Object.assign(b.cloneNode(), {
-        id: 'b-visualisation', innerHTML: 'Visualisation',
-        onclick: () => Log.tab('visualisation')
+
+      f.append(oa(b.cloneNode(), {
+        id: 'b-VIS', innerHTML: 'Visualisation',
+        onclick: () => Log.tab('VIS')
       }));
-      f.append(Object.assign(b.cloneNode(), {
-        id: 'b-entries', innerHTML: 'Entries',
-        onclick: () => Log.tab('entries')
+
+      f.append(oa(b.cloneNode(), {
+        id: 'b-ENT', innerHTML: 'Entries',
+        onclick: () => Log.tab('ENT')
       }));
-      f.append(Object.assign(b.cloneNode(), {
-        id: 'b-journal', innerHTML: 'Journal',
-        onclick: () => Log.tab('journal')
+
+      f.append(oa(b.cloneNode(), {
+        id: 'b-JOU', innerHTML: 'Journal',
+        onclick: () => Log.tab('JOU')
       }));
-      f.append(Object.assign(b.cloneNode(), {
-        id: 'b-guide', innerHTML: 'Guide',
-        onclick: () => Log.tab('guide')
+
+      f.append(oa(b.cloneNode(), {
+        id: 'b-GUI', innerHTML: 'Guide',
+        onclick: () => Log.tab('GUI')
       }));
 
       return f;
     },
 
     clock () {
-      const c = Object.assign(document.createElement('span'), {
-        className: 'rf f5 di tnum', innerHTML: '00:00:00'
-      });
-
+      const c = oa('span', {className: 'rf f5 di tnum', innerHTML: '00:00:00'});
       Log.timerEl = c;
       Log.timer();
-
       return c;
     }
   },
@@ -119,69 +108,43 @@ Log.ui = {
   main () {
     const d = document.createElement('div');
 
-    d.append(Object.assign(document.createElement('div'), {
-      className: 'sect hf wf',
-      id: 'overview'
-    }));
-    d.append(Object.assign(document.createElement('div'), {
-      className: 'dn sect hf wf',
-      id: 'details'
-    }));
-    d.append(Object.assign(document.createElement('div'), {
-      className: 'nodrag dn sect hf oya oxh',
-      id: 'visualisation'
-    }));
-    d.append(Object.assign(document.createElement('div'), {
-      className: 'dn sect hf wf oya hoverScroll',
-      id: 'entries'
-    }));
-    d.append(Object.assign(document.createElement('div'), {
-      className: 'dn sect hf wf oya hoverScroll',
-      id: 'journal'
-    }));
-    d.append(Object.assign(document.createElement('div'), {
-      className: 'dn sect hf wf oys oxh',
-      id: 'guide'
-    }));
+    d.append(oa('div', {id: 'OVW', className: 'sect'}));
+    d.append(oa('div', {id: 'DTL', className: 'dn sect'}));
+    d.append(oa('div', {id: 'VIS', className: 'nodrag dn sect oya oxh'}));
+    d.append(oa('div', {id: 'ENT', className: 'dn sect oya hvs'}));
+    d.append(oa('div', {id: 'JOU', className: 'dn sect oya hvs'}));
+    d.append(oa('div', {id: 'GUI', className: 'dn sect oys oxh'}));
 
     return d;
   },
 
   overview: {
 
+    /**
+     * @param {Object[]} e - Today's entries
+     * @param {Object[]} s - Sorted entries
+     */
     build (e, s) {
       const f = document.createDocumentFragment();
-      const dc = Object.assign(document.createElement('div'), {
-        id: 'ovwCenter',
-        className: 'oya noscroll'
-      });
-      const dr = Object.assign(document.createElement('div'), {
-        id: 'ovwRight',
-        className: 'f6 lhc'
-      });
+      const c = oa('div', {id: 'ovwC', className: 'oya ns'});
+      const r = oa('div', {id: 'ovwR', className: 'f6 lhc'});
 
       f.append(Log.ui.overview.top(e));
       f.append(Log.ui.overview.peaks());
-      f.append(dc);
-        dc.append(Log.ui.overview.recent());
-        dc.append(Log.ui.overview.chart(s));
-        dc.append(Log.ui.overview.stats(e));
-      f.append(dr);
-        dr.append(Log.ui.overview.lists(e));
+      f.append(c);
+        c.append(Log.ui.overview.recent());
+        c.append(Log.ui.overview.chart(s));
+        c.append(Log.ui.overview.stats(e));
+      f.append(r);
+        r.append(Log.ui.overview.lists(e));
 
       return f;
     },
 
     top (ent) {
-      const d = Object.assign(document.createElement('div'), {id: 'ovwTop'});
-      const m = Object.assign(document.createElement('div'), {
-        id: 'ovwMeter',
-        className: 'mb3 psr wf sh2 bl br'
-      });
-      const c = Object.assign(document.createElement('div'), {
-        id: 'dayChart',
-        className: 'psr wf sh2 nodrag'
-      });
+      const d = oa('div', {id: 'ovwT'});
+      const m = oa('div', {className: 'mb3 psr wf sh2 bl br'});
+      const c = oa('div', {className: 'psr wf sh2 nodrag'});
 
       d.append(m);
         m.append(Log.vis.meterLines());
@@ -192,36 +155,23 @@ Log.ui = {
     },
 
     peaks () {
-      const l = Object.assign(document.createElement('div'), {id: 'ovwLeft'});
-      const ph = Object.assign(document.createElement('div'), {
-        id: 'peakHours'
-      });
+      const l = oa('div', {id: 'ovwL'});
+      const ph = document.createElement('div');
       const pd = document.createElement('div');
-      const hc = Object.assign(document.createElement('div'), {
-        id: 'phc', className: 'psr h7 wf nodrag'
-      });
-      const dc = Object.assign(document.createElement('div'), {
-        id: 'pdc', className: 'psr h7 wf nodrag'
-      });
-      const pt = Log.data.peakHours(Log.data.sortEntriesByDay()[new Date().getDay()]);
+      const hc = oa('div', {className: 'psr h7 wf nodrag'});
+      const dc = oa('div', {className: 'psr h7 wf nodrag'});
+      const st = Log.data.sortEntriesByDay()[new Date().getDay()];
+      const pt = Log.data.peakHours(st);
 
-      l.append(Object.assign(document.createElement('h3'), {
-        className: 'mb3 f6 lhc', innerHTML: 'Peaks'
-      }));
+      l.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Peaks'}));
       l.append(ph);
-        ph.append(Object.assign(document.createElement('h3'), {
-          className: 'mb2 f6 lhc fwn tnum',
-          id: 'currentHour',
-          innerHTML: 'Hour'
-        }));
+        ph.append(oa('h3', {
+          id: 'ch', className: 'mb2 f6 lhc fwn tnum', innerHTML: 'Hour'}));
         ph.append(hc);
           hc.append(Log.vis.peakChart(0, pt));
       l.append(pd);
-        pd.append(Object.assign(document.createElement('h3'), {
-          className: 'mb2 f6 lhc fwn',
-          id: 'currentDay',
-          innerHTML: 'Day'
-        }));
+        pd.append(oa('h3', {
+          id: 'cd', className: 'mb2 f6 lhc fwn', innerHTML: 'Day'}));
         pd.append(dc);
           dc.append(Log.vis.peakChart(1, Log.cache.pkd));
 
@@ -229,133 +179,77 @@ Log.ui = {
     },
 
     recent () {
-      const now = Log.log.slice(-1)[0];
-      const nowDate = Log.time.toEpoch(now.s);
-      const st = Log.time.stamp(nowDate);
-      const le = Object.assign(document.createElement('div'), {
-        id: 'lastEntry'
-      });
-      const lt = Object.assign(document.createElement('table'), {
-        className: 'wf bn f6 lhc'
-      });
-      const lth = Object.assign(document.createElement('thead'), {
-        className: 'al'
-      });
-      const ltb = document.createElement('tbody');
-      const tr1 = document.createElement('tr');
-      const tr2 = document.createElement('tr');
+      const {id, s, e, c, t, d} = Log.log.slice(-1)[0];
+      const st = Log.time.stamp(Log.time.toEpoch(s));
+      const le = document.createElement('div');
+      const lt = oa('table', {className: 'wf bn f6 lhc'});
+      const th = oa('thead', {className: 'al'});
+      const tb = document.createElement('tbody');
+      const r1 = document.createElement('tr');
+      const r2 = document.createElement('tr');
 
       le.append(lt);
-        lt.append(lth);
-          lth.append(tr1);
-            tr1.append(Object.assign(document.createElement('th'), {
-              className: 'pb1 pt0 pl0', innerHTML: 'Recent'
-            }));
-        lt.append(ltb);
-          ltb.append(tr2);
-            tr2.append(Object.assign(document.createElement('td'), {
-              className: 'pl0', id: 'leid', innerHTML: user.log.length
-            }));
-            tr2.append(Object.assign(document.createElement('td'), {
-              className: 'ltim',
-              innerHTML: now.e === undefined ?
-                `${st} –` : `${st} – ${Log.time.stamp(Log.time.toEpoch(now.e))}`
-            }));
-            tr2.append(Object.assign(document.createElement('td'), {
-              className: 'lsec', innerHTML: now.c
-            }));
-            tr2.append(Object.assign(document.createElement('td'), {
-              className: 'lpro', innerHTML: now.t
-            }));
-            tr2.append(Object.assign(document.createElement('td'), {
-              className: 'pr0', innerHTML: now.d
-            }));
+        lt.append(th);
+          th.append(r1);
+            r1.append(oa('th', {
+              className: 'pb1 pt0 pl0', innerHTML: 'Recent'}));
+        lt.append(tb);
+          tb.append(r2);
+            r2.append(oa('td', {className: 'pl0', innerHTML: id + 1}));
+            r2.append(oa('td', {
+              innerHTML: `${st} - ${e === undefined ?
+                '' : Log.time.stamp(Log.time.toEpoch(e))}`}));
+            r2.append(oa('td', {innerHTML: c}));
+            r2.append(oa('td', {innerHTML: t}));
+            r2.append(oa('td', {className: 'pr0', innerHTML: d}));
 
       return le;
     },
 
     chart (so) {
-      const c = Object.assign(document.createElement('div'), {
-        id: 'overviewChart', className: 'psr'
-      });
+      const c = oa('div', {className: 'psr'});
       c.append(Log.vis.barChart(Log.data.bar(so)) || '');
       return c;
     },
 
     stats (et) {
-      const stats = Object.assign(document.createElement('ul'), {
-        id: 'todayStats', className: 'lsn f6 lhc'
-      });
-      const dur = Log.data.listDurations(et);
-      const now = Log.log.slice(-1)[0];
-      const nowDate = Log.time.toEpoch(now.s);
-      const st = Log.time.stamp(nowDate);
-      const yd = Log.data.getEntriesByDate(nowDate.addDays(-1));
-      const yDur = Log.data.listDurations(yd);
-      const sum = Log.data.calcSum(dur);
-      const min = Log.data.calcMin(dur);
-      const max = Log.data.calcMax(dur);
-      const avg = Log.data.calcAvg(dur);
-      const foc = Log.data.projectFocus(Log.data.listProjects(et));
-      const yfoc = Log.data.projectFocus(Log.data.listProjects(yd));
+      const stats = oa('ul', {className: 'lsn f6 lhc'});
+
+      const {
+        listDurations, getEntriesByDate, calcSum, calcMin, calcMax, calcAvg, projectFocus, listProjects, trend, coverage, streak
+      } = Log.data;
+
+      const dur = listDurations(et);
+      const nd = Log.time.toEpoch(Log.log.slice(-1)[0].s);
+      const st = Log.time.stamp(nd);
+      const ey = getEntriesByDate(nd.addDays(-1));
+      const yd = listDurations(ey);
+      const sum = calcSum(dur);
+      const min = calcMin(dur);
+      const max = calcMax(dur);
+      const avg = calcAvg(dur);
+      const foc = projectFocus(listProjects(et));
+      const yfoc = projectFocus(listProjects(ey));
       const enc = et.length;
-      const lhTrend = Log.data.trend(sum, Log.data.calcSum(yDur));
+      const lht = trend(sum, calcSum(yd));
       const s = [
-        {
-          n: 'Total',
-          v: Log.displayStat(sum),
-          t: lhTrend
-        },
-        {
-          n: 'Min',
-          v: Log.displayStat(sum),
-          t: Log.data.trend(min, Log.data.calcMin(yDur))
-        },
-        {
-          n: 'Max',
-          v: Log.displayStat(min),
-          t: Log.data.trend(max, Log.data.calcMax(yDur))
-        },
-        {
-          n: 'Avg',
-          v: Log.displayStat(max),
-          t: Log.data.trend(avg, Log.data.calcAvg(yDur))
-        },
-        {
-          n: 'Coverage',
-          v: `${Log.data.coverage(et).toFixed(2)}%`,
-          t: lhTrend
-        },
-        {
-          n: 'Focus',
-          v: foc.toFixed(2),
-          t: Log.data.trend(foc, yfoc)
-        },
-        {
-          n: 'Logs',
-          v: enc,
-          t: Log.data.trend(enc, yd.length)
-        },
-        {
-          n: 'Streak',
-          v: Log.data.streak(),
-          t: undefined
-        },
+        {n: 'Total', v: Log.displayStat(sum), t: lht},
+        {n: 'Min', v: Log.displayStat(sum), t: trend(min, calcMin(yd))},
+        {n: 'Max', v: Log.displayStat(min), t: trend(max, calcMax(yd))},
+        {n: 'Avg', v: Log.displayStat(max), t: trend(avg, calcAvg(yd))},
+        {n: 'Coverage', v: `${coverage(et).toFixed(2)}%`, t: lht},
+        {n: 'Focus', v: foc.toFixed(2), t: trend(foc, yfoc)},
+        {n: 'Logs', v: enc, t: trend(enc, ey.length)},
+        {n: 'Streak', v: streak(), t: ''},
       ];
 
       for (let i = 0, l = s.length; i < l; i++) {
+        const itm = oa('li', {className: 'mb3 c3'});
         const {n, v, t} = s[i];
-        const itm = Object.assign(document.createElement('li'), {
-          className: 'mb3 c3'
-        });
 
-        itm.append(Object.assign(document.createElement('p'), {
-          className: 'f4 fwb',
-          innerHTML: v
-        }));
-
-        itm.append(Object.assign(document.createElement('p'), {
-          innerHTML: `${n} (<span class="tnum">${t}</span>)`,
+        itm.append(oa('p', {className: 'f4 fwb', innerHTML: v}));
+        itm.append(oa('p', {
+          innerHTML: t === '' ? n : `${n} (<span class="tnum">${t}</span>)`,
           className: 'o9'
         }));
 
@@ -370,23 +264,19 @@ Log.ui = {
       const d = document.createElement('div');
       const s = document.createElement('div');
       const p = document.createElement('div');
-      const h = Object.assign(document.createElement('h3'), {
-        className: 'mb3 f5 lhc'
-      });
-      const ul = Object.assign(document.createElement('ul'), {
-        className: 'nodrag lsn h8 oya hoverScroll'
-      });
-      const sb = ul.cloneNode();
-      const pb = ul.cloneNode();
+      const h = oa('h3', {className: 'mb3 f5 lhc'});
+      const u = oa('ul', {className: 'nodrag lsn h8 oya hvs'});
+      const a = u.cloneNode();
+      const b = u.cloneNode();
 
       f.append(s);
-        s.append(Object.assign(h.cloneNode(), {innerHTML: 'Sectors'}));
-        s.append(sb);
-          sb.append(Log.vis.list(0, Log.data.sortValues(ent, 0, 0), ent) || '');
+        s.append(oa(h.cloneNode(), {innerHTML: 'Sectors'}));
+        s.append(a);
+          a.append(Log.vis.list(0, Log.data.sortValues(ent, 0, 0), ent) || '');
       f.append(p);
-        p.append(Object.assign(h.cloneNode(), {innerHTML: 'Projects'}));
-        p.append(pb);
-          pb.append(Log.vis.list(1, Log.data.sortValues(ent, 1, 0), ent) || '');
+        p.append(oa(h.cloneNode(), {innerHTML: 'Projects'}));
+        p.append(b);
+          b.append(Log.vis.list(1, Log.data.sortValues(ent, 1, 0), ent) || '');
 
       return f;
     }
@@ -395,72 +285,59 @@ Log.ui = {
   details: {
 
     build (so) {
-      const {detail, summary} = Log.ui.details;
+      const {detail, menu, summary} = Log.ui.details;
       const f = document.createDocumentFragment();
       const d = document.createElement('div');
-      const m = Object.assign(document.createElement('div'), {
-        className: 'oya'
-      });
-      const sm = Object.assign(document.createElement('div'), {
-        id: 'summary', className: 'nodrag subsect hf oya hoverScroll'
-      });
-      const sd = Object.assign(document.createElement('div'), {
-        id: 'sectorDetails', className: 'dn subsect hf'
-      });
-      const pd = Object.assign(document.createElement('div'), {
-        id: 'projectDetails', className: 'dn subsect hf'
-      });
+      const m = oa('div', {className: 'oya'});
+      const a = oa('div', {id: 'SUM', className: 'nodrag subsect oya hvs'});
+      const b = oa('div', {id: 'SSC', className: 'dn subsect'});
+      const c = oa('div', {id: 'PSC', className: 'dn subsect'});
 
-      f.append(Log.ui.details.menu());
+      f.append(menu());
       f.append(m);
-        m.append(sm);
-          sm.append(summary.build(so));
-        m.append(sd);
-        m.append(pd);
+        m.append(a);
+          a.append(summary.build(so));
+        m.append(b);
+        m.append(c);
         if (Log.log.length > 1) {
-          sd.append(detail.build(0, Log.data.sortValues(Log.log, 0, 0)[0][0]));
-          pd.append(detail.build(1, Log.data.sortValues(Log.log, 1, 0)[0][0]));
+          b.append(detail.build(0, Log.data.sortValues(Log.log, 0, 0)[0][0]));
+          c.append(detail.build(1, Log.data.sortValues(Log.log, 1, 0)[0][0]));
         }
 
       return f;
     },
 
     menu () {
-      const menu = document.createElement('div');
-      const btn = Object.assign(document.createElement('button'), {
-        className: 'db mb3 subtab on bg-cl o5 mr3'
-      });
+      const m = document.createElement('div');
+      const b = oa('button', {className: 'db mb3 subtab on bg-cl o5 mr3'});
 
-      menu.append(Object.assign(btn.cloneNode(), {
-        id: 'b-summary',
+      m.append(oa(b.cloneNode(), {
+        id: 'b-SUM', innerHTML: 'Summary',
         className: 'db mb3 subtab on bg-cl of mr3',
-        innerHTML: 'Summary',
-        onclick: () => Log.tab('summary', 'subsect', 'subtab', true)
+        onclick: () => Log.tab('SUM', 'subsect', 'subtab', true)
       }));
 
-      menu.append(Object.assign(btn.cloneNode(), {
-        id: 'b-sectorDetails',
-        innerHTML: 'Sectors',
-        onclick: () => Log.tab('sectorDetails', 'subsect', 'subtab', true)
+      m.append(oa(b.cloneNode(), {
+        id: 'b-SSC', innerHTML: 'Sectors',
+        onclick: () => Log.tab('SSC', 'subsect', 'subtab', true)
       }));
 
-      menu.append(Object.assign(btn.cloneNode(), {
-        id: 'b-projectDetails',
-        innerHTML: 'Projects',
-        onclick: () => Log.tab('projectDetails', 'subsect', 'subtab', true)
+      m.append(oa(b.cloneNode(), {
+        id: 'b-PSC', innerHTML: 'Projects',
+        onclick: () => Log.tab('PSC', 'subsect', 'subtab', true)
       }));
 
-      return menu;
+      return m;
     },
 
     summary: {
 
-      build (so) {
+      build (sortedEntries) {
         const f = document.createDocumentFragment();
 
         f.append(Log.ui.details.summary.stats());
         f.append(Log.ui.details.summary.peaks());
-        f.append(Log.ui.details.summary.focus(so));
+        f.append(Log.ui.details.summary.focus(sortedEntries));
         f.append(Log.ui.details.summary.distribution());
 
         return f;
@@ -469,36 +346,29 @@ Log.ui = {
       stats () {
         const {dur, sec, pro} = Log.cache;
         const stats = document.createElement('div');
-        const list = Object.assign(document.createElement('ul'), {
-          id: 'sumStats', className: 'mb5 lsn f6 lhc r'
-        });
+        const list = oa('ul', {className: 'mb5 lsn f6 lhc r'});
+        const {
+          calcSum, calcMin, calcMax, calcAvg, avgLogHours, coverage
+        } = Log.data;
         const s = [
-          {n: 'Total Hours', v: Log.displayStat(Log.data.calcSum(dur))},
-          {n: 'Min Duration', v: Log.displayStat(Log.data.calcMin(dur))},
-          {n: 'Max Duration', v: Log.displayStat(Log.data.calcMax(dur))},
-          {n: 'Avg Duration', v: Log.displayStat(Log.data.calcAvg(dur))},
-          {n: 'Daily Average', v: Log.displayStat(Log.data.avgLogHours())},
-          {n: 'Coverage',   v: `${Log.data.coverage().toFixed(2)}%`},
+          {n: 'Total Hours', v: Log.displayStat(calcSum(dur))},
+          {n: 'Min Duration', v: Log.displayStat(calcMin(dur))},
+          {n: 'Max Duration', v: Log.displayStat(calcMax(dur))},
+          {n: 'Avg Duration', v: Log.displayStat(calcAvg(dur))},
+          {n: 'Daily Average', v: Log.displayStat(avgLogHours())},
+          {n: 'Coverage',   v: `${coverage().toFixed(2)}%`},
           {n: 'Entries', v: user.log.length},
           {n: 'Sectors', v: sec.length},
           {n: 'Projects', v: pro.length}
         ];
 
         for (let i = 0; i < 9; i++) {
+          const itm = oa('li', {className: 'mb4 c3'});
           const {n, v} = s[i];
-          const stat = Object.assign(document.createElement('li'), {
-            className: 'mb4 c3'
-          });
 
-          stat.append(Object.assign(document.createElement('p'), {
-            className: 'f4 fwb', innerHTML: v
-          }));
-
-          stat.append(Object.assign(document.createElement('p'), {
-            className: 'o9', innerHTML: n
-          }));
-
-          list.append(stat);
+          itm.append(oa('p', {className: 'f4 fwb', innerHTML: v}));
+          itm.append(oa('p', {className: 'o9', innerHTML: n}));
+          list.append(itm);
         }
 
         stats.append(list);
@@ -508,24 +378,11 @@ Log.ui = {
 
       peaks () {
         const c = document.createElement('div');
-        const h3 = Object.assign(document.createElement('h3'), {
-          className: 'mb3 f6 lhc', innerHTML: 'Peaks'
-        });
-        const d1 = Object.assign(document.createElement('div'), {
-          className: 'dib mb4 pr4 lf sh6 w5'
-        });
-        const d2 = Object.assign(document.createElement('div'), {
-          className: 'dib mb4 pl4 lf sh6 w5'
-        });
-        const pth = Object.assign(document.createElement('div'), {
-          id: 'pth', className: 'psr hf wf'
-        });
-        const pdh = Object.assign(document.createElement('div'), {
-          id: 'pdh', className: 'psr hf wf'
-        });
-        const stats = Object.assign(document.createElement('ul'), {
-          className: 'mb5 lsn f6 lhc r'
-        });
+        const a = oa('div', {className: 'dib mb4 pr4 lf sh6 w5'});
+        const b = oa('div', {className: 'dib mb4 pl4 lf sh6 w5'});
+        const h = oa('div', {className: 'psr hf wf'});
+        const d = h.cloneNode();
+        const stats = oa('ul', {className: 'mb5 lsn f6 lhc r'});
         const s = [
           {n: 'Peak Hour', v: Log.data.peakHour()},
           {n: 'Peak Day', v: Log.data.peakDay()},
@@ -533,44 +390,31 @@ Log.ui = {
         ];
 
         for (let i = 0; i < 3; i++) {
+          const item = oa('li', {className: 'mb0 c3'});
           const {n, v} = s[i];
-          const item = Object.assign(document.createElement('li'), {
-            className: 'mb0 c3'
-          });
 
-          item.append(Object.assign(document.createElement('p'), {
-            className: 'f4 fwb', innerHTML: v
-          }));
-          item.append(Object.assign(document.createElement('p'), {
-            className: 'o9', innerHTML: n
-          }));
-
+          item.append(oa('p', {className: 'f4 fwb', innerHTML: v}));
+          item.append(oa('p', {className: 'o9', innerHTML: n}));
           stats.append(item);
         }
 
-        c.append(Object.assign(document.createElement('h3'), {
-          className: 'mb3 f6 lhc', innerHTML: 'Peaks'
-        }));
-        c.append(d1);
-          d1.append(pth);
-            pth.append(Log.vis.peakChart(0, Log.cache.pkh));
-        c.append(d2);
-          d2.append(pdh);
-            pdh.append(Log.vis.peakChart(1, Log.cache.pkd));
+        c.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Peaks'}));
+        c.append(a);
+          a.append(h);
+            h.append(Log.vis.peakChart(0, Log.cache.pkh));
+        c.append(b);
+          b.append(d);
+            d.append(Log.vis.peakChart(1, Log.cache.pkd));
         c.append(stats);
 
         return c;
       },
 
-      focus (ent) {
+      focus (entries) {
         const pf = Log.data.listFocus(1);
         const d = document.createElement('div');
-        const chart = Object.assign(document.createElement('div'), {
-          id: 'focusChart', className: 'psr mb4 wf sh5'
-        });
-        const stats = Object.assign(document.createElement('ul'), {
-          className: 'mb5 lsn f6 lhc r'
-        });
+        const c = oa('div', {className: 'psr mb4 wf sh5'});
+        const stats = oa('ul', {className: 'mb5 lsn f6 lhc r'});
         const s = [
           {n: 'Min Focus', v: Log.data.calcMin(pf).toFixed(2)},
           {n: 'Max Focus', v: Log.data.calcMax(pf).toFixed(2)},
@@ -578,27 +422,18 @@ Log.ui = {
         ];
 
         for (let i = 0, l = s.length; i < l; i++) {
+          const itm = oa('li', {className: 'c3'});
           const {n, v} = s[i];
-          const itm = Object.assign(document.createElement('li'), {
-            className: 'c3'
-          });
 
-          itm.append(Object.assign(document.createElement('p'), {
-            className: 'f4 fwb', innerHTML: v
-          }));
-
-          itm.append(Object.assign(document.createElement('p'), {
-            className: 'o9', innerHTML: n
-          }));
+          itm.append(oa('p', {className: 'f4 fwb', innerHTML: v}));
+          itm.append(oa('p', {className: 'o9', innerHTML: n}));
 
           stats.append(itm);
         }
 
-        d.append(Object.assign(document.createElement('h3'), {
-          className: 'mb3 f6 lhc', innerHTML: 'Focus'
-        }));
-        d.append(chart);
-          chart.append(Log.vis.focusChart(Log.data.listFocus(1, ent)));
+        d.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Focus'}));
+        d.append(c);
+          c.append(Log.vis.focusChart(Log.data.listFocus(1, entries)));
         d.append(stats);
 
         return d;
@@ -607,16 +442,10 @@ Log.ui = {
       distribution () {
         const v = Log.data.sortValues(Log.log, 0, 1);
         const d = document.createElement('div');
-        const b = Object.assign(document.createElement('div'), {
-          id: 'secFocBar', className: 'mb3 wf sh2'
-        });
-        const l = Object.assign(document.createElement('ul'), {
-          id: 'secLegSum', className: 'lsn r'
-        });
+        const b = oa('div', {className: 'mb3 wf sh2'});
+        const l = oa('ul', {className: 'lsn r'});
 
-        d.append(Object.assign(document.createElement('h3'), {
-          className: 'mb3 f6 lhc', innerHTML: 'Sectors'
-        }));
+        d.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Sectors'}));
         d.append(b);
           b.append(Log.vis.focusBar(0, v));
         d.append(l);
@@ -632,8 +461,8 @@ Log.ui = {
         let ent = [];
         let his = [];
         let sect = '';
-        let statSect = '';
-        let entrySect = '';
+        let ss = '';
+        let es = '';
 
         if (mode === 0) {
           ent = Log.data.getEntriesBySector(
@@ -641,43 +470,36 @@ Log.ui = {
           );
           his = Log.data.getEntriesBySector(key);
           sect = 'secsect';
-          statSect = 'sectorStats';
-          entrySect = 'sectorEntries';
+          ss = 'SST';
+          es = 'SEN';
         } else {
           ent = Log.data.getEntriesByProject(
             key, Log.data.getRecentEntries(Log.config.ui.view - 1)
           );
           his = Log.data.getEntriesByProject(key);
           sect = 'prosect';
-          statSect = 'projectStats';
-          entrySect = 'projectEntries';
+          ss = 'PST';
+          es = 'PEN';
         }
 
         const dur = Log.data.listDurations(his);
         const ph = Log.data.peakHours(his);
         const pd = Log.data.peakDays(his);
         const sh = Log.data.sortEntries(his);
-        const el = ent.length;
         const {detail} = Log.ui.details;
         const f = document.createDocumentFragment();
-        const c = Object.assign(document.createElement('div'), {
-          className: 'nodrag oys hoverScroll'
-        });
-        const s1 = Object.assign(document.createElement('div'), {
-          id: statSect, className: `${sect} hf`
-        });
-        const s2 = Object.assign(document.createElement('div'), {
-          id: entrySect, className: `dn ${sect} hf`
-        });
+        const c = oa('div', {className: 'nodrag oys hvs'});
+        const s1 = oa('div', {id: ss, className: sect});
+        const s2 = oa('div', {id: es, className: `dn ${sect}`});
 
         f.append(c);
-          c.append(detail.head(mode, key, ent, el));
+          c.append(detail.head(key, ent));
           c.append(detail.tabs(mode));
           c.append(s1);
-            s1.append(detail.overview(mode, ent));
+            s1.append(detail.overview(ent));
             s1.append(detail.stats(dur, his, sh, ph, pd));
             s1.append(detail.peaks(ph, pd));
-            s1.append(detail.focus(mode, ent, sh));
+            s1.append(detail.focus(ent, sh));
             s1.append(detail.distribution(mode, ent, his));
           c.append(s2);
             s2.append(detail.entries(mode, his));
@@ -686,31 +508,24 @@ Log.ui = {
         return f;
       },
 
-      head (mode, key, ent, el) {
+      head (key, ent) {
         const f = document.createDocumentFragment();
+        const {timeago, convert} = Log.time;
 
-        f.append(Object.assign(document.createElement('h2'), {
-          id: mode === 0 ? 'sectorTitle' : 'projectTitle',
-          className: 'mb0 f4 lht',
-          innerHTML: key
-        }));
+        f.append(oa('h2', {className: 'mb0 f4 lht', innerHTML: key}));
 
-        f.append(Object.assign(document.createElement('p'), {
-          id: mode === 0 ? 'sectorLastUpdate' : 'projectLastUpdate',
+        f.append(oa('p', {
           className: 'mb2 f6 o7',
-          innerHTML: el === 0 ?
+          innerHTML: ent.length === 0 ?
             `No activity in the past ${Log.config.ui.view} days` :
-            `Updated ${Log.time.timeago(Log.time.convert(ent.slice(-1)[0].e) * 1E3)}`
+            `Updated ${timeago(convert(ent.slice(-1)[0].e) * 1E3)}`
         }));
 
         return f;
       },
 
-      overview (mode, ent) {
-        const o = Object.assign(document.createElement('div'), {
-          id: mode === 0 ? 'sectorOverviewChart' : 'projectOverviewChart',
-          className: 'psr'
-        });
+      overview (ent) {
+        const o = oa('div', {className: 'psr'});
 
         if (ent.length !== 0) {
           const se = Log.data.sortEntries(ent);
@@ -721,9 +536,7 @@ Log.ui = {
       },
 
       tabs (mode) {
-        const t = Object.assign(document.createElement('div'), {
-          className: 'mb3 lhc'
-        });
+        const t = oa('div', {className: 'mb3 lhc'});
 
         let sect = '';
         let tab = '';
@@ -733,25 +546,23 @@ Log.ui = {
         if (mode === 0) {
           sect = 'secsect';
           tab = 'sectab';
-          stats = 'sectorStats';
-          entries = 'sectorEntries';
+          stats = 'SST';
+          entries = 'SEN';
         } else {
           sect = 'prosect';
           tab = 'protab';
-          stats = 'projectStats';
-          entries = 'projectEntries';
+          stats = 'PST';
+          entries = 'PEN';
         }
 
-        t.append(Object.assign(document.createElement('button'), {
+        t.append(oa('button', {
           className: 'pv1 sectab on bg-cl of mr3',
-          id: `b-${stats}`,
-          innerHTML: 'Stats',
+          id: `b-${stats}`, innerHTML: 'Stats',
           onclick: () => Log.tab(stats, sect, tab)
         }));
-        t.append(Object.assign(document.createElement('button'), {
+        t.append(oa('button', {
           className: 'pv1 sectab on bg-cl o5',
-          id: `b-${entries}`,
-          innerHTML: 'Entries',
+          id: `b-${entries}`, innerHTML: 'Entries',
           onclick: () => Log.tab(entries, sect, tab)
         }));
 
@@ -759,10 +570,8 @@ Log.ui = {
       },
 
       stats (dur, his, sortHis, pkhd, pkdd) {
-        const d = document.createElement('div');
-        const list = Object.assign(document.createElement('ul'), {
-          className: 'lsn f6 lhc r'
-        });
+        const div = document.createElement('div');
+        const list = oa('ul', {className: 'lsn f6 lhc r'});
         const s = [
           {n: 'Total Hours', v: Log.displayStat(Log.data.calcSum(dur))},
           {n: 'Min Duration', v: Log.displayStat(Log.data.calcMin(dur))},
@@ -774,64 +583,43 @@ Log.ui = {
           {n: 'Peak Day', v: Log.data.peakDay(pkdd)}
         ];
 
-        for (let i = 0, l = s.length; i < l; i++) {
+        for (let i = 0, sl = s.length; i < sl; i++) {
+          const item = oa('li', {className: 'mb4 c3'});
           const {n, v} = s[i];
-          const item = Object.assign(document.createElement('li'), {
-            className: 'mb4 c3'
-          });
 
-          item.append(Object.assign(document.createElement('p'), {
-            innerHTML: v, className: 'f4 fwb'
-          }));
-          item.append(Object.assign(document.createElement('p'), {
-            innerHTML: n, className: 'o9'
-          }));
-
+          item.append(oa('p', {innerHTML: v, className: 'f4 fwb'}));
+          item.append(oa('p', {innerHTML: n, className: 'o9'}));
           list.append(item);
         }
 
-        d.append(list);
+        div.append(list);
 
-        return d;
+        return div;
       },
 
       peaks (pkh, pkd) {
         const w = document.createElement('div');
-        const d1 = Object.assign(document.createElement('div'), {
-          className: 'dib mb4 pr4 lf sh6 w5'
-        });
-        const d2 = Object.assign(document.createElement('div'), {
-          className: 'dib mb4 pl4 lf sh6 w5'
-        });
-        const h = Object.assign(document.createElement('div'), {
-          className: 'psr hf wf'
-        });
+        const a = oa('div', {className: 'dib mb4 pr4 lf sh6 w5'});
+        const b = oa('div', {className: 'dib mb4 pl4 lf sh6 w5'});
+        const h = oa('div', {className: 'psr hf wf'});
         const d = h.cloneNode();
 
-        h.append(Log.vis.peakChart(0, pkh));
-        d.append(Log.vis.peakChart(1, pkd));
-
-        d1.append(h);
-        d2.append(d);
-
-        w.append(Object.assign(document.createElement('h3'), {
-          className: 'mb3 f6', innerHTML: 'Peaks'
-        }));
-        w.append(d1);
-        w.append(d2);
+        w.append(oa('h3', {className: 'mb3 f6', innerHTML: 'Peaks'}));
+        w.append(a);
+          a.append(h);
+            h.append(Log.vis.peakChart(0, pkh));
+        w.append(b);
+          b.append(d);
+            d.append(Log.vis.peakChart(1, pkd));
 
         return w;
       },
 
-      focus (mode, ent, sortHis) {
+      focus (ent, sortHis) {
         const foci = Log.data.listFocus(1, sortHis);
         const d = document.createElement('div');
-        const stats = Object.assign(document.createElement('ul'), {
-          className: 'mb4 lsn f6 lhc r'
-        });
-        const c = Object.assign(document.createElement('div'), {
-          id: mode === 0 ? 'sFoc' : 'pFoc', className: 'psr mb4 wf'
-        });
+        const stats = oa('ul', {className: 'mb4 lsn f6 lhc r'});
+        const c = oa('div', {className: 'psr mb4 wf'});
         const s = [
           {n: 'Min Focus', v: Log.data.calcMin(foci).toFixed(2)},
           {n: 'Max Focus', v: Log.data.calcMax(foci).toFixed(2)},
@@ -840,18 +628,10 @@ Log.ui = {
 
         for (let i = 0; i < 3; i++) {
           const {n, v} = s[i];
-          const itm = Object.assign(document.createElement('li'), {
-            className: 'c3'
-          });
+          const itm = oa('li', {className: 'c3'});
 
-          itm.append(Object.assign(document.createElement('p'), {
-            innerHTML: v,
-            className: 'f4 fwb'
-          }));
-          itm.append(Object.assign(document.createElement('p'), {
-            innerHTML: n,
-            className: 'o9'
-          }));
+          itm.append(oa('p', {innerHTML: v, className: 'f4 fwb'}));
+          itm.append(oa('p', {innerHTML: n, className: 'o9'}));
 
           stats.append(itm);
         }
@@ -861,38 +641,35 @@ Log.ui = {
           c.append(Log.vis.focusChart(Log.data.listFocus(1, se), c));
         }
 
-        d.append(Object.assign(document.createElement('h3'), {
-          className: 'mb3 f6', innerHTML: 'Focus'
-        }));
+        d.append(oa('h3', {className: 'mb3 f6', innerHTML: 'Focus'}));
         d.append(c);
         d.append(stats);
 
         return d;
       },
 
+      /**
+       * @param {number} mode - Sector (0) or project (1)
+       * @param {Object[]} ent - Entries
+       * @param {Object[]} his - Entries
+       */
       distribution (mode, ent, his) {
         const d = document.createElement('div');
-        const b = Object.assign(document.createElement('div'), {
-          id: mode === 0 ?
-            'sectorFocusDistribution' : 'projectFocusDistribution',
-          className: 'mb3 wf sh2'
-        });
-        const l = Object.assign(document.createElement('ul'), {
-          id: mode === 0 ? 'sectorLegend' : 'projectLegend',
-          className: 'lsn r'
-        });
+        const b = oa('div', {className: 'mb3 wf sh2'});
+        const l = oa('ul', {className: 'lsn r'});
 
         if (ent.length !== 0) {
-          const mod = mode === 0 ? 1 : 0;
-          const sv = Log.data.sortValues(his, mod, 1);
-          b.append(Log.vis.focusBar(mod, sv));
-          l.append(Log.vis.legend(mod, sv));
+          const m = mode === 0 ? 1 : 0;
+          const v = Log.data.sortValues(his, m, 1);
+          b.append(Log.vis.focusBar(m, v));
+          l.append(Log.vis.legend(m, v));
         }
 
-        d.append(Object.assign(document.createElement('h3'), {
-          className: 'mb3 f6',
-          innerHTML: mode === 0 ? 'Projects' : 'Sectors'
+        d.append(oa('h3', {
+          innerHTML: mode === 0 ? 'Projects' : 'Sectors',
+          className: 'mb3 f6'
         }));
+
         d.append(b);
         d.append(l);
 
@@ -900,108 +677,66 @@ Log.ui = {
       },
 
       entries (mode, his) {
-        const table = Object.assign(document.createElement('table'), {
-          className: 'wf bn'
-        });
-        const thead = document.createElement('thead');
-        const tr = document.createElement('tr');
-        const tbody = Object.assign(document.createElement('tbody'), {
-          id: mode === 0 ? 'sectorLogs' : 'projectLogs',
-          className: 'nodrag f6'
-        });;
+        const t = oa('table', {className: 'wf bn f6'});
+        const h = document.createElement('thead');
+        const r = document.createElement('tr');
+        const b = oa('tbody', {className: 'nodrag'});
+        const n = ['Date', 'Time', 'Span', mode === 0 ? 'Project' : 'Sector'];
         const rev = his.slice(his.length - 100).reverse();
 
         for (let i = 0, l = rev.length; i < l; i++) {
           const {s, e, c, t, d, id} = rev[i];
           const startDate = Log.time.toEpoch(s);
           const startTime = Log.time.stamp(startDate);
-          const detailKey = mode === 0 ? t : c;
-          const row = Object.assign(document.createElement('tr'), {
-            className: 'f6 al'
-          });
-          const time = document.createElement('td');
-          const span = document.createElement('td');
+          const end = Log.time.stamp(Log.time.toEpoch(e));
+          const key = mode === 0 ? t : c;
+          const row = document.createElement('tr');
 
-          if (rev[i].e === undefined) {
-            time.innerHTML = startTimestartTime;
-            span.innerHTML = '–';
-          } else {
-            const end = Log.time.stamp(Log.time.toEpoch(e));
-            time.innerHTML = `${startTime}–${end}`;
-            span.innerHTML = Log.time.duration(s, e).toFixed(2);
-          }
+          row.append(oa('td', {innerHTML: id + 1, className: 'pl0'}));
+          row.append(oa('td', {innerHTML: Log.time.displayDate(startDate)}));
+          row.append(oa('td', {innerHTML: `${startTime}–${end}`}));
+          row.append(oa('td', {innerHTML: Log.time.duration(s, e).toFixed(2)}));
+          row.append(oa('td', {
+            innerHTML: key, className: 'c-pt',
+            onclick: () => Log.nav.toDetail(mode === 0 ? 1 : 0, key)}));
+          row.append(oa('td', {innerHTML: d, className: 'pr0'}));
 
-          row.append(Object.assign(document.createElement('td'), {
-            innerHTML: id + 1, className: 'pl0'
-          }));
-          row.append(Object.assign(document.createElement('td'), {
-            innerHTML: Log.time.displayDate(startDate)
-          }));
-
-          row.append(time);
-          row.append(span);
-
-          row.append(Object.assign(document.createElement('td'), {
-            innerHTML: detailKey, className: 'c-pt',
-            onclick: () => Log.nav.toDetail(mode === 0 ? 1 : 0, detailKey)
-          }));
-          row.append(Object.assign(document.createElement('td'), {
-            innerHTML: d, className: 'pr0'
-          }));
-
-          tbody.append(row);
+          b.append(row);
         }
 
-        table.append(thead);
-          thead.append(tr);
-            tr.append(Object.assign(document.createElement('th'), {
-              className: 'pl0', innerHTML: 'ID'
-            }));
-            tr.append(Object.assign(document.createElement('th'), {
-              innerHTML: 'Date'
-            }));
-            tr.append(Object.assign(document.createElement('th'), {
-              innerHTML: 'Time'
-            }));
-            tr.append(Object.assign(document.createElement('th'), {
-              innerHTML: 'Span'
-            }));
-            tr.append(Object.assign(document.createElement('th'), {
-              innerHTML: mode === 0 ? 'Project' : 'Sector'
-            }));
-            tr.append(Object.assign(document.createElement('th'), {
-              className: 'pr0', innerHTML: 'Details'
-            }));
+        t.append(h);
+          h.append(r);
+            r.append(oa('th', {className: 'pl0', innerHTML: 'ID'}));
 
-        table.append(tbody);
+            for (let i = 0, l = n.length; i < l; i++) {
+              r.append(oa('th', {innerHTML: n[i]}));
+            }
 
-        return table;
+            r.append(oa('th', {className: 'pr0', innerHTML: 'Details'}));
+        t.append(b);
+
+        return t;
       },
 
       list (mode) {
-        const list = Object.assign(document.createElement('ul'), {
-          // id: mode === 0 ? 'sectorsList' : 'projectsList',
-          className: 'nodrag oys lsn f6 lhc hoverScroll'
-        });
+        const l = oa('ul', {className: 'nodrag oys lsn f6 lhc hvs'});
 
         if (Log.log.length > 1) {
-          const sv = Log.data.sortValues(Log.log, mode, 0);
-          list.append(Log.vis.list(mode, sv));
+          l.append(Log.vis.list(mode, Log.data.sortValues(Log.log, mode, 0)));
         }
 
-        return list;
+        return l;
       }
     }
   },
 
+  /**
+   * @param {Object[]} so - Sorted entries
+   */
   visualisation (so) {
     const f = document.createDocumentFragment();
-    const m = Object.assign(document.createElement('div'), {
-      id: 'visMeter', className: 'psr wf sh2 bl br'
-    });
-    const v = Object.assign(document.createElement('div'), {
-      className: 'nodrag oys hoverScroll'
-    });
+    const m = oa('div', {className: 'psr wf sh2 bl br'});
+    const v = oa('div', {className: 'nodrag oys hvs'});
 
     f.append(m);
       m.append(Log.vis.meterLines());
@@ -1021,27 +756,19 @@ Log.ui = {
     },
 
     table () {
-      const t = Object.assign(document.createElement('table'), {
-        className: 'wf bn f6'
-      });
-      const h = Object.assign(document.createElement('thead'), {
-        className: 'al'
-      });
-      const b = Object.assign(document.createElement('tbody'), {
-        id: 'logbook', className: 'nodrag'
-      });
+      const t = oa('table', {className: 'wf bn f6'});
+      const h = oa('thead', {className: 'al'});
+      const b = oa('tbody', {className: 'nodrag'});
       const n = ['Date', 'Time', 'Span', 'Sector', 'Project'];
-      const el = user.log.length
+      const el = user.log.length;
       const arr = user.log.slice(el - 100).reverse();
 
       for (let i = 0, l = arr.length; i < l; i++) {
         const {s, e, c, t, d} = arr[i];
-        const startDate = Log.time.toEpoch(s);
-        const startTime = Log.time.stamp(startDate);
-        const entryID = el - i - 1;
-        const row = Object.assign(document.createElement('tr'), {
-          id: `r${entryID}`
-        });
+        const date = Log.time.toEpoch(s);
+        const startTime = Log.time.stamp(date);
+        const id = el - i - 1;
+        const r = oa('tr', {id: `r${id}`});
         const time = document.createElement('td');
         const span = document.createElement('td');
 
@@ -1054,61 +781,52 @@ Log.ui = {
           span.innerHTML = Log.displayStat(Log.time.duration(s, e));
         }
 
-        row.appendChild(Object.assign(document.createElement('td'), {
-          className: 'pl0 c-pt hover',
-          innerHTML: el - i,
-          onclick: () => Log.edit(entryID)
-        }));
-        row.appendChild(Object.assign(document.createElement('td'), {
-          className: 'c-pt hover',
-          innerHTML: Log.time.displayDate(startDate),
-          onclick: () => Log.nav.toJournal(`'${s}'`)
-        }));
-        row.appendChild(time);
-        row.appendChild(span);
-        row.appendChild(Object.assign(document.createElement('td'), {
-          className: 'c-pt hover',
-          innerHTML: c,
-          onclick: () => Log.nav.toDetail(0, c)
-        }));
-        row.appendChild(Object.assign(document.createElement('td'), {
-          className: 'c-pt hover',
-          innerHTML: t,
-          onclick: () => Log.nav.toDetail(1, t)
-        }));
-        row.appendChild(Object.assign(document.createElement('td'), {
-          className: 'pr0',
-          innerHTML: d
+        r.appendChild(oa('td', {
+          className: 'pl0 c-pt hover', innerHTML: el - i,
+          onclick: () => Log.edit(id)
         }));
 
-        b.appendChild(row);
+        r.appendChild(oa('td', {
+          className: 'c-pt hover', innerHTML: Log.time.displayDate(date),
+          onclick: () => Log.nav.toJournal(`'${s}'`)
+        }));
+
+        r.appendChild(time);
+        r.appendChild(span);
+
+        r.appendChild(oa('td', {
+          className: 'c-pt hover', innerHTML: c,
+          onclick: () => Log.nav.toDetail(0, c)
+        }));
+
+        r.appendChild(oa('td', {
+          className: 'c-pt hover', innerHTML: t,
+          onclick: () => Log.nav.toDetail(1, t)
+        }));
+
+        r.appendChild(oa('td', {className: 'pr0', innerHTML: d}));
+
+        b.appendChild(r);
       }
 
       t.append(h);
-        h.append(Object.assign(document.createElement('th'), {
-          className: 'pl0', innerHTML: 'ID'
-        }));
+        h.append(oa('th', {className: 'pl0', innerHTML: 'ID'}));
+
         for (let i = 0, l = n.length; i < l; i++) {
-          h.append(Object.assign(document.createElement('th'), {
-            innerHTML: n[i]
-          }));
+          h.append(oa('th', {innerHTML: n[i]}));
         }
-        h.append(Object.assign(document.createElement('th'), {
-          className: 'pr0', innerHTML: 'Details'
-        }));
+
+        h.append(oa('th', {className: 'pr0', innerHTML: 'Details'}));
       t.append(b);
-        // b.append(Log.displayEntries(user.log, 100));
 
       return t;
     },
 
     modal () {
-      const m = Object.assign(document.createElement('dialog'), {
-        id: 'editModal', className: 'p4 cn bn h6'
-      });
-      const f = Object.assign(document.createElement('form'), {
-        id: 'editForm', className: 'nodrag', onsubmit: () => false
-      });
+      const m = oa('dialog', {id: 'editModal', className: 'p4 cn bn h6'});
+      const f = oa('form', {
+        id: 'editForm', className: 'nodrag', onsubmit: () => false});
+      const i = oa('input', {className: 'db wf p2 mb3 bn'});
 
       Object.assign(m.style, {
         backgroundColor: Log.config.ui.bg, color: Log.config.ui.colour
@@ -1128,45 +846,31 @@ Log.ui = {
         Log.modalMode = false;
       });
 
-      m.append(Object.assign(document.createElement('p'), {
-        id: 'editID', className: 'mb4 f6 lhc'
-      }));
+      m.append(oa('p', {
+        id: 'editID', className: 'mb4 f6 lhc'}));
       m.append(f);
-        f.append(Object.assign(document.createElement('input'), {
-          id: 'editEntryID', type: 'hidden'
-        }));
-        f.append(Object.assign(document.createElement('input'), {
-          id: 'editSector', className: 'db wf p2 mb3 bn',
-          type: 'text', placeholder: 'Sector'
-        }));
-        f.append(Object.assign(document.createElement('input'), {
-          id: 'editProject', className: 'db wf p2 mb3 bn',
-          type: 'text', placeholder: 'Project'
-        }));
-        f.append(Object.assign(document.createElement('textarea'), {
+        f.append(oa('input', {id: 'editEntryID', type: 'hidden'}));
+        f.append(oa(i.cloneNode(), {
+          id: 'editSector', type: 'text', placeholder: 'Sector'}));
+        f.append(oa(i.cloneNode(), {
+          id: 'editProject', type: 'text', placeholder: 'Project'}));
+        f.append(oa(document.createElement('textarea'), {
           id: 'editDesc', className: 'db wf p2 mb3 bn',
-          rows: '3', placeholder: 'Description (optional)'
-        }));
-        f.append(Object.assign(document.createElement('input'), {
-          id: 'editStart', className: 'db wf p2 mb3 bn',
-          type: 'datetime-local', step: '1'
-        }));
-        f.append(Object.assign(document.createElement('input'), {
-          id: 'editEnd', className: 'db wf p2 mb3 bn',
-          type: 'datetime-local', step: '1'
-        }));
-        f.append(Object.assign(document.createElement('input'), {
+          rows: '3', placeholder: 'Description (optional)'}));
+        f.append(oa(i.cloneNode(), {
+          id: 'editStart', type: 'datetime-local', step: '1'}));
+        f.append(oa(i.cloneNode(), {
+          id: 'editEnd', type: 'datetime-local', step: '1'}));
+        f.append(oa('input', {
           id: 'editUpdate', className: 'dib p2 mr2 br1 bn',
-          type: 'submit', value: 'Update'
-        }));
-        f.append(Object.assign(document.createElement('input'), {
+          type: 'submit', value: 'Update'}));
+        f.append(oa('input', {
           id: 'editCancel', className: 'dib p2 br1 bn',
           type: 'button', value: 'Cancel',
           onclick: () => {
             Log.modalMode = false;
             m.close();
-          }
-        }));
+          }}));
 
       return m;
     }
@@ -1182,34 +886,18 @@ Log.ui = {
     },
 
     cal () {
-      const c = Object.assign(document.createElement('table'), {
-        id: 'cal', className: 'calendar nodrag hf wf f6 lhc c-pt bn'
-      });
-
+      const c = oa('table', {className: 'cal nodrag hf wf f6 lhc c-pt bn'});
       Log.journal.displayCalendar(c);
-
       return c;
     },
 
     modal () {
-      const modal = Object.assign(document.createElement('dialog'), {
-        id: 'entryModal', className: 'p4 cn bn h6'
-      });
-      const h2 = Object.assign(document.createElement('h2'), {
-        id: 'journalDate', className: 'mb4 f6 lhc'
-      });
-      const top = Object.assign(document.createElement('div'), {
-        className: 'h2'
-      });
-      const meter = Object.assign(document.createElement('div'), {
-        id: 'jMeter', className: 'mb3 psr wf sh2 bl br'
-      });
-      const sidebar = Object.assign(document.createElement('div'), {
-        className: 'r h7'
-      });
-      const stats = Object.assign(document.createElement('ul'), {
-        className: 'c3 hf oys pr4 lsn f6 lhc hoverScroll'
-      });
+      const m = oa('dialog', {id: 'entryModal', className: 'p4 cn bn h6'});
+      const h2 = oa('h2', {id: 'journalDate', className: 'mb4 f6 lhc'});
+      const t = oa('div', {className: 'h2'});
+      const mt = oa('div', {className: 'mb3 psr wf sh2 bl br'});
+      const sb = oa('div', {className: 'r h7'});
+      const st = oa('ul', {className: 'c3 hf oys pr4 lsn f6 lhc hvs'});
       const s = [
         {id: 'jSUM', n: 'Total Hours'},
         {id: 'jMIN', n: 'Min Duration'},
@@ -1219,41 +907,30 @@ Log.ui = {
         {id: 'jFOC', n: 'Focus'},
       ];
 
-      Object.assign(modal.style, {
-        backgroundColor: Log.config.ui.bg,
-        color: Log.config.ui.colour
+      Object.assign(m.style, {
+        backgroundColor: Log.config.ui.bg, color: Log.config.ui.colour
       });
 
       for (let i = 0, l = s.length; i < l; i++) {
+        const stat = oa('li', {className: 'mb3'});
         const {id, n} = s[i];
-        const stat = Object.assign(document.createElement('li'), {
-          className: 'mb3'
-        });
 
-        stat.append(Object.assign(document.createElement('p'), {
-          id, innerHTML: '&ndash;', className: 'f4 fwb'
-        }));
-        stat.append(Object.assign(document.createElement('p'), {
-          innerHTML: n, className: 'o9'
-        }));
+        stat.append(oa('p', {id, innerHTML: '&ndash;', className: 'f4 fwb'}));
+        stat.append(oa('p', {innerHTML: n, className: 'o9'}));
 
-        stats.append(stat);
+        st.append(stat);
       }
 
-      modal.append(h2);
-      modal.append(top);
-        top.append(meter);
-          meter.append(Log.vis.meterLines());
-        top.append(Object.assign(document.createElement('div'), {
-          id: 'jDyc', className: 'mb3 psr wf sh2'
-        }));
-      modal.append(sidebar);
-        sidebar.append(stats);
-        sidebar.append(Object.assign(document.createElement('ul'), {
-          id: 'jEnt', className: 'c9 pl4 hf oys lsn hoverScroll'
-        }));
+      m.append(h2);
+      m.append(t);
+        t.append(mt);
+          mt.append(Log.vis.meterLines());
+        t.append(oa('div', {id: 'jDyc', className: 'mb3 psr wf sh2'}));
+      m.append(sb);
+        sb.append(st);
+        sb.append(oa('ul', {id: 'jEnt', className: 'c9 pl4 hf oys lsn hvs'}));
 
-      return modal;
+      return m;
     }
   },
 
@@ -1278,52 +955,32 @@ Log.ui = {
   },
 
   delModal () {
-    const modal = Object.assign(document.createElement('dialog'), {
-      id: 'delModal',
-      className: 'p4 cn bn nodrag'
+    const m = oa('dialog', {id: 'delModal', className: 'p4 cn bn nodrag'});
+
+    Object.assign(m.style, {
+      backgroundColor: Log.config.ui.bg, color: Log.config.ui.colour
     });
 
-    Object.assign(modal.style, {
-      backgroundColor: Log.config.ui.bg,
-      color: Log.config.ui.colour
-    });
-
-    modal.appendChild(Object.assign(document.createElement('p'), {
-      id: 'delMessage', className: 'mb4 f6 lhc'
-    }));
-    modal.appendChild(Object.assign(document.createElement('ul'), {
-      id: 'delList', className: 'mb3 lsn'
-    }));
-    modal.appendChild(Object.assign(document.createElement('button'), {
-      id: 'delConfirm', className: 'p2 br1 bn f6', innerHTML: 'Delete'
-    }));
-    modal.appendChild(Object.assign(document.createElement('button'), {
-      className: 'p2 br1 bn f6 lhc',
-      innerHTML: 'Cancel',
+    m.appendChild(oa('p', {id: 'delMessage', className: 'mb4 f6 lhc'}));
+    m.appendChild(oa('ul', {id: 'delList', className: 'mb3 lsn'}));
+    m.appendChild(oa('button', {
+      id: 'delConfirm', className: 'p2 br1 bn f6', innerHTML: 'Delete'}));
+    m.appendChild(oa('button', {
+      className: 'p2 br1 bn f6 lhc', innerHTML: 'Cancel',
       onclick: () => {
         Log.modalMode = false;
         modal.close();
-      }
-    }));
+      }}));
 
-    return modal;
+    return m;
   },
 
   commander () {
-    const commander = Object.assign(document.createElement('form'), {
-      action: '#',
-      className: 'dn psf b0 l0 wf f6 z9',
-      id: 'commander',
-      onsubmit: () => false
-    });
-
-    const input = Object.assign(document.createElement('input'), {
-      autofocus: 'autofocus',
-      className: 'wf bg-0 blanc on bn p3',
-      id: 'commanderInput',
-      placeholder: 'Log.console',
-      type: 'text'
-    });
+    const commander = oa('form', {
+      action: '#', className: 'dn psf b0 l0 wf f6 z9', onsubmit: () => false});
+    const input = oa('input', {
+      autofocus: 'autofocus', className: 'wf bg-0 blanc on bn p3',
+      placeholder: 'Enter commands here', type: 'text'});
 
     commander.addEventListener('submit', _ => {
       Log.commanderIndex = 0;
@@ -1347,7 +1004,6 @@ Log.ui = {
 
     Log.commander = commander;
     Log.commanderInput = input;
-
     commander.append(input);
 
     return commander;

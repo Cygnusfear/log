@@ -7,11 +7,6 @@
   }
 }
 
-body {
-  -webkit-app-region: drag;
-  animation: fadein 0.7862s
-}
-
 input[type="submit"], input[type="reset"], input[type="button"], input[type="text"], button, .nodrag {
   -webkit-app-region: no-drag;
 }
@@ -30,19 +25,15 @@ button {
   text-overflow: ellipsis;
 }
 
-#visual {
-  overflow-x: hidden;
-}
-
-.noscroll::-webkit-scrollbar {
+.ns::-webkit-scrollbar {
   display: none;
 }
 
-.hoverScroll::-webkit-scrollbar-thumb {
+.hvs::-webkit-scrollbar-thumb {
   background-color: transparent;
 }
 
-.hoverScroll:hover::-webkit-scrollbar-thumb {
+.hvs:hover::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -87,6 +78,13 @@ body {
   font-feature-settings: 'calt';
   font-feature-settings: 'case';
   -webkit-text-size-adjust: 100%;
+  -webkit-app-region: drag;
+  animation: fadein 0.7862s;
+}
+
+.sect {
+  height: 100%;
+  width: 100%;
 }
 
 #container {
@@ -95,7 +93,7 @@ body {
   grid-template-columns: 100%;
 }
 
-#overview {
+#OVW {
   display: grid;
   grid-column-gap: 2.5%;
   grid-row-gap: 5%;
@@ -103,57 +101,63 @@ body {
   grid-template-columns: 15% 65% 15%;
 }
 
-#ovwTop {
+#ovwT {
   grid-column-start: 1;
   grid-column-end: 4;
 }
 
-#ovwLeft {
+#ovwL {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 5% 25% 25%;
 }
 
-#ovwCenter {
+#ovwC {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 15% 50% 30%;
 }
 
-#ovwRight {
+#ovwR {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 47.5% 47.5%;
 }
 
-#details {
+.subsect,
+.secsect,
+.prosect {
+  height: 100%;
+}
+
+#DTL {
   grid-column-gap: 5%;
   grid-template-columns: 10% 85%;
 }
 
-#sectorDetails {
+#SSC {
   grid-column-gap: 5%;
   grid-template-columns: 75% 20%;
 }
 
-#sectorStats {
+#SST {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 45% auto auto auto;
 }
 
-#projectDetails {
+#PSC {
   grid-column-gap: 5%;
   grid-template-columns: 75% 20%;
 }
 
-#projectStats {
+#PST {
   display: grid;
   grid-row-gap: 5%;
   grid-template-rows: 45% auto auto auto;
 }
 
-#visualisation {
+#VIS {
   grid-row-gap: 2.5%;
   grid-template-rows: 5% 90%;
   grid-template-columns: auto;
@@ -162,7 +166,7 @@ body {
     "visual";
 }
 
-#guide {
+#GUI {
   grid-column-gap: 2.5%;
   grid-template-columns: 15% 40% 40%;
   grid-template-areas:
@@ -192,7 +196,7 @@ header button, #lisSideA button, .protab, .sectab {
   animation: fadein 250ms ease;
 }
 
-.calendar, .calendar th, .calendar td {
+.cal, .cal th, .cal td {
   padding: .05em .5em;
   font-family: "Roboto Mono", monospace
 }
@@ -250,6 +254,10 @@ table {
   font-feature-settings: 'tnum';
   border-collapse: collapse;
   overflow-x: auto
+}
+
+thead {
+  text-align: left;
 }
 
 th, td {

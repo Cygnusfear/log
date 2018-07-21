@@ -152,8 +152,7 @@ let Log = {
         `Are you sure you want to delete the following ${aui.length} entries? This can't be undone.` :
         'Are you sure you want to delete the following entry? This can\'t be undone.' ;
 
-      const span = document.createElement('span');
-      span.className = 'mr3 o7';
+      const span = oa('span', {className: 'mr3 o7'});
 
       aui.forEach(i => {
         const {s, e, c, t, d} = user.log[Number(i) - 1];
@@ -241,9 +240,7 @@ let Log = {
   },
 
   viewDetails (mode, key) {
-    const d = document.getElementById(mode === 0 ?
-      'sectorDetails' : 'projectDetails');
-
+    const d = document.getElementById(mode === 0 ? 'SSC' : 'PSC');
     d.innerHTML = '';
     d.append(Log.ui.details.detail.build(mode, key));
   },
@@ -288,11 +285,11 @@ let Log = {
   },
 
   setDayLabel (d = new Date().getDay()) {
-    currentDay.innerHTML = days[d].substring(0, 3);
+    cd.innerHTML = days[d].substring(0, 3);
   },
 
   setTimeLabel (h = new Date().getHours()) {
-    currentHour.innerHTML = `${h}:00`;
+    ch.innerHTML = `${h}:00`;
   },
 
   reset () {
@@ -302,9 +299,7 @@ let Log = {
   },
 
   nav: {
-    menu: [
-      'overview', 'details', 'visualisation', 'entries', 'journal', 'guide'
-    ],
+    menu: ['OVW', 'DTL', 'VIS', 'ENT', 'JOU', 'GUI'],
 
     index: 0,
 
@@ -315,7 +310,7 @@ let Log = {
     },
 
     toJournal (h) {
-      Log.tab('journal', 'sect', 'tab');
+      Log.tab('JOU', 'sect', 'tab');
       Log.journal.translate(h);
     },
 
@@ -323,10 +318,8 @@ let Log = {
       if (typeof mod !== 'number' || mod < 0 || mod > 1) return;
       if (typeof key !== 'string' || key.length === 0) return;
 
-      const s = mod === 0 ? 'sectorDetails' : 'projectDetails';
-
-      Log.tab('details', 'sect', 'tab');
-      Log.tab(s, 'subsect', 'subtab', true);
+      Log.tab('DTL', 'sect', 'tab');
+      Log.tab(mod === 0 ? 'SSC' : 'PSC', 'subsect', 'subtab', true);
       Log.viewDetails(mod, key);
     }
   },
