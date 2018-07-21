@@ -1,6 +1,6 @@
 [![Screenshot](screenshot.png)](https://joshavanier.itch.io/log/)
 
-**Log** is a log and time-tracker available for Linux, macOS, and Windows. Download it [here](https://joshavanier.itch.io/log).
+**Log** is a log and time-tracker available for Linux and macOS. Download it [here](https://joshavanier.itch.io/log).
 
 #### Commands
 | Description | Command |
@@ -30,6 +30,13 @@ git clone https://github.com/joshavanier/log.git
 cd log
 npm install
 npm start
+```
+
+#### Notice
+This project no longer supports Windows systems. You can still have Windows builds, though this will have to be done on your own and any Windows-only issue will not be dealt with.
+
+```
+electron-packager . Log --platform=win32  --arch=x64 --out ./build --overwrite
 ```
 
 ---
