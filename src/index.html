@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
   <title>Log</title>
@@ -24,6 +24,7 @@
     const {dialog, app} = require('electron').remote;
     const fs = require('fs');
     const Store = require('./js/store.js');
+    const Lexicon = require('./js/lexicon.js');
     const path = require('path');
 
     let dataPath = '';
@@ -40,6 +41,7 @@
     const dataStore = new Store({
       path: dataPath,
       defaults: {
+        locale: 'en',
         config: {
           ui: {
             bg: '#f8f8f8',
@@ -63,6 +65,10 @@
     });
 
     Log.path = dataStore.path;
+
+    const Dict = new Lexicon({
+      path: `${__dirname}/lexicon/en.json`
+    });
 
     Log.init();
   </script>

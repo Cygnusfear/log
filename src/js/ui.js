@@ -62,35 +62,36 @@ Log.ui = {
     nav () {
       const f = document.createDocumentFragment();
       const b = oa('button', {className: 'pv1 tab on bg-cl o5 mr3'});
+      const {tabs} = Log.lexicon;
 
       f.append(oa(b.cloneNode(), {
         className: 'pv1 tab on bg-cl of mr3',
-        id: 'b-OVW', innerHTML: 'Overview',
+        id: 'b-OVW', innerHTML: tabs.overview,
         onclick: () => Log.tab('OVW')
       }));
 
       f.append(oa(b.cloneNode(), {
-        id: 'b-DTL', innerHTML: 'Details',
+        id: 'b-DTL', innerHTML: tabs.details,
         onclick: () => Log.tab('DTL')
       }));
 
       f.append(oa(b.cloneNode(), {
-        id: 'b-VIS', innerHTML: 'Visualisation',
+        id: 'b-VIS', innerHTML: tabs.vis,
         onclick: () => Log.tab('VIS')
       }));
 
       f.append(oa(b.cloneNode(), {
-        id: 'b-ENT', innerHTML: 'Entries',
+        id: 'b-ENT', innerHTML: tabs.entries,
         onclick: () => Log.tab('ENT')
       }));
 
       f.append(oa(b.cloneNode(), {
-        id: 'b-JOU', innerHTML: 'Journal',
+        id: 'b-JOU', innerHTML: tabs.journal,
         onclick: () => Log.tab('JOU')
       }));
 
       f.append(oa(b.cloneNode(), {
-        id: 'b-GUI', innerHTML: 'Guide',
+        id: 'b-GUI', innerHTML: tabs.guide,
         onclick: () => Log.tab('GUI')
       }));
 
@@ -163,15 +164,15 @@ Log.ui = {
       const st = Log.data.sortEntriesByDay()[new Date().getDay()];
       const pt = Log.data.peakHours(st);
 
-      l.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Peaks'}));
+      l.append(oa('h3', {
+        className: 'mb3 f6 lhc', innerHTML: Log.lexicon.peaks
+      }));
       l.append(ph);
-        ph.append(oa('h3', {
-          id: 'ch', className: 'mb2 f6 lhc fwn tnum', innerHTML: 'Hour'}));
+        ph.append(oa('h3', {id: 'ch', className: 'mb2 f6 lhc fwn tnum'}));
         ph.append(hc);
           hc.append(Log.vis.peakChart(0, pt));
       l.append(pd);
-        pd.append(oa('h3', {
-          id: 'cd', className: 'mb2 f6 lhc fwn', innerHTML: 'Day'}));
+        pd.append(oa('h3', {id: 'cd', className: 'mb2 f6 lhc fwn'}));
         pd.append(dc);
           dc.append(Log.vis.peakChart(1, Log.cache.pkd));
 
@@ -192,13 +193,15 @@ Log.ui = {
         lt.append(th);
           th.append(r1);
             r1.append(oa('th', {
-              className: 'pb1 pt0 pl0', innerHTML: 'Recent'}));
+              className: 'pb1 pt0 pl0', innerHTML: Log.lexicon.recent
+            }));
         lt.append(tb);
           tb.append(r2);
             r2.append(oa('td', {className: 'pl0', innerHTML: id + 1}));
             r2.append(oa('td', {
               innerHTML: `${st} - ${e === undefined ?
-                '' : Log.time.stamp(Log.time.toEpoch(e))}`}));
+                '' : Log.time.stamp(Log.time.toEpoch(e))}`
+            }));
             r2.append(oa('td', {innerHTML: c}));
             r2.append(oa('td', {innerHTML: t}));
             r2.append(oa('td', {className: 'pr0', innerHTML: d}));
@@ -233,14 +236,39 @@ Log.ui = {
       const enc = et.length;
       const lht = trend(sum, calcSum(yd));
       const s = [
-        {n: 'Total', v: Log.displayStat(sum), t: lht},
-        {n: 'Min', v: Log.displayStat(sum), t: trend(min, calcMin(yd))},
-        {n: 'Max', v: Log.displayStat(min), t: trend(max, calcMax(yd))},
-        {n: 'Avg', v: Log.displayStat(max), t: trend(avg, calcAvg(yd))},
-        {n: 'Coverage', v: `${coverage(et).toFixed(2)}%`, t: lht},
-        {n: 'Focus', v: foc.toFixed(2), t: trend(foc, yfoc)},
-        {n: 'Logs', v: enc, t: trend(enc, ey.length)},
-        {n: 'Streak', v: streak(), t: ''},
+        {
+          n: Log.lexicon.stats.abbr.sum,
+          v: Log.displayStat(sum),
+          t: lht
+        },
+        {
+          n: Log.lexicon.stats.abbr.minDur,
+          v: Log.displayStat(sum),
+          t: trend(min, calcMin(yd))},
+        {
+          n: Log.lexicon.stats.abbr.maxDur,
+          v: Log.displayStat(min),
+          t: trend(max, calcMax(yd))},
+        {
+          n: Log.lexicon.stats.abbr.avgDur,
+          v: Log.displayStat(max),
+          t: trend(avg, calcAvg(yd))},
+        {
+          n: Log.lexicon.stats.cov,
+          v: `${coverage(et).toFixed(2)}%`,
+          t: lht},
+        {
+          n: Log.lexicon.stats.foc,
+          v: foc.toFixed(2),
+          t: trend(foc, yfoc)},
+        {
+          n: Log.lexicon.entries,
+          v: enc,
+          t: trend(enc, ey.length)},
+        {
+          n: Log.lexicon.stats.streak,
+          v: streak(),
+          t: ''},
       ];
 
       for (let i = 0, l = s.length; i < l; i++) {
@@ -270,11 +298,11 @@ Log.ui = {
       const b = u.cloneNode();
 
       f.append(s);
-        s.append(oa(h.cloneNode(), {innerHTML: 'Sectors'}));
+        s.append(oa(h.cloneNode(), {innerHTML: Log.lexicon.sec.plural}));
         s.append(a);
           a.append(Log.vis.list(0, Log.data.sortValues(ent, 0, 0), ent) || '');
       f.append(p);
-        p.append(oa(h.cloneNode(), {innerHTML: 'Projects'}));
+        p.append(oa(h.cloneNode(), {innerHTML: Log.lexicon.pro.plural}));
         p.append(b);
           b.append(Log.vis.list(1, Log.data.sortValues(ent, 1, 0), ent) || '');
 
@@ -312,18 +340,18 @@ Log.ui = {
       const b = oa('button', {className: 'db mb3 subtab on bg-cl o5 mr3'});
 
       m.append(oa(b.cloneNode(), {
-        id: 'b-SUM', innerHTML: 'Summary',
+        id: 'b-SUM', innerHTML: Log.lexicon.summary,
         className: 'db mb3 subtab on bg-cl of mr3',
         onclick: () => Log.tab('SUM', 'subsect', 'subtab', true)
       }));
 
       m.append(oa(b.cloneNode(), {
-        id: 'b-SSC', innerHTML: 'Sectors',
+        id: 'b-SSC', innerHTML: Log.lexicon.sec.plural,
         onclick: () => Log.tab('SSC', 'subsect', 'subtab', true)
       }));
 
       m.append(oa(b.cloneNode(), {
-        id: 'b-PSC', innerHTML: 'Projects',
+        id: 'b-PSC', innerHTML: Log.lexicon.pro.plural,
         onclick: () => Log.tab('PSC', 'subsect', 'subtab', true)
       }));
 
@@ -351,15 +379,15 @@ Log.ui = {
           calcSum, calcMin, calcMax, calcAvg, avgLogHours, coverage
         } = Log.data;
         const s = [
-          {n: 'Total Hours', v: Log.displayStat(calcSum(dur))},
-          {n: 'Min Duration', v: Log.displayStat(calcMin(dur))},
-          {n: 'Max Duration', v: Log.displayStat(calcMax(dur))},
-          {n: 'Avg Duration', v: Log.displayStat(calcAvg(dur))},
-          {n: 'Daily Average', v: Log.displayStat(avgLogHours())},
-          {n: 'Coverage',   v: `${coverage().toFixed(2)}%`},
-          {n: 'Entries', v: user.log.length},
-          {n: 'Sectors', v: sec.length},
-          {n: 'Projects', v: pro.length}
+          {n: Log.lexicon.stats.sum, v: Log.displayStat(calcSum(dur))},
+          {n: Log.lexicon.stats.minDur, v: Log.displayStat(calcMin(dur))},
+          {n: Log.lexicon.stats.maxDur, v: Log.displayStat(calcMax(dur))},
+          {n: Log.lexicon.stats.avgDur, v: Log.displayStat(calcAvg(dur))},
+          {n: Log.lexicon.stats.daily, v: Log.displayStat(avgLogHours())},
+          {n: Log.lexicon.stats.cov,   v: `${coverage().toFixed(2)}%`},
+          {n: Log.lexicon.entries, v: user.log.length},
+          {n: Log.lexicon.sec.plural, v: sec.length},
+          {n: Log.lexicon.pro.plural, v: pro.length}
         ];
 
         for (let i = 0; i < 9; i++) {
@@ -384,9 +412,9 @@ Log.ui = {
         const d = h.cloneNode();
         const stats = oa('ul', {className: 'mb5 lsn f6 lhc r'});
         const s = [
-          {n: 'Peak Hour', v: Log.data.peakHour()},
-          {n: 'Peak Day', v: Log.data.peakDay()},
-          {n: 'Peak Month', v: '-'}
+          {n: Log.lexicon.ph, v: Log.data.peakHour()},
+          {n: Log.lexicon.pd, v: Log.data.peakDay()},
+          {n: Log.lexicon.pm, v: '-'}
         ];
 
         for (let i = 0; i < 3; i++) {
@@ -398,7 +426,9 @@ Log.ui = {
           stats.append(item);
         }
 
-        c.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Peaks'}));
+        c.append(oa('h3', {
+          className: 'mb3 f6 lhc', innerHTML: Log.lexicon.peaks
+        }));
         c.append(a);
           a.append(h);
             h.append(Log.vis.peakChart(0, Log.cache.pkh));
@@ -416,9 +446,9 @@ Log.ui = {
         const c = oa('div', {className: 'psr mb4 wf sh5'});
         const stats = oa('ul', {className: 'mb5 lsn f6 lhc r'});
         const s = [
-          {n: 'Min Focus', v: Log.data.calcMin(pf).toFixed(2)},
-          {n: 'Max Focus', v: Log.data.calcMax(pf).toFixed(2)},
-          {n: 'Avg Focus', v: Log.data.calcAvg(pf).toFixed(2)}
+          {n: Log.lexicon.stats.minFoc, v: Log.data.calcMin(pf).toFixed(2)},
+          {n: Log.lexicon.stats.maxFoc, v: Log.data.calcMax(pf).toFixed(2)},
+          {n: Log.lexicon.stats.avgFoc, v: Log.data.calcAvg(pf).toFixed(2)}
         ];
 
         for (let i = 0, l = s.length; i < l; i++) {
@@ -431,7 +461,9 @@ Log.ui = {
           stats.append(itm);
         }
 
-        d.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Focus'}));
+        d.append(oa('h3', {
+          className: 'mb3 f6 lhc', innerHTML: Log.lexicon.stats.foc
+        }));
         d.append(c);
           c.append(Log.vis.focusChart(Log.data.listFocus(1, entries)));
         d.append(stats);
@@ -445,7 +477,9 @@ Log.ui = {
         const b = oa('div', {className: 'mb3 wf sh2'});
         const l = oa('ul', {className: 'lsn r'});
 
-        d.append(oa('h3', {className: 'mb3 f6 lhc', innerHTML: 'Sectors'}));
+        d.append(oa('h3', {
+          className: 'mb3 f6 lhc', innerHTML: Log.lexicon.sec.plural
+        }));
         d.append(b);
           b.append(Log.vis.focusBar(0, v));
         d.append(l);
@@ -557,12 +591,12 @@ Log.ui = {
 
         t.append(oa('button', {
           className: 'pv1 sectab on bg-cl of mr3',
-          id: `b-${stats}`, innerHTML: 'Stats',
+          id: `b-${stats}`, innerHTML: Log.lexicon.stat,
           onclick: () => Log.tab(stats, sect, tab)
         }));
         t.append(oa('button', {
           className: 'pv1 sectab on bg-cl o5',
-          id: `b-${entries}`, innerHTML: 'Entries',
+          id: `b-${entries}`, innerHTML: Log.lexicon.entries,
           onclick: () => Log.tab(entries, sect, tab)
         }));
 
@@ -572,15 +606,16 @@ Log.ui = {
       stats (dur, his, sortHis, pkhd, pkdd) {
         const div = document.createElement('div');
         const list = oa('ul', {className: 'lsn f6 lhc r'});
+        const {lexicon} = Log;
         const s = [
-          {n: 'Total Hours', v: Log.displayStat(Log.data.calcSum(dur))},
-          {n: 'Min Duration', v: Log.displayStat(Log.data.calcMin(dur))},
-          {n: 'Max Duration', v: Log.displayStat(Log.data.calcMax(dur))},
-          {n: 'Avg Duration', v: Log.displayStat(Log.data.calcAvg(dur))},
-          {n: 'Entries', v: his.length},
-          {n: 'Streak', v: Log.data.streak(sortHis)},
-          {n: 'Peak Hour', v: Log.data.peakHour(pkhd)},
-          {n: 'Peak Day', v: Log.data.peakDay(pkdd)}
+          {n: lexicon.stats.sum, v: Log.displayStat(Log.data.calcSum(dur))},
+          {n: lexicon.stats.minDur, v: Log.displayStat(Log.data.calcMin(dur))},
+          {n: lexicon.stats.maxDur, v: Log.displayStat(Log.data.calcMax(dur))},
+          {n: lexicon.stats.avgDur, v: Log.displayStat(Log.data.calcAvg(dur))},
+          {n: lexicon.entries, v: his.length},
+          {n: lexicon.stats.streak, v: Log.data.streak(sortHis)},
+          {n: lexicon.ph, v: Log.data.peakHour(pkhd)},
+          {n: lexicon.pd, v: Log.data.peakDay(pkdd)}
         ];
 
         for (let i = 0, sl = s.length; i < sl; i++) {
@@ -604,7 +639,7 @@ Log.ui = {
         const h = oa('div', {className: 'psr hf wf'});
         const d = h.cloneNode();
 
-        w.append(oa('h3', {className: 'mb3 f6', innerHTML: 'Peaks'}));
+        w.append(oa('h3', {className: 'mb3 f6', innerHTML: Log.lexicon.peaks}));
         w.append(a);
           a.append(h);
             h.append(Log.vis.peakChart(0, pkh));
@@ -621,9 +656,9 @@ Log.ui = {
         const stats = oa('ul', {className: 'mb4 lsn f6 lhc r'});
         const c = oa('div', {className: 'psr mb4 wf'});
         const s = [
-          {n: 'Min Focus', v: Log.data.calcMin(foci).toFixed(2)},
-          {n: 'Max Focus', v: Log.data.calcMax(foci).toFixed(2)},
-          {n: 'Avg Focus', v: Log.data.calcAvg(foci).toFixed(2)},
+          {n: Log.lexicon.stats.minFoc, v: Log.data.calcMin(foci).toFixed(2)},
+          {n: Log.lexicon.stats.maxFoc, v: Log.data.calcMax(foci).toFixed(2)},
+          {n: Log.lexicon.stats.avgFoc, v: Log.data.calcAvg(foci).toFixed(2)},
         ];
 
         for (let i = 0; i < 3; i++) {
@@ -641,7 +676,9 @@ Log.ui = {
           c.append(Log.vis.focusChart(Log.data.listFocus(1, se), c));
         }
 
-        d.append(oa('h3', {className: 'mb3 f6', innerHTML: 'Focus'}));
+        d.append(oa('h3', {
+          className: 'mb3 f6', innerHTML: Log.lexicon.stats.foc
+        }));
         d.append(c);
         d.append(stats);
 
@@ -666,7 +703,7 @@ Log.ui = {
         }
 
         d.append(oa('h3', {
-          innerHTML: mode === 0 ? 'Projects' : 'Sectors',
+          innerHTML: mode === 0 ? Log.lexicon.pro.plural : Log.lexicon.sec.plural,
           className: 'mb3 f6'
         }));
 
@@ -681,7 +718,10 @@ Log.ui = {
         const h = document.createElement('thead');
         const r = document.createElement('tr');
         const b = oa('tbody', {className: 'nodrag'});
-        const n = ['Date', 'Time', 'Span', mode === 0 ? 'Project' : 'Sector'];
+        const n = [
+          Log.lexicon.date, Log.lexicon.time, Log.lexicon.span,
+          mode === 0 ? Log.lexicon.pro.singular : Log.lexicon.sec.singular
+        ];
         const rev = his.slice(his.length - 100).reverse();
 
         for (let i = 0, l = rev.length; i < l; i++) {
@@ -706,13 +746,13 @@ Log.ui = {
 
         t.append(h);
           h.append(r);
-            r.append(oa('th', {className: 'pl0', innerHTML: 'ID'}));
+            r.append(oa('th', {className: 'pl0', innerHTML: Log.lexicon.id}));
 
             for (let i = 0, l = n.length; i < l; i++) {
               r.append(oa('th', {innerHTML: n[i]}));
             }
 
-            r.append(oa('th', {className: 'pr0', innerHTML: 'Details'}));
+            r.append(oa('th', {className: 'pr0', innerHTML: Log.lexicon.desc}));
         t.append(b);
 
         return t;
@@ -759,7 +799,13 @@ Log.ui = {
       const t = oa('table', {className: 'wf bn f6'});
       const h = oa('thead', {className: 'al'});
       const b = oa('tbody', {className: 'nodrag'});
-      const n = ['Date', 'Time', 'Span', 'Sector', 'Project'];
+      const n = [
+        Log.lexicon.date,
+        Log.lexicon.time,
+        Log.lexicon.span,
+        Log.lexicon.sec.singular,
+        Log.lexicon.pro.singular
+      ];
       const el = user.log.length;
       const arr = user.log.slice(el - 100).reverse();
 
@@ -810,13 +856,13 @@ Log.ui = {
       }
 
       t.append(h);
-        h.append(oa('th', {className: 'pl0', innerHTML: 'ID'}));
+        h.append(oa('th', {className: 'pl0', innerHTML: Log.lexicon.id}));
 
         for (let i = 0, l = n.length; i < l; i++) {
           h.append(oa('th', {innerHTML: n[i]}));
         }
 
-        h.append(oa('th', {className: 'pr0', innerHTML: 'Details'}));
+        h.append(oa('th', {className: 'pr0', innerHTML: Log.lexicon.desc}));
       t.append(b);
 
       return t;
@@ -898,13 +944,14 @@ Log.ui = {
       const mt = oa('div', {className: 'mb3 psr wf sh2 bl br'});
       const sb = oa('div', {className: 'r h7'});
       const st = oa('ul', {className: 'c3 hf oys pr4 lsn f6 lhc hvs'});
+      const {stats} = Log.lexicon;
       const s = [
-        {id: 'jSUM', n: 'Total Hours'},
-        {id: 'jMIN', n: 'Min Duration'},
-        {id: 'jMAX', n: 'Max Duration'},
-        {id: 'jAVG', n: 'Avg Duration'},
-        {id: 'jCOV', n: 'Coverage'},
-        {id: 'jFOC', n: 'Focus'},
+        {id: 'jSUM', n: stats.abbr.sum},
+        {id: 'jMIN', n: stats.abbr.minDur},
+        {id: 'jMAX', n: stats.abbr.maxDur},
+        {id: 'jAVG', n: stats.abbr.avgDur},
+        {id: 'jCOV', n: stats.cov},
+        {id: 'jFOC', n: stats.foc},
       ];
 
       Object.assign(m.style, {
@@ -980,7 +1027,7 @@ Log.ui = {
       action: '#', className: 'dn psf b0 l0 wf f6 z9', onsubmit: () => false});
     const input = oa('input', {
       autofocus: 'autofocus', className: 'wf bg-0 blanc on bn p3',
-      placeholder: 'Enter commands here', type: 'text'});
+      placeholder: Log.lexicon.console, type: 'text'});
 
     commander.addEventListener('submit', _ => {
       Log.commanderIndex = 0;

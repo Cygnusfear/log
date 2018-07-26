@@ -14,6 +14,8 @@ let widthCache = {};
 
 let Log = {
 
+  lexicon: {},
+
   path: '',
   modalMode: false,
 
@@ -361,6 +363,7 @@ let Log = {
   },
 
   init () {
+
     user = {
       config: dataStore.get('config'),
       palette: dataStore.get('palette'),
@@ -378,6 +381,9 @@ let Log = {
       new window.Notification('There is something wrong with this file.');
       return;
     }
+
+    Log.lexicon = Dict.data;
+    console.log('Lexicon installed')
 
     if (localStorage.hasOwnProperty('logHistory')) {
       Log.console.history = JSON.parse(localStorage.getItem('logHistory'));

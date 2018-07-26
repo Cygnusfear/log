@@ -1,0 +1,65 @@
+{
+  "console": "Enter commands here...",
+
+  "tabs": {
+    "overview": "Overview",
+    "details":  "Details",
+    "vis":      "Visualisation",
+    "entries":  "Entries",
+    "journal":  "Journal",
+    "guide":    "Guide"
+  },
+
+  "id":   "ID",
+  "date": "Date",
+  "time": "Time",
+  "span": "Span",
+
+  "sec": {
+    "singular": "Sector",
+    "plural":   "Sectors"
+  },
+
+  "pro": {
+    "singular": "Project",
+    "plural":   "Projects"
+  },
+
+  "desc": "Description",
+
+  "ph": "Peak Hour",
+  "pd": "Peak Day",
+  "pm": "Peak Month",
+
+  "stat": "Stats",
+  "entries": "Entries",
+  "summary": "Summary",
+  "recent": "Recent",
+  "peaks": "Peaks",
+
+  "stats": {
+
+    "abbr": {
+      "sum":    "Total",
+      "minDur": "Min",
+      "maxDur": "Max",
+      "avgDur": "Avg"
+    },
+
+    "sum":    "Total Hours",
+    "minDur": "Min Duration",
+    "maxDur": "Max Duration",
+    "avgDur": "Avg Duration",
+    "foc":    "Focus",
+    "cov":    "Coverage",
+    "daily":  "Daily Average",
+    "streak": "Streak",
+    "minFoc": "Min Focus",
+    "maxFoc": "Max Focus",
+    "avgFoc": "Avg Focus"
+  },
+
+  "guide": {
+
+  }
+}
