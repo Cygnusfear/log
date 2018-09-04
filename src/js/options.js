@@ -2,37 +2,50 @@
 
 Log.options = {
 
+  /**
+   * Set accent
+   * @param {string} accent
+   */
   setAccent (accent) {
-    if (typeof accent !== 'string' || accent.length === 0) return;
-
+    if (accent.length === 0) return;
     user.config.ui.accent = accent;
     Log.options.update.config();
   },
 
+  /**
+   * Set background colour
+   * @param {string} bg
+   */
   setBackgroundColour (bg) {
-    if (typeof bg !== 'string' || bg.length === 0) return;
-
+    if (bg.length === 0) return;
     user.config.ui.bg = bg;
     Log.options.update.config();
   },
 
+  /**
+   * Set calendar system
+   * @param {string} cal
+   */
   setCalendar (cal) {
-    if (cal === undefined) return;
-    if (typeof cal !== 'string' || cal.length === 0) return;
-    if (['aequirys', 'desamber', 'monocal', 'gregorian'].indexOf(cal) < 0) return;
+    if (cal.length === 0) return;
+    if (!~['aequirys', 'desamber', 'monocal', 'gregorian'].indexOf(cal)) return;
 
-    displayDateCache = {};
-
+    c_display = {};
     user.config.system.calendar = cal;
     Log.options.update.config();
   },
 
+  /**
+   * Set sector/project colour code
+   * @param {string} mode - Sector or project
+   * @param {string} key - Name
+   * @param {string} colour
+   */
   setColourCode (mode, key, colour) {
     if (mode === undefined || key === undefined || colour === undefined) return;
-    if (typeof mode !== 'string') return;
-    if (['sector', 'sec', 'project', 'pro'].indexOf(mode) < 0)
-    if (typeof key !== 'string' || key.length === 0) return;
-    if (typeof colour !== 'string' || colour.length === 0) return;
+    if (!~['sector', 'sec', 'project', 'pro'].indexOf(mode)) return;
+    if (key.length === 0) return;
+    if (colour.length === 0) return;
 
     if (mode === 'sector' || mode === 'sec') {
       user.palette[key] = colour;
@@ -43,64 +56,99 @@ Log.options = {
     }
   },
 
+  /**
+   * Set colour mode
+   * @param {string} mode - Sector, project, or none
+   */
   setColourMode (mode) {
     if (mode === undefined) return;
-    if (typeof mode !== 'string' || mode.length === 0) return;
-    if (['sector', 'project', 'none'].indexOf(mode) < 0) return;
+    if (mode.length === 0) return;
+    if (!~['sector', 'sec', 'project', 'pro', 'none'].indexOf(mode)) return;
+
+    switch (mode) {
+      case 'sector': case 'sec': mode = 'sc'; break;
+      case 'project': case 'pro': mode = 'pc'; break;
+      default: break;
+    }
 
     user.config.ui.colourMode = mode;
     Log.options.update.config();
   },
 
+  /**
+   * Set foreground colour (text colour)
+   * @param {string} colour
+   */
   setForegroundColour (colour) {
-    if (typeof colour !== 'string' || colour.length === 0) return;
+    if (colour.length === 0) return;
 
     user.config.ui.colour = colour;
     Log.options.update.config();
   },
 
+  /**
+   * Set stat display format
+   * @param {string} format
+   */
   setStat (format) {
-    if (format === undefined) return;
-    if (typeof format !== 'string' || format.length === 0) return;
-    if (['decimal', 'human'].indexOf(format) < 0) return;
+    if (format.length === 0) return;
+    if (!~['decimal', 'human'].indexOf(format)) return;
 
     user.config.ui.stat = format;
     Log.options.update.config();
   },
 
+  /**
+   * Set time system
+   * @param {string} format - 24, 12, or decimal
+   */
   setTimeFormat (format) {
-    if (format === undefined) return;
-    if (typeof format !== 'string' || format.length === 0) return;
-    if (['24', '12', 'decimal'].indexOf(format) < 0) return;
+    if (format.length === 0) return;
+    if (!~['24', '12', 'decimal'].indexOf(format)) return;
 
     user.config.system.timeFormat = format;
     Log.options.update.config();
   },
 
+  /**
+   * Set view
+   * @param {number} days
+   */
   setView (days) {
     if (days === undefined) return;
-    if (typeof days !== 'number' || days < 0) return;
+    if (days < 0) return;
 
     user.config.ui.view = days;
     Log.options.update.config();
   },
 
   update: {
+
+    /**
+     * Update everything
+     */
     all () {
-      Log.options.update.config();
-      Log.options.update.palette();
-      Log.options.update.projectPalette();
-      Log.options.update.log();
-      Log.options.update.localStorage();
+      this.config(false);
+      this.palette(false);
+      this.projectPalette(false);
+      this.log(false);
+      this.localStorage();
     },
 
-    config () {
+    /**
+     * Update config
+     * @param {boolean} [ls] - Update localStorage?
+     */
+    config (ls = true) {
       dataStore.set('config', user.config);
       Log.config = user.config;
       console.log('Config updated')
-      Log.options.update.localStorage();
+      ls && Log.options.update.localStorage();
     },
 
+    /**
+     * Update localStorage
+     */
     localStorage () {
       localStorage.setItem('user', JSON.stringify(user));
       journalCache = {};
@@ -108,40 +156,52 @@ Log.options = {
       Log.refresh();
     },
 
-    log () {
+    /**
+     * Update log
+     * @param {boolean} [ls] - Update localStorage?
+     */
+    log (ls = true) {
       if (user.log.length === 0) {
-        console.error('User log is empty');
+        console.error('Empty log');
         return;
       }
 
       dataStore.set('log', user.log);
       Log.log = Log.data.parse(user.log);
       console.log('Log updated')
-      Log.options.update.localStorage();
+      ls && Log.options.update.localStorage();
     },
 
-    palette () {
+    /**
+     * Update sector palette
+     * @param {boolean} [ls] - Update localStorage?
+     */
+    palette (ls = true) {
       if (user.palette === {}) {
-        console.error('Sector palette is empty');
+        console.error('Empty sector palette');
         return;
       }
 
       dataStore.set('palette', user.palette);
       Log.palette = user.palette;
       console.log('Sector palette updated')
-      Log.options.update.localStorage();
+      ls && Log.options.update.localStorage();
     },
 
-    projectPalette () {
+    /**
+     * Update proejct palette
+     * @param {boolean} [ls] - Update localStorage?
+     */
+    projectPalette (ls = true) {
       if (user.projectPalette === {}) {
-        console.error('Project palette is empty');
+        console.error('Empty roject palette');
         return;
       }
 
       dataStore.set('projectPalette', user.projectPalette);
       Log.projectPalette = user.projectPalette;
       console.log('Project palette updated')
-      Log.options.update.localStorage();
+      ls && Log.options.update.localStorage();
     },
   },
 };

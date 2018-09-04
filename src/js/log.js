@@ -26,8 +26,6 @@ let Log = {
 
   clock: {},
 
-  keyEventInitialized: false,
-
   cache: {
     entByDay: [],
     sortEnt: [],
@@ -52,19 +50,18 @@ let Log = {
 
   timer () {
     if (!Log.status()) return;
-    const l = Log.time.toEpoch(Log.log.slice(-1)[0].s).getTime();
-    const clock = document.getElementById('timer');
+    const l = +Log.time.toEpoch(Log.log.slice(-1)[0].s);
 
     Log.clock = setInterval(_ => {
-      let s = ~~((new Date().getTime() - l) / 1E3);
+      let s = ~~((+new Date() - l) / 1E3);
       let m = ~~(s / 60);
       let h = ~~(m / 60);
 
-      h %= 24;
-      m %= 60;
-      s %= 60;
+      h = `0${h %= 24}`.substr(-2);
+      m = `0${m %= 60}`.substr(-2);
+      s = `0${s %= 60}`.substr(-2);
 
-      Log.timerEl.innerHTML = `${`0${h}`.substr(-2)}:${`0${m}`.substr(-2)}:${`0${s}`.substr(-2)}`;
+      Log.timerEl.innerHTML = `${h}:${m}:${s}`;
     }, 1E3);
   },
 
@@ -72,13 +69,13 @@ let Log = {
     new Audio(`${__dirname}/media/${sound}.mp3`).play();
   },
 
-  displayStat (val) {
-    if (Log.config.ui.stat === 'decimal') {
+  displayStat (val, {stat} = Log.config.ui) {
+    if (stat === 'decimal') {
       return val.toFixed(2);
     } else {
       const v = val.toString().split('.');
       if (v.length === 1) v[1] = '0';
-      const mm = `0${(Number(`0.${v[1]}`) * 60).toFixed(0)}`.substr(-2);
+      const mm = `0${(+`0.${v[1]}` * 60).toFixed(0)}`.substr(-2);
       return `${v[0]}:${mm}`;
     }
   },
@@ -132,48 +129,33 @@ let Log = {
     delList.innerHTML = '';
 
     const words = i.split(' ').slice(1);
+    let dlmsg = '';
     let count = 0;
 
     if (words[0] === 'project') {
-      user.log.forEach((e, id) => {
-        if (e.t === words[1]) count++;
-      });
-
-      delMessage.innerHTML = `Are you sure you want to delete the ${words[1]} project? ${count} entries will be deleted. This can't be undone.`;
+      user.log.forEach((e, id) => {if (e.t === words[1]) count++;});
+      delmsg = `Are you sure you want to delete the ${words[1]} project? ${count} entries will be deleted. This can't be undone.`;
     } else if (words[0] === 'sector') {
       let count = 0;
-      user.log.forEach((e, id) => {
-        if (e.c === words[1]) count++;
-      });
-
-      delMessage.innerHTML = `Are you sure you want to delete the ${words[1]} sector? ${count} entries will be deleted. This can't be undone.`;
+      user.log.forEach((e, id) => {if (e.c === words[1]) count++;});
+      delmsg = `Are you sure you want to delete the ${words[1]} sector? ${count} entries will be deleted. This can't be undone.`;
     } else {
       const aui = words.filter((v, i, self) => self.indexOf(v) === i).sort();
+      const span = ø('span', {className: 'mr3 o7'});
+      const {stamp, toEpoch} = Log.time;
 
-      delMessage.innerHTML = aui.length > 1 ?
-        `Are you sure you want to delete the following ${aui.length} entries? This can't be undone.` :
-        'Are you sure you want to delete the following entry? This can\'t be undone.' ;
-
-      const span = oa('span', {className: 'mr3 o7'});
+      delmsg = `Are you sure you want to delete the following ${aui.length > 1 ? `${aui.length} entries` : 'entry'}? This can't be undone.`;
 
       aui.forEach(i => {
-        const {s, e, c, t, d} = user.log[Number(i) - 1];
-        const start = Log.time.stamp(Log.time.toEpoch(s));
-        const end = Log.time.stamp(Log.time.toEpoch(e));
-        const li = document.createElement('li');
-        const id = span.cloneNode();
-        const tm = span.cloneNode();
-        const sc = span.cloneNode();
-        const pr = document.createElement('span');
-        const dc = document.createElement('p');
-
-        li.className = 'f6 lhc pb3 mb3';
-        id.innerHTML = i;
-        tm.innerHTML = `${start} &ndash; ${end}`;
-        sc.innerHTML = c;
-
-        Object.assign(pr, {className: 'o7', innerHTML: t});
-        Object.assign(dc, {className: 'f4 lhc', innerHTML: d});
+        const {s, e, c, t, d} = user.log[+i - 1];
+        const start = stamp(toEpoch(s));
+        const end = stamp(toEpoch(e));
+        const li = ø('li', {className: 'f6 lhc pb3 mb3'});
+        const id = ø(span.cloneNode(), {innerHTML: i});
+        const tm = ø(span.cloneNode(), {innerHTML: `${start} &ndash; ${end}`});
+        const sc = ø(span.cloneNode(), {innerHTML: c});
+        const pr = ø('span', {className: 'o7', innerHTML: t});
+        const dc = ø('p', {className: 'f4 lhc', innerHTML: d});
 
         li.appendChild(id);
         li.appendChild(tm);
@@ -184,6 +166,8 @@ let Log = {
       });
     }
 
+    delMessage.innerHTML = delmsg;
+
     delConfirm.setAttribute('onclick', `Log.deleteIt('${i}')`);
     delModal.showModal();
   },
@@ -192,8 +176,7 @@ let Log = {
    * Hacky solution
    */
   deleteIt (i) {
-    Log.console.deleteEntry(i);
-    // delModal.close();
+    Log.command.deleteEntry(i);
   },
 
   /**
@@ -207,14 +190,15 @@ let Log = {
     const e = editEnd.value === '' ? '' : new Date(editEnd.value);
     const sh = Log.time.toHex(s);
     const eh = e === '' ? undefined : Log.time.toHex(e);
+    const st = Log.time.stamp(s);
 
     nodes[1].innerHTML = Log.time.displayDate(s);
 
     if (eh === undefined) {
-      nodes[2].innerHTML = Log.time.stamp(s);
+      nodes[2].innerHTML = st;
       nodes[3].innerHTML = '—';
     } else {
-      nodes[2].innerHTML = `${Log.time.stamp(s)} – ${Log.time.stamp(e)}`;
+      nodes[2].innerHTML = `${st} – ${Log.time.stamp(e)}`;
       nodes[3].innerHTML = Log.time.duration(sh, eh).toFixed(2);
     }
 
@@ -222,22 +206,20 @@ let Log = {
     nodes[5].innerHTML = editProject.value;
     nodes[6].innerHTML = editDesc.value;
 
-    Object.assign(user.log[id], {
+    ø(user.log[id], {
       s: sh,
       e: eh,
       c: editSector.value,
       t: editProject.value,
       d: editDesc.value
-    })
+    });
 
     localStorage.setItem('user', JSON.stringify(user));
     dataStore.set('log', user.log);
-
     journalCache = {};
 
     document.getElementById('editModal').close();
     Log.modalMode = false;
-
     Log.refresh();
   },
 
@@ -253,23 +235,32 @@ let Log = {
     } else {
       const s = Log.time.toEpoch(h);
       return durPercentCache[h] = (
-        s.getTime() / 1E3 -
-        (new Date(
+        +s / 1E3 -
+        +(new Date(
           s.getFullYear(), s.getMonth(), s.getDate()
-        )).getTime() / 1E3
+        )) / 1E3
       ) / 86400 * 100;
     }
   },
 
   calcWidth (dur) {
     return dur in widthCache ? widthCache[dur] :
-      widthCache[dur] = dur * 360 / 8640 * 100;
+      widthCache[dur] = dur * 3600 / 864;
   },
 
+  /**
+   * Open tab
+   * @param {string} s - ID
+   * @param {string} g - Group
+   * @param {string} t - Tab group
+   * @param {boolean} v - Vertical orientation?
+   */
   tab (s, g = 'sect', t = 'tab', v = false) {
     const x = document.getElementsByClassName(g);
     const b = document.getElementsByClassName(t);
     const n = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl o5 mr3`;
+    const currentTab = document.getElementById(s);
+    const currentBtn = document.getElementById(`b-${s}`);
 
     Log.nav.index = Log.nav.menu.indexOf(s);
 
@@ -281,9 +272,8 @@ let Log = {
       b[i].className = n;
     }
 
-    document.getElementById(s).style.display = 'grid';
-    document.getElementById(`b-${s}`).className = `${v ?
-      `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
+    currentTab.style.display = 'grid';
+    currentBtn.className = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
   },
 
   setDayLabel (d = new Date().getDay()) {
@@ -301,26 +291,24 @@ let Log = {
   },
 
   nav: {
-    menu: ['OVW', 'DTL', 'VIS', 'ENT', 'JOU', 'GUI'],
-
+    menu: [],
     index: 0,
 
     horizontal () {
-      const {nav, tab} = Log;
-      nav.index = nav.index === 5 ? 0 : nav.index + 1;
-      tab(nav.menu[nav.index], 'sect', 'tab');
+      Log.nav.index = Log.nav.index === 5 ? 0 : Log.nav.index + 1;
+      Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
     },
 
     toJournal (h) {
-      Log.tab('JOU', 'sect', 'tab');
+      Log.tab('JOU');
       Log.journal.translate(h);
     },
 
     toDetail (mod, key) {
-      if (typeof mod !== 'number' || mod < 0 || mod > 1) return;
-      if (typeof key !== 'string' || key.length === 0) return;
+      if (mod < 0 || mod > 1) return;
+      if (key.length === 0) return;
 
-      Log.tab('DTL', 'sect', 'tab');
+      Log.tab('DTL');
       Log.tab(mod === 0 ? 'SSC' : 'PSC', 'subsect', 'subtab', true);
       Log.viewDetails(mod, key);
     }
@@ -329,7 +317,7 @@ let Log = {
   generateSessionCache () {
     if (user.log.length === 0) return;
     const {data} = Log;
-    Object.assign(Log.cache, {
+    ø(Log.cache, {
       sortEnt: data.sortEntries(),
       sec: data.listSectors() || [],
       pro: data.listProjects() || [],
@@ -341,20 +329,22 @@ let Log = {
   },
 
   load () {
-    const {bg, colour} = Log.config.ui;
-
-    Object.assign(document.body.style, {backgroundColor: bg, color: colour});
-    Object.assign(ui.style, {backgroundColor: bg, color: colour});
-
     Log.generateSessionCache();
 
-    Log.ui.build();
+    const ä = o => ø(o, {
+      backgroundColor: Log.config.ui.bg,
+      color: Log.config.ui.colour
+    });
 
-    if (user.log.length === 0) {
-      Log.nav.index = 5;
-      Log.tab('guide', 'sect', 'tab');
-      return;
-    }
+    ä(document.body.style);
+    ä(ui.style);
+
+    Log.ui.build();
+    Log.setTimeLabel();
+    Log.setDayLabel();
+
+    if (user.log.length === 0) Log.nav.index = 5;
+    Log.tab(Log.nav.menu[Log.nav.index]);
   },
 
   refresh () {
@@ -378,6 +368,7 @@ let Log = {
       Log.log = Log.data.parse(user.log);
     } catch (e) {
       console.error('User log data contains errors');
+      console.error(e);
       new window.Notification('There is something wrong with this file.');
       return;
     }
@@ -416,26 +407,29 @@ let Log = {
 
         const l = Log.console.history.length;
 
+        const focus = _ => {
+          Log.commander.style.display = 'block';
+          Log.commanderInput.focus();
+        }
+
         switch (e.which) {
           case 9: // Tab
             e.preventDefault();
             Log.nav.horizontal();
             break;
           case 27: // Escape
-            Log.commanderInput.value = '';
             Log.commander.style.display = 'none';
+            Log.commanderInput.value = '';
             Log.commanderIndex = 0;
             break;
           case 38: // Up
-            Log.commander.style.display = 'block';
-            Log.commanderInput.focus();
+            focus();
             Log.commanderIndex++;
             if (Log.commanderIndex > l) Log.commanderIndex = l;
             Log.commanderInput.value = Log.console.history[l - Log.commanderIndex];
             break;
           case 40: // Down
-            Log.commander.style.display = 'block';
-            Log.commanderInput.focus();
+            focus();
             Log.commanderIndex--;
             if (Log.commanderIndex < 1) Log.commanderIndex = 1;
             Log.commanderInput.value = Log.console.history[l - Log.commanderIndex];

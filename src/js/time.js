@@ -8,152 +8,252 @@ const months = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-let convertCache = {};
-let toHexCache = {};
-let dateCache = {};
-let toEpochCache = {};
-let displayDateCache = {};
-let timestampCache = {};
-let durationCache = {};
+let c_convert = {};
+let c_display = {};
+let c_stamp = {};
+let c_date = {};
+let c_unix = {};
+let c_dur = {};
+let c_hex = {};
+
+/**
+ * Add days to date
+ * @param {number} n - Number of days
+ * @return {Object} New date
+ */
+Date.prototype.addDays = function (n) {
+  const d = new Date(this.valueOf());
+  d.setDate(d.getDate() + n);
+  return d;
+};
 
 Log.time = {
 
-  convert (h) {
-    return h in convertCache ?
-      convertCache[h] : convertCache[h] = parseInt(h, 16);
+  /**
+   * Convert hexadecimal to decimal
+   * @param {string} hex
+   * @return {number} Decimal
+   */
+  convert (hex) {
+    return hex in c_convert ?
+      c_convert[hex] : c_convert[hex] = parseInt(hex, 16);
   },
 
-  formatDate (d) {
-    switch (Log.config.system.calendar) {
-      case 'aequirys':
-      case 'desamber':
-        return Aequirys.display(Aequirys.convert(d));
-      case 'monocal':
-        return Monocal.short(Monocal.convert(d));
-      default:
-        const dd = `0${d.getDate()}`.slice(-2);
-        const mm = months[d.getMonth()];
-        const yy = d.getFullYear().toString().substr(-2);
-        return `${dd} ${mm} ${yy}`;
-    }
+  /**
+   * Display date
+   * @param {Object} date
+   * @return {string} Formatted date
+   */
+  displayDate (date) {
+    const d = new Date(date).setHours(0, 0, 0, 0);
+    return d in c_display ?
+      c_display[d] :
+      c_display[d] = Log.time.formatDate(date);
   },
 
-  formatTime (d) {
-    switch (Log.config.system.timeFormat) {
-      case '24':
-        const h = `0${d.getHours()}`.substr(-2);
-        const m = `0${d.getMinutes()}`.substr(-2);
-        return `${h}:${m}`;
-      case '12':
-        return Log.time.to12Hours(d);
-      default:
-        return Log.time.toDecimal(d);
-    }
-  },
-
-  displayDate (d) {
-    const date = new Date(d).setHours(0, 0, 0, 0);
-    return date in displayDateCache ?
-      displayDateCache[date] :
-      displayDateCache[date] = Log.time.formatDate(d);
-  },
-
+  /**
+   * Calculate duration
+   * @param {string} s - Start hex
+   * @param {string} e - End hex
+   * @return {number} Duration (1 = 1h)
+   */
   duration (s, e) {
     const h = s + e;
-    return h in durationCache ?
-      durationCache[h] :
-      durationCache[h] = Log.time.durationSeconds(s, e) / 3600;
+    if (h in c_dur) {
+      return c_dur[h];
+    } else {
+      const secs = Log.time.convert(e) - Log.time.convert(s);
+      return c_dur[h] = secs / 3600;
+    }
   },
 
-  durationSeconds (sh, eh) {
-    return Log.time.convert(eh) - Log.time.convert(sh);
+  /**
+   * Format date
+   * @param {Object} date
+   * @param {string} cal - Calendar system preference
+   * @return {string} Formatted date
+   */
+  formatDate (date, cal = Log.config.system.calendar) {
+    switch (cal) {
+      case 'aequirys':
+      case 'desamber':
+        return Aequirys.display(Aequirys.convert(date));
+      case 'monocal':
+        return Monocal.short(Monocal.convert(date));
+      default:
+        const y = `${date.getFullYear()}`.substr(-2);
+        const d = `0${date.getDate()}`.substr(-2);
+        const m = months[date.getMonth()];
+        return `${d} ${m} ${y}`;
+    }
   },
 
-  listDates (s, e) {
-    let c = new Date(s.getFullYear(), s.getMonth(), s.getDate(), 0, 0, 0);
-    let l = [];
+  /**
+   * Format time
+   * @param {Object} date
+   * @param {string} format - Time format preference
+   * @return {string} Formatted time
+   */
+  formatTime (date, format = Log.config.system.timeFormat) {
+    switch (format) {
+      case '24': return Log.time.to24Hours(date);
+      case '12': return Log.time.to12Hours(date);
+      default:   return Log.time.toDecimal(date);
+    }
+  },
 
-    for (; c <= e;) {
-      l[l.length] = new Date(c);
-      c = c.addDays(1);
+  /**
+   * List dates
+   * @param {Object} start - Start date
+   * @param {Object} end - End date
+   * @return {Object[]} List
+   */
+  listDates (start, end) {
+    let list = [];
+
+    start.setHours(0, 0, 0);
+
+    for (; start <= end;) {
+      list[list.length] = start;
+      start = start.addDays(1);
     }
 
-    return l;
+    return list;
   },
 
-  offset (hex, durationSeconds) {
-    return (Log.time.convert(hex) + durationSeconds).toString(16);
+  /**
+   * Calculate offset
+   * @param {string} hex
+   * @param {number} duration - Duration in seconds
+   * @return {string} Offset in hexadecimal
+   */
+  offset (hex, duration) {
+    return (Log.time.convert(hex) + duration).toString(16);
   },
 
-  stamp (d) {
-    const hm = `${d.getHours()}${d.getMinutes()}`;
-    return hm in timestampCache ?
-      timestampCache[hm] :
-      timestampCache[hm] = Log.time.formatTime(d);
+  /**
+   * Display timestamp
+   * @param {Object} date
+   * @return {string} Timestamp
+   */
+  stamp (date) {
+    const hm = `${date.getHours()}${date.getMinutes()}`;
+    return hm in c_stamp ?
+      c_stamp[hm] :
+      c_stamp[hm] = Log.time.formatTime(date);
   },
 
+  /**
+   * Calculate time ago
+   * @param {number} epoch
+   * @return {string} Time ago
+   */
   timeago (epoch) {
     const m = Math.abs(~~((new Date() - epoch) / 1E3 / 60));
-    return m === 0 ? 'less than a minute ago' :
-      m === 1 ? 'a minute ago' :
-      m < 59 ? `${m} minutes ago` :
-      m === 60 ? 'an hour ago' :
-      m < 1440 ? `${~~(m / 60)} hours ago` :
-      m < 2880 ? 'yesterday' :
-      m < 86400 ? `${~~(m / 1440)} days ago` :
-      m < 1051199 ? `${~~(m / 43200)} months ago` :
-      `over ${~~(m / 525960)} years ago`;
+    return m === 0     ? 'less than a minute ago' :
+           m === 1     ? 'a minute ago' :
+           m < 59      ? `${m} minutes ago` :
+
+           m < 120     ? 'an hour ago' :
+           m < 1440    ? `${~~(m / 60)} hours ago` :
+
+           m < 2880    ? 'yesterday' :
+           m < 86400   ? `${~~(m / 1440)} days ago` :
+
+           m < 1051199 ? `${~~(m / 43200)} months ago` :
+                         `over ${~~(m / 525960)} years ago`;
   },
 
-  to12Hours (d) {
-    let h = d.getHours();
+  /**
+   * Display 12-h time
+   * @param {Object} date
+   * @return {string} 12-h time
+   */
+  to12Hours (date) {
+    let h = date.getHours();
+    const hh = `0${(h %= 12) ? h : 12}`.substr(-2);
+    const mm = `0${date.getMinutes()}`.substr(-2);
     const xm = h >= 12 ? 'PM' : 'AM';
-    const hh = `0${(h %= 12) ? h : 12}`.slice(-2);
-    const mm = `0${d.getMinutes()}`.slice(-2);
     return `${hh}:${mm} ${xm}`;
   },
 
-  toDate (h) {
-    if (h in dateCache) {
-      return dateCache[h];
+  /**
+   * Display 24-h time
+   * @param {Object} date
+   * @return {string} 24-h time
+   */
+  to24Hours (date) {
+    const hh = `0${date.getHours()}`.substr(-2);
+    const mm = `0${date.getMinutes()}`.substr(-2);
+    return `${hh}:${mm}`;
+  },
+
+  /**
+   * Convert to date ID
+   * @param {string} hex
+   * @return {string} YYYYMMDD
+   */
+  toDate (hex) {
+    if (hex in c_date) {
+      return c_date[hex];
     } else {
-      const d = Log.time.toEpoch(h);
-      return dateCache[h] = `${d.getFullYear()}${d.getMonth()}${d.getDate()}`;
+      const t = Log.time.toEpoch(hex);
+      const y = t.getFullYear();
+      const m = t.getMonth();
+      const d = t.getDate();
+      return c_date[hex] = `${y}${m}${d}`;
     }
   },
 
-  toDecimal (d) {
+  /**
+   * Convert to decimal time
+   * @param {Object} date
+   * @return {string} Decimal beat
+   */
+  toDecimal (date) {
     const b = new Date(
-      d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0, 0, 0
     );
-    const val = (d - b) / 8640 / 10000;
-    const t = val.toFixed(6).substr(2,6);
-    return `${t.substr(0, 3)}:${t.substr(-3)}`;
+    const v = (date - b) / 8640 / 1E4;
+    const t = v.toFixed(6).substr(2,6);
+
+    return t.substr(0, 3);
   },
 
-  toEpoch (h) {
-    return h in toEpochCache ?
-      toEpochCache[h] :
-      toEpochCache[h] = new Date(Log.time.convert(h) * 1E3);
+  /**
+   * Convert to epoch time
+   * @param {string} hex
+   * @return {number} Epoch time
+   */
+  toEpoch (hex) {
+    return hex in c_unix ?
+      c_unix[hex] :
+      c_unix[hex] = new Date(Log.time.convert(hex) * 1E3);
   },
 
-  toHex (d) {
-    if (d === undefined) return;
-    if (typeof d !== 'object') return;
-
-    return d in toHexCache ?
-      toHexCache[d] :
-      toHexCache[d] = (new Date(
-        d.getFullYear(), d.getMonth(), d.getDate(),
-        d.getHours(), d.getMinutes(), d.getSeconds(),
-      ).getTime() / 1E3).toString(16);
+  /**
+   * Convert to hexadecimal
+   * @param {Object} date
+   * @return {string} Hex
+   */
+  toHex (date) {
+    if (date === undefined) return;
+    if (date in c_hex) {
+      return c_hex[date];
+    } else {
+      date.setMilliseconds(0);
+      return c_hex[date] = (+date / 1E3).toString(16);
+    }
   },
 
   // Twig
   convertDateTime (d) {
     const s = d.split(' ');
     return (
-      +new Date(s[0], Number(s[1] - 1), s[2], s[3], s[4], s[5]).getTime() / 1E3
+      +new Date(s[0], +(s[1] - 1), s[2], s[3], s[4], s[5]) / 1E3
     ).toString(16);
   }
 };

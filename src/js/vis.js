@@ -2,7 +2,11 @@
 
 Log.vis = {
 
-  axisLines (avg = undefined) {
+  /**
+   * Generate chart axis lines
+   * @return {Object} Lines
+   */
+  axisLines () {
     const frag = document.createDocumentFragment();
     const div = document.createElement('div');
     const cl = 'psa wf bt o1';
@@ -19,319 +23,281 @@ Log.vis = {
     l3.style.top = '50%';
     l2.style.top = '25%';
 
-    frag.appendChild(div.cloneNode());
-    frag.appendChild(l2);
-    frag.appendChild(l3);
-    frag.appendChild(l4);
-    frag.appendChild(l5);
-
-    if (avg !== undefined && typeof avg === 'number') {
-      if (avg === 0) return;
-      const ind = document.createElement('div');
-      ind.className = 'psa wf bt';
-      Object.assign(ind.style, {
-        color: Log.config.ui.accent,
-        bottom: `${avg}%`
-      });
-      frag.appendChild(ind);
-    }
+    frag.append(div.cloneNode());
+    frag.append(l2);
+    frag.append(l3);
+    frag.append(l4);
+    frag.append(l5);
 
     return frag;
   },
 
-  barChart (data) {
+  barChart (data, view = Log.config.ui.view) {
     if (data === undefined) return;
-
-    const l = data.set.length;
-
-    if (typeof data !== 'object' || l === 0) return;
+    const l = data.length;
+    if (l === 0) return;
 
     const frag = document.createDocumentFragment();
-    const column = document.createElement('div');
-    const entry = document.createElement('div');
+    const column = ø('div', {className: 'dib psr hf'});
+    column.style.width = `${100 / view}%`;
 
-    frag.appendChild(Log.vis.axisLines(data.avg));
-
-    column.style.width = `${100 / Log.config.ui.view}%`;
-    column.className = 'dib psr hf';
-    entry.className = 'psa sw1';
+    frag.append(Log.vis.axisLines());
 
     for (let i = 0; i < l; i++) {
       const col = column.cloneNode();
-      frag.appendChild(col);
+      frag.append(col);
 
-      if (data.set[i].length === 0) continue;
-      for (let o = 0, ol = data.set[i].length; o < ol; o++) {
-        const {b, c, h} = data.set[i][o];
-        const ent = entry.cloneNode();
-        Object.assign(ent.style, {backgroundColor: c, bottom: b, height: h});
-        col.appendChild(ent);
+      if (data[i].length === 0) continue;
+      for (let o = 0, ol = data[i].length; o < ol; o++) {
+        const {b, c, h} = data[i][o];
+        const ent = ø('div', {className: 'psa sw1'});
+        ø(ent.style, {backgroundColor: c, bottom: b, height: h});
+        col.append(ent);
       }
     }
 
     return frag;
   },
 
-  dayChart (ent) {
+  dayChart (ent, {colourMode, colour} = Log.config.ui) {
     if (ent === undefined) return;
-
     const l = ent.length;
+    if (l === 0) return;
 
-    if (typeof ent !== 'object' || l === 0) return;
-
-    const {colourMode, colour} = Log.config.ui;
     const frag = document.createDocumentFragment();
-    const entryEl = document.createElement('span');
-    const col = colourMode === 'sector' ? 'sc' :
-      colourMode === 'project' ? pc : colour;
-
-    entryEl.className = 'hf lf';
 
     for (let i = 0, lastPosition = 0; i < l; i++) {
       const {s, dur} = ent[i];
       const width = Log.calcWidth(dur);
       const dp = Log.calcDurPercent(s);
-      const entry = entryEl.cloneNode();
+      const entry = ø('span', {className: 'hf lf'});
 
-      Object.assign(entry.style, {
+      ø(entry.style, {
         marginLeft: `${dp - lastPosition}%`,
-        backgroundColor: ent[i][col] || col,
+        backgroundColor: ent[i][colourMode] || colour,
         width: `${width}%`
       });
 
-      frag.appendChild(entry);
+      frag.append(entry);
       lastPosition = width + dp;
     }
 
     return frag;
   },
 
-  focusBar (mode, val) {
+  focusBar (mode, val, colour = Log.config.ui.colour) {
     if (mode === undefined || val === undefined) return;
-    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
-
+    if (mode < 0 || mode > 1) return;
     const l = val.length;
-
-    if (typeof val !== 'object' || l === 0) return;
+    if (l === 0) return;
 
     const pal = mode === 0 ? Log.palette : Log.projectPalette;
     const frag = document.createDocumentFragment();
-    const div = document.createElement('div');
-
-    div.className = 'hf lf';
 
     for (let i = 0; i < l; i++) {
-      const seg = div.cloneNode();
-      Object.assign(seg.style, {
-        backgroundColor: pal[val[i][0]] || Log.config.ui.colour,
+      const seg = ø('div', {className: 'hf lf'});
+      ø(seg.style, {
+        backgroundColor: pal[val[i][0]] || colour,
         width: `${val[i][1]}%`
       });
-      frag.appendChild(seg);
+      frag.append(seg);
     }
 
     return frag;
   },
 
-  focusChart (data) {
+  focusChart (data, colour = Log.config.ui.colour) {
     const l = data.length;
-
-    if (typeof data !== 'object' || l === 0) return;
+    if (l === 0) return;
 
     const frag = document.createDocumentFragment();
-    const col = document.createElement('div');
-    const core = document.createElement('div');
+    const col = ø('div', {className: 'dib hf'});
+    const core = ø('div', {className: 'psa sw1 b0'});
 
     col.style.width = `${100 / l}%`;
-    col.className = 'dib hf';
-
-    core.style.backgroundColor = Log.config.ui.colour;
-    core.className = 'psa sw1 b0';
+    core.style.backgroundColor = colour;
 
     for (let i = 0; i < l; i++) {
       const cl = col.cloneNode();
       const cr = core.cloneNode();
 
-      cr.style.height = `${(data[i] * 100).toFixed(2)}%`;
+      cr.style.height = `${data[i] * 100}%`;
 
-      cl.appendChild(cr);
-      frag.appendChild(cl);
+      cl.append(cr);
+      frag.append(cl);
     }
 
     return frag;
   },
 
-  legend (mode, val) {
+  legend (mode, val, colour = Log.config.ui.colour) {
     if (mode === undefined || val === undefined) return;
-    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
-
+    if (mode < 0 || mode > 1) return;
     const l = val.length;
-
-    if (typeof val !== 'object' || l === 0) return;
+    if (l === 0) return;
 
     const frag = document.createDocumentFragment();
-    const itemEl = document.createElement('li');
-    const iconEl = document.createElement('div');
-    const infoEl = document.createElement('div');
     const pal = mode === 0 ? Log.palette : Log.projectPalette;
-
-    iconEl.className = 'dib sh3 sw3 mr2 brf vm c-pt';
-    infoEl.className = 'dib vm sw6 elip tnum';
-    itemEl.className = 'c3 mb3 f6 lhc';
 
     for (let i = 0; i < l; i++) {
-      const item = itemEl.cloneNode();
-      const icon = iconEl.cloneNode();
-      const info = infoEl.cloneNode();
-      const name = val[i][0];
+      const item = ø('li', {className: 'c3 mb3 f6 lhc'});
 
-      icon.style.backgroundColor = pal[name] || Log.config.ui.colour;
-      info.innerHTML = `${val[i][1].toFixed(2)}% ${name}`;
-      icon.setAttribute('onclick', `Log.nav.toDetail(${mode}, '${name}')`);
+      const icon = ø('div', {
+        className: 'dib sh3 sw3 mr2 brf vm c-pt',
+        onclick: () => Log.nav.toDetail(mode, val[i][0])
+      });
 
-      item.appendChild(icon);
-      item.appendChild(info);
-      frag.appendChild(item);
+      const info = ø('div', {
+        className: 'dib vm sw6 elip tnum',
+        innerHTML: `${val[i][1].toFixed(2)}% ${val[i][0]}`
+      });
+
+      icon.style.backgroundColor = pal[val[i][0]] || colour;
+
+      item.append(icon);
+      item.append(info);
+      frag.append(item);
     }
 
     return frag;
   },
 
-  list (mode, sort, ent = Log.log) {
+  list (mode, sort, ent = Log.log, {colourMode, colour} = Log.config.ui) {
     if (mode === undefined || sort === undefined) return;
-    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
-
+    if (mode < 0 || mode > 1) return;
     const l = sort.length;
-
-    if (typeof sort !== 'object' || l === 0) return;
-    if (typeof ent !== 'object' || ent.length === 0) return;
+    if (l === 0) return;
+    if (ent.length === 0) return;
 
     const pal = mode === 0 ? Log.palette : Log.projectPalette;
     const frag = document.createDocumentFragment();
-    const nameEl = document.createElement('span');
-    const spanEl = document.createElement('span');
-    const barEl = document.createElement('div');
     const lh = Log.data.logHours(ent);
 
-    nameEl.className = 'dib xw6 elip';
-    spanEl.className = 'rf tnum';
-    barEl.className = 'sh1';
-
     for (let i = 0; i < l; i++) {
-      const item = document.createElement('li');
-      const name = nameEl.cloneNode();
-      const span = spanEl.cloneNode();
-      const bar = barEl.cloneNode();
+      const item = ø('li', {
+        className: `${i === l - 1 ? 'mb0' : 'mb4'} c-pt`,
+        onclick: () => Log.nav.toDetail(mode, n)
+      });
+
       const n = sort[i][0];
       const v = sort[i][1];
 
-      item.setAttribute('onclick', `Log.nav.toDetail(${mode}, '${n}')`);
-      item.className = `${i === l - 1 ? 'mb0' : 'mb4'} c-pt`;
-
-      Object.assign(bar.style, {
-        width: `${(v / lh * 100).toFixed(2)}%`,
-        backgroundColor: (Log.config.ui.colourMode === 'none' ?
-          Log.config.ui.colour : pal[n]) || Log.config.ui.colour
+      const name = ø('span', {
+        className: 'dib xw6 elip',
+        innerHTML: n
       });
 
-      name.innerHTML = n;
-      span.innerHTML = Log.displayStat(v);
+      const span = ø('span', {
+        className: 'rf tnum',
+        innerHTML: Log.displayStat(v)
+      });
 
-      item.appendChild(name);
-      item.appendChild(span);
-      item.appendChild(bar);
-      frag.appendChild(item);
+      const bar = ø('div', {className: 'sh1'});
+
+      ø(bar.style, {
+        width: `${(v / lh * 100).toFixed(2)}%`,
+        backgroundColor: (colourMode === 'none' ?
+          colour : pal[n]) || colour
+      });
+
+      item.append(name);
+      item.append(span);
+      item.append(bar);
+      frag.append(item);
     }
 
     return frag;
   },
 
+  /**
+   * Generate meter lines
+   * @return {Object} Lines
+   */
   meterLines () {
     const f = document.createDocumentFragment();
 
     for (let i = 0, x = 0; i < 24; i++) {
-      const l = document.createElement('div');
-      l.className = `psa ${i % 2 === 0 ? 'h5' : 'hf'} br o7`;
+      const l = ø('div', {
+        className: `psa ${i % 2 === 0 ? 'h5' : 'hf'} br o7`
+      });
       l.style.left = `${x += 4.17}%`;
-      f.appendChild(l);
+      f.append(l);
     }
 
     return f;
   },
 
-  peakChart (mode, peaks) {
+  peakChart (mode, peaks, {accent, colour} = Log.config.ui) {
     if (mode === undefined || peaks === undefined) return;
-
     const l = peaks.length;
-
-    if (typeof mode !== 'number' || mode < 0 || mode > 1) return;
-    if (typeof peaks !== 'object' || l === 0) return;
+    if (mode < 0 || mode > 1) return;
+    if (l === 0) return;
 
     const frag = document.createDocumentFragment();
-    const columnEl = document.createElement('div');
-    const mantleEl = document.createElement('div');
-    const coreEl = document.createElement('div');
+    const columnEl = ø('div', {className: 'dib hf psr'});
     const max = Math.max(...peaks);
     const d = new Date();
-
     let now = d.getHours();
-    let label = 'Log.setTimeLabel';
+    let label = Log.setTimeLabel;
 
     if (mode === 1) {
       now = d.getDay();
-      label = 'Log.setDayLabel';
+      label = Log.setDayLabel;
     }
 
-    columnEl.className = 'dib hf psr';
     columnEl.style.width = `${100 / l}%`;
-    mantleEl.className = 'sw1 hf cn';
-    coreEl.className = 'psa b0 sw1 c-pt hoverCol';
 
     for (let i = 0; i < l; i++) {
       const column = columnEl.cloneNode();
-      const mantle = mantleEl.cloneNode();
-      const core = coreEl.cloneNode();
+      const mantle = ø('div', {className: 'sw1 hf cn'});
 
-      Object.assign(core.style, {
-        height: `${peaks[i] / max * 100}%`,
-        backgroundColor: i === now ?
-          Log.config.ui.accent : Log.config.ui.colour
+      const core = ø('div', {
+        className: 'psa b0 sw1 c-pt hoverCol',
+        onmouseover: () => label(i),
+        onmouseout: () => label()
       });
 
-      core.setAttribute('onmouseover', `${label}(${i})`);
-      core.setAttribute('onmouseout', `${label}()`);
+      ø(core.style, {
+        height: `${peaks[i] / max * 100}%`,
+        backgroundColor: i === now ? accent : colour
+      });
 
-      mantle.appendChild(core);
-      column.appendChild(mantle);
-      frag.appendChild(column);
+      mantle.append(core);
+      column.append(mantle);
+      frag.append(column);
     }
 
     return frag;
   },
 
+  /**
+   * Generate visualisation
+   * @param {Object[]} data
+   * @return {Object} Visualisation
+   */
   visualisation (data) {
     if (data === undefined) return;
-
     const l = data.length;
-
-    if (typeof data !== 'object' || l === 0) return;
+    if (l === 0) return;
 
     const frag = document.createDocumentFragment();
-    const row = document.createElement('div');
-    const ent = document.createElement('div');
-
-    row.className = 'db wf sh1 mt2 mb2 visRow';
-    ent.className = 'psr t0 hf mb1 lf';
 
     for (let i = 0; i < l; i++) {
-      const r = row.cloneNode();
-      frag.appendChild(r);
+      const r = ø('div', {className: 'db wf sh1 mt2 mb2 visRow'});
+      frag.append(r);
 
       if (data[i].length === 0) continue;
       for (let o = 0, ol = data[i].length; o < ol; o++) {
-        const e = ent.cloneNode();
+        const e = ø('div', {className: 'psr t0 hf mb1 lf'});
         const {c, m, w} = data[i][o];
-        Object.assign(e.style, {backgroundColor: c, marginLeft: m, width: w});
-        r.appendChild(e);
+
+        ø(e.style, {
+          backgroundColor: c,
+          marginLeft: m,
+          width: w
+        });
+
+        r.append(e);
       }
     }
 
