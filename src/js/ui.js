@@ -218,7 +218,7 @@ Log.ui = {
     recent () {
       const {time, log, lexicon} = Log;
       const {id, s, e, c, t, d} = log.slice(-1)[0];
-      const st = time.stamp(time.toEpoch(s));
+      const st = time.stamp(s);
       const le = document.createElement('div');
       const lt = ø('table', {className: 'wf bn f6 lhc'});
       const th = ø('thead', {className: 'al'});
@@ -237,7 +237,7 @@ Log.ui = {
             r2.append(ø('td', {className: 'pl0', innerHTML: id + 1}));
             r2.append(ø('td', {
               innerHTML: `${st} - ${e === undefined ?
-                '' : time.stamp(time.toEpoch(e))}`
+                '' : time.stamp(e)}`
             }));
             r2.append(ø('td', {innerHTML: c}));
             r2.append(ø('td', {innerHTML: t}));
@@ -644,7 +644,7 @@ Log.ui = {
       head (key, ent) {
         const f = document.createDocumentFragment();
         const timeago = Log.time.timeago(
-          Log.time.convert(ent.slice(-1)[0].e) * 1E3);
+          ent.slice(-1)[0].e * 1E3);
 
         f.append(ø('h2', {className: 'mb0 f4 lht', innerHTML: key}));
         f.append(ø('p', {
@@ -885,9 +885,9 @@ Log.ui = {
 
         for (let i = 0, l = rev.length; i < l; i++) {
           const {s, e, c, t, d, id} = rev[i];
-          const startDate = toEpoch(s);
+          const startDate = s;
           const startTime = stamp(startDate);
-          const end = stamp(toEpoch(e));
+          const end = stamp(e);
           const key = mode === 0 ? t : c;
           const row = document.createElement('tr');
 
@@ -992,8 +992,9 @@ Log.ui = {
 
       for (let i = 0, l = arr.length; i < l; i++) {
         const {s, e, c, t, d} = arr[i];
-        const date = Log.time.toEpoch(s);
-        const startTime = Log.time.stamp(date);
+        const sd = Log.time.toEpoch(s);
+        const ed = Log.time.toEpoch(e);
+        const startTime = Log.time.stamp(sd);
         const id = el - i - 1;
         const r = ø('tr', {id: `r${id}`});
         const time = document.createElement('td');
@@ -1005,7 +1006,7 @@ Log.ui = {
         } else {
           const endTime = Log.time.stamp(Log.time.toEpoch(e));
           time.innerHTML = `${startTime} – ${endTime}`;
-          span.innerHTML = Log.displayStat(Log.time.duration(s, e));
+          span.innerHTML = Log.displayStat(Log.time.duration(sd, ed));
         }
 
         r.appendChild(ø('td', {
@@ -1016,7 +1017,7 @@ Log.ui = {
 
         r.appendChild(ø('td', {
           className: 'c-pt hover',
-          innerHTML: Log.time.displayDate(date),
+          innerHTML: Log.time.displayDate(sd),
           onclick: () => Log.nav.toJournal(`'${s}'`)
         }));
 

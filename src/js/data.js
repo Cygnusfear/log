@@ -114,9 +114,8 @@ Log.data = {
     const l = ent.length;
     if (ent.length === 0) return 0;
 
-    const {toEpoch} = Log.time;
-    const end = l === 1 ? toEpoch(ent[0].e) : toEpoch(ent.slice(-1)[0].s);
-    const diff = (end - toEpoch(ent[0].s)) / 864E5;
+    const end = l === 1 ? ent[0].e : ent.slice(-1)[0].s;
+    const diff = (end - ent[0].s) / 864E5;
     let n = diff << 0;
 
     n = n === diff ? n : n + 1;
@@ -144,7 +143,7 @@ Log.data = {
 
     for (let i = 0; i < l; i++) {
       if (log[i].e === undefined) continue;
-      if (matches(toEpoch(Log.log[i].s))) {
+      if (matches(Log.log[i].s)) {
         e[e.length] = Log.log[i];
       }
     }
@@ -165,7 +164,7 @@ Log.data = {
 
     const {toEpoch} = Log.time;
     return ent.filter(({s, e}) =>
-      (e !== undefined && toEpoch(s).getDay() === day)
+      (e !== undefined && s.getDay() === day)
     );
   },
 
@@ -341,39 +340,45 @@ Log.data = {
 
     for (let i = 0; i < l; i++) {
       const {s, e, c, t, d} = ent[i];
-      const sc = user.palette[c] || colour;
-      const pc = user.projectPalette[t] || colour;
+      const a = toEpoch(s);
+      const b = e === undefined ? undefined : toEpoch(e);
 
-      if (!isSameDay(s, e) && e !== undefined) {
-        const a = toEpoch(s);
-        const b = toEpoch(e);
-
+      if (e !== undefined && !isSameDay(a, b)) {
         const ee = new Date(a);
         const ss = new Date(b);
 
         ee.setHours(23, 59, 59);
         ss.setHours(0, 0, 0);
 
-        const eh = toHex(ee);
-        const sh = toHex(ss);
+        parsed[parsed.length] = new Entry({
+          id: i,
+          start: a,
+          end: ee,
+          sector: c,
+          project: t,
+          description: d
+        });
 
-        parsed[parsed.length] = {
-          s, c, t, d, sc, pc, id: i, e: eh,
-          dur: duration(s, eh)
-        };
-
-        parsed[parsed.length] = {
-          e, c, t, d, sc, pc, id: i, s: sh,
-          dur: duration(sh, e)
-        };
+        parsed[parsed.length] = new Entry({
+          id: i,
+          start: ss,
+          end: b,
+          sector: c,
+          project: t,
+          description: d
+        });
 
         continue;
       }
 
-      parsed[parsed.length] = {
-        s, e, c, t, d, sc, pc, id: i,
-        dur: duration(s, e)
-      };
+      parsed[parsed.length] = new Entry({
+        id: i,
+        start: a,
+        end: b,
+        sector: c,
+        project: t,
+        description: d
+      });
     }
 
     return parsed;
@@ -402,7 +407,7 @@ Log.data = {
     const days = [0, 0, 0, 0, 0, 0, 0];
 
     for (let i = l - n; i >= 0; i--) {
-      days[Log.time.toEpoch(ent[i].s).getDay()] += ent[i].dur;
+      days[ent[i].s.getDay()] += ent[i].dur;
     }
 
     return days;
@@ -434,7 +439,7 @@ Log.data = {
 
     for (let i = l - 1; i >= 0; i--) {
       if (ent[i].e === undefined) continue;
-      let index = Log.time.toEpoch(ent[i].s).getHours();
+      let index = ent[i].s.getHours();
 
       if (ent[i].dur < 1) {
         hours[index] += ent[i].dur;
@@ -480,7 +485,7 @@ Log.data = {
     if (el === 0) return;
 
     const {listDates, toEpoch, toDate} = Log.time;
-    const dates = listDates(toEpoch(ent[0].s), end);
+    const dates = listDates(ent[0].s, end);
     let sorted = [];
     let list = [];
 
@@ -517,7 +522,7 @@ Log.data = {
     let sorted = [[],[],[],[],[],[],[]];
 
     for (let i = l - 1; i >= 0; i--) {
-      const day = Log.time.toEpoch(ent[i].s).getDay();
+      const day = ent[i].s.getDay();
       sorted[day][sorted[day].length] = ent[i];
     }
 

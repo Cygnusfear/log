@@ -25,7 +25,7 @@ Log.journal = {
         const pos = sort[id];
 
         if (pos !== undefined && pos.length > 0) {
-          const date = Log.time.toEpoch(pos[0].s)
+          const date = pos[0].s;
           const d = Log.time.displayDate(date);
           ø(cell, {
             innerHTML: d,
@@ -75,8 +75,8 @@ Log.journal = {
 
     for (let i = 0; i < l; i++) {
       const {id, s, e, c, t, d, dur} = ent[i];
-      const st = Log.time.stamp(Log.time.toEpoch(s));
-      const et = Log.time.stamp(Log.time.toEpoch(e));
+      const st = Log.time.stamp(s);
+      const et = Log.time.stamp(e);
 
       const itm = ø('li', {className: 'f6 lhc pb3 mb3'});
       const idd = ä('span', 'mr3 o7', id + 1);

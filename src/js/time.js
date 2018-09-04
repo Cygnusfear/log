@@ -58,13 +58,12 @@ Log.time = {
    * @return {number} Duration (1 = 1h)
    */
   duration (s, e) {
-    const h = s + e;
-    if (h in c_dur) {
-      return c_dur[h];
-    } else {
-      const secs = Log.time.convert(e) - Log.time.convert(s);
-      return c_dur[h] = secs / 3600;
-    }
+    if (e === undefined) return 0;
+    const start = s.getTime() / 1E3;
+    const end = e.getTime() / 1E3;
+    // console.log(Log.time.convert(e), Log.time.convert(e))
+    const secs = end - start;
+    return secs / 3600;
   },
 
   /**
@@ -193,16 +192,12 @@ Log.time = {
    * @param {string} hex
    * @return {string} YYYYMMDD
    */
-  toDate (hex) {
-    if (hex in c_date) {
-      return c_date[hex];
-    } else {
-      const t = Log.time.toEpoch(hex);
-      const y = t.getFullYear();
-      const m = t.getMonth();
-      const d = t.getDate();
-      return c_date[hex] = `${y}${m}${d}`;
-    }
+  toDate (t) {
+    // const t = Log.time.toEpoch(hex);
+    const y = t.getFullYear();
+    const m = t.getMonth();
+    const d = t.getDate();
+    return `${y}${m}${d}`;
   },
 
   /**

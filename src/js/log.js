@@ -50,7 +50,7 @@ let Log = {
 
   timer () {
     if (!Log.status()) return;
-    const l = +Log.time.toEpoch(Log.log.slice(-1)[0].s);
+    const l = +Log.log.slice(-1)[0].s;
 
     Log.clock = setInterval(_ => {
       let s = ~~((+new Date() - l) / 1E3);
@@ -148,8 +148,8 @@ let Log = {
 
       aui.forEach(i => {
         const {s, e, c, t, d} = user.log[+i - 1];
-        const start = stamp(toEpoch(s));
-        const end = stamp(toEpoch(e));
+        const start = stamp(s);
+        const end = stamp(e);
         const li = ø('li', {className: 'f6 lhc pb3 mb3'});
         const id = ø(span.cloneNode(), {innerHTML: i});
         const tm = ø(span.cloneNode(), {innerHTML: `${start} &ndash; ${end}`});
@@ -184,27 +184,10 @@ let Log = {
    * @param {number} id - Entry ID
    */
   update (id) {
-    const row = document.getElementById(`r${id}`);
-    const nodes = row.childNodes;
     const s = new Date(editStart.value);
     const e = editEnd.value === '' ? '' : new Date(editEnd.value);
     const sh = Log.time.toHex(s);
     const eh = e === '' ? undefined : Log.time.toHex(e);
-    const st = Log.time.stamp(s);
-
-    nodes[1].innerHTML = Log.time.displayDate(s);
-
-    if (eh === undefined) {
-      nodes[2].innerHTML = st;
-      nodes[3].innerHTML = '—';
-    } else {
-      nodes[2].innerHTML = `${st} – ${Log.time.stamp(e)}`;
-      nodes[3].innerHTML = Log.time.duration(sh, eh).toFixed(2);
-    }
-
-    nodes[4].innerHTML = editSector.value;
-    nodes[5].innerHTML = editProject.value;
-    nodes[6].innerHTML = editDesc.value;
 
     ø(user.log[id], {
       s: sh,
@@ -233,7 +216,7 @@ let Log = {
     if (h in durPercentCache) {
       return durPercentCache[h];
     } else {
-      const s = Log.time.toEpoch(h);
+      const s = h;
       return durPercentCache[h] = (
         +s / 1E3 -
         +(new Date(
