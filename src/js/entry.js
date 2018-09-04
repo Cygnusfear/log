@@ -8,9 +8,6 @@ class Entry {
     this.t = project;
     this.d = description;
 
-    this.sc = user.palette[this.sector] || Log.config.ui.colour;
-    this.pc = user.projectPalette[this.project] || Log.config.ui.colour;
-
     this.dur = Log.time.duration(this.s, this.e);
 
     this.sc = user.palette[this.c] || Log.config.ui.colour;
