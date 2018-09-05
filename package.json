@@ -8,12 +8,11 @@
   "scripts": {
     "start": "electron . dev",
     "build_osx": "electron-packager . Log --platform=darwin --arch=x64 --out ./build --overwrite; echo 'Built for macOS'",
-    "build_linux": "electron-packager . Log --platform=linux  --arch=x64 --out ./build --overwrite; echo 'Built for Linux'",
-    "build_win": "electron-packager . Log --platform=win32  --arch=x64 --out ./build --overwrite; echo 'Built for Windows'"
+    "build_linux": "electron-packager . Log --platform=linux  --arch=x64 --out ./build --overwrite; echo 'Built for Linux'"
   },
   "devDependencies": {
-    "electron": "^1.8.7",
-    "electron-packager": "^12.1.0",
+    "electron": "^1.8.8",
+    "electron-packager": "^12.1.1",
     "electron-reload": "^1.2.5"
   },
   "dependencies": {
