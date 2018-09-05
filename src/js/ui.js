@@ -643,8 +643,7 @@ Log.ui = {
        */
       head (key, ent) {
         const f = document.createDocumentFragment();
-        const timeago = Log.time.timeago(
-          ent.slice(-1)[0].e * 1E3);
+        const timeago = Log.time.timeago(ent.slice(-1)[0].e);
 
         f.append(ø('h2', {className: 'mb0 f4 lht', innerHTML: key}));
         f.append(ø('p', {
