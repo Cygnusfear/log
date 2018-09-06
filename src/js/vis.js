@@ -32,6 +32,12 @@ Log.vis = {
     return frag;
   },
 
+  /**
+   * Generate bar chart
+   * @param {Object[]} data
+   * @param {number} [view]
+   * @return {Object} Chart
+   */
   barChart (data, view = Log.config.ui.view) {
     if (data === undefined) return;
     const l = data.length;
@@ -59,6 +65,14 @@ Log.vis = {
     return frag;
   },
 
+  /**
+   * Generate day chart
+   * @param {Object[]} ent
+   * @param {Object} [ui] - Pref
+   * @param {string} [ui.colourMode]
+   * @param {string} [ui.colour]
+   * @return {Object} Chart
+   */
   dayChart (ent, {colourMode, colour} = Log.config.ui) {
     if (ent === undefined) return;
     const l = ent.length;
@@ -67,24 +81,29 @@ Log.vis = {
     const frag = document.createDocumentFragment();
 
     for (let i = 0, lastPosition = 0; i < l; i++) {
-      const {s, dur} = ent[i];
-      const width = Log.calcWidth(dur);
-      const dp = Log.calcDurPercent(s);
       const entry = ø('span', {className: 'hf lf'});
+      const {width, durPercent} = ent[i];
 
       ø(entry.style, {
-        marginLeft: `${dp - lastPosition}%`,
+        marginLeft: `${durPercent - lastPosition}%`,
         backgroundColor: ent[i][colourMode] || colour,
         width: `${width}%`
       });
 
       frag.append(entry);
-      lastPosition = width + dp;
+      lastPosition = width + durPercent;
     }
 
     return frag;
   },
 
+  /**
+   * Generate focus bar
+   * @param {number} mode - Sector (0) or project (1)
+   * @param {Object[]} val - Values
+   * @param {string} [colour]
+   * @return {Object} Focus bar
+   */
   focusBar (mode, val, colour = Log.config.ui.colour) {
     if (mode === undefined || val === undefined) return;
     if (mode < 0 || mode > 1) return;
@@ -97,8 +116,8 @@ Log.vis = {
     for (let i = 0; i < l; i++) {
       const seg = ø('div', {className: 'hf lf'});
       ø(seg.style, {
-        backgroundColor: pal[val[i][0]] || colour,
-        width: `${val[i][1]}%`
+        backgroundColor: pal[val[i].n] || colour,
+        width: `${val[i].v}%`
       });
       frag.append(seg);
     }
@@ -130,6 +149,13 @@ Log.vis = {
     return frag;
   },
 
+  /**
+   * Generate legend
+   * @param {number} mode - Sector (0) or project (1)
+   * @param {Object[]} val
+   * @param {string} [colour]
+   * @return {Object} Legend
+   */
   legend (mode, val, colour = Log.config.ui.colour) {
     if (mode === undefined || val === undefined) return;
     if (mode < 0 || mode > 1) return;
@@ -144,15 +170,15 @@ Log.vis = {
 
       const icon = ø('div', {
         className: 'dib sh3 sw3 mr2 brf vm c-pt',
-        onclick: () => Log.nav.toDetail(mode, val[i][0])
+        onclick: () => Log.nav.toDetail(mode, val[i].n)
       });
 
       const info = ø('div', {
         className: 'dib vm sw6 elip tnum',
-        innerHTML: `${val[i][1].toFixed(2)}% ${val[i][0]}`
+        innerHTML: `${val[i].v.toFixed(2)}% ${val[i].n}`
       });
 
-      icon.style.backgroundColor = pal[val[i][0]] || colour;
+      icon.style.backgroundColor = pal[val[i].n] || colour;
 
       item.append(icon);
       item.append(info);
@@ -179,8 +205,7 @@ Log.vis = {
         onclick: () => Log.nav.toDetail(mode, n)
       });
 
-      const n = sort[i][0];
-      const v = sort[i][1];
+      const {n, v} = sort[i];
 
       const name = ø('span', {
         className: 'dib xw6 elip',
@@ -189,7 +214,7 @@ Log.vis = {
 
       const span = ø('span', {
         className: 'rf tnum',
-        innerHTML: Log.displayStat(v)
+        innerHTML: Log.data.displayStat(v)
       });
 
       const bar = ø('div', {className: 'sh1'});
@@ -238,11 +263,11 @@ Log.vis = {
     const max = Math.max(...peaks);
     const d = new Date();
     let now = d.getHours();
-    let label = Log.setTimeLabel;
+    let label = Log.ui.util.setTimeLabel;
 
     if (mode === 1) {
       now = d.getDay();
-      label = Log.setDayLabel;
+      label = Log.ui.util.setDayLabel;
     }
 
     columnEl.style.width = `${100 / l}%`;

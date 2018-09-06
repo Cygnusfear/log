@@ -271,22 +271,22 @@ Log.ui = {
       }
 
       const stats = ä('ul', 'lsn f6 lhc');
-      const {data, displayStat, log, time, lexicon} = Log;
+      const {data, log, time, lexicon} = Log;
       const dur = data.listDurations(entries);
 
       const s = [
         {
           n: lexicon.stats.sum,
-          v: displayStat(data.calcSum(dur))
+          v: data.displayStat(data.sum(dur))
         }, {
           n: lexicon.stats.minDur,
-          v: displayStat(data.calcMin(dur))
+          v: data.displayStat(data.min(dur))
         }, {
           n: lexicon.stats.maxDur,
-          v: displayStat(data.calcMax(dur))
+          v: data.displayStat(data.max(dur))
         }, {
           n: lexicon.stats.avgDur,
-          v: displayStat(data.calcAvg(dur))
+          v: data.displayStat(data.avg(dur))
         }, {
           n: lexicon.stats.cov,
           v: `${data.coverage(entries).toFixed(2)}%`
@@ -373,8 +373,8 @@ Log.ui = {
         m.append(b);
         m.append(c);
         if (log.length > 1) {
-          b.append(this.detail.build(0, sortValues(log, 0, 0)[0][0]));
-          c.append(this.detail.build(1, sortValues(log, 1, 0)[0][0]));
+          b.append(this.detail.build(0, sortValues(log, 0, 0)[0].n));
+          c.append(this.detail.build(1, sortValues(log, 1, 0)[0].n));
         }
 
       return f;
@@ -429,25 +429,25 @@ Log.ui = {
           return ø(el, {className, innerHTML});
         }
 
-        const {lexicon, displayStat, data, cache} = Log;
+        const {lexicon, data, cache} = Log;
         const container = document.createElement('div');
         const list = ä('ul', 'mb5 lsn f6 lhc r');
         const s = [
           {
             n: lexicon.stats.sum,
-            v: displayStat(data.calcSum(cache.dur))
+            v: data.displayStat(data.sum(cache.dur))
           }, {
             n: lexicon.stats.minDur,
-            v: displayStat(data.calcMin(cache.dur))
+            v: data.displayStat(data.min(cache.dur))
           }, {
             n: lexicon.stats.maxDur,
-            v: displayStat(data.calcMax(cache.dur))
+            v: data.displayStat(data.max(cache.dur))
           }, {
             n: lexicon.stats.avgDur,
-            v: displayStat(data.calcAvg(cache.dur))
+            v: data.displayStat(data.avg(cache.dur))
           }, {
             n: lexicon.stats.daily,
-            v: displayStat(data.avgLogHours())
+            v: data.displayStat(data.dailyAvg())
           }, {
             n: lexicon.stats.cov,
             v: `${data.coverage().toFixed(2)}%`
@@ -534,9 +534,9 @@ Log.ui = {
 
         const pf = data.listFocus(1);
         const s = [
-          {n: lexicon.stats.minFoc, v: data.calcMin(pf)},
-          {n: lexicon.stats.maxFoc, v: data.calcMax(pf)},
-          {n: lexicon.stats.avgFoc, v: data.calcAvg(pf)}
+          {n: lexicon.stats.minFoc, v: data.min(pf)},
+          {n: lexicon.stats.maxFoc, v: data.max(pf)},
+          {n: lexicon.stats.avgFoc, v: data.avg(pf)}
         ];
 
         for (let i = 0, l = s.length; i < l; i++) {
@@ -593,18 +593,18 @@ Log.ui = {
         let es = '';
 
         if (mode === 0) {
-          ent = data.getEntriesBySector(
+          ent = data.entBySec(
             key, data.getRecentEntries(config.ui.view - 1)
           );
-          his = data.getEntriesBySector(key);
+          his = data.entBySec(key);
           sect = 'secsect';
           ss = 'SST';
           es = 'SEN';
         } else {
-          ent = data.getEntriesByProject(
+          ent = data.entByPro(
             key, data.getRecentEntries(config.ui.view - 1)
           );
-          his = data.getEntriesByProject(key);
+          his = data.entByPro(key);
           sect = 'prosect';
           ss = 'PST';
           es = 'PEN';
@@ -643,14 +643,14 @@ Log.ui = {
        */
       head (key, ent) {
         const f = document.createDocumentFragment();
-        const timeago = Log.time.timeago(ent.slice(-1)[0].e);
+        const ago = Log.time.ago(ent.slice(-1)[0].e);
 
         f.append(ø('h2', {className: 'mb0 f4 lht', innerHTML: key}));
         f.append(ø('p', {
           className: 'mb2 f6 o7',
           innerHTML: ent.length === 0 ?
             `No activity in the past ${Log.config.ui.view} days` :
-            `Updated ${timeago}`
+            `Updated ${ago}`
         }));
 
         return f;
@@ -722,16 +722,16 @@ Log.ui = {
        */
       stats (dur, his, sortHis, pkhd, pkdd) {
         const ä = (e, c, i = '') => ø(e, {className: c, innerHTML: i});
-        const {lexicon, data, displayStat} = Log;
+        const {lexicon, data} = Log;
 
         const div = document.createElement('div');
         const list = ä('ul', 'lsn f6 lhc r');
 
         const s = [
-          {n: lexicon.stats.sum,    v: displayStat(data.calcSum(dur))},
-          {n: lexicon.stats.minDur, v: displayStat(data.calcMin(dur))},
-          {n: lexicon.stats.maxDur, v: displayStat(data.calcMax(dur))},
-          {n: lexicon.stats.avgDur, v: displayStat(data.calcAvg(dur))},
+          {n: lexicon.stats.sum,    v: data.displayStat(data.sum(dur))},
+          {n: lexicon.stats.minDur, v: data.displayStat(data.min(dur))},
+          {n: lexicon.stats.maxDur, v: data.displayStat(data.max(dur))},
+          {n: lexicon.stats.avgDur, v: data.displayStat(data.avg(dur))},
           {n: lexicon.entries,      v: his.length},
           {n: lexicon.stats.streak, v: data.streak(sortHis)},
           {n: lexicon.ph,           v: data.peakHour(pkhd)},
@@ -801,9 +801,9 @@ Log.ui = {
         const chart = ä('div', 'psr mb4 wf');
 
         const focusStats = [
-          {n: lexicon.stats.minFoc, v: data.calcMin(foci)},
-          {n: lexicon.stats.maxFoc, v: data.calcMax(foci)},
-          {n: lexicon.stats.avgFoc, v: data.calcAvg(foci)},
+          {n: lexicon.stats.minFoc, v: data.min(foci)},
+          {n: lexicon.stats.maxFoc, v: data.max(foci)},
+          {n: lexicon.stats.avgFoc, v: data.avg(foci)},
         ];
 
         for (let i = 0; i < 3; i++) {
@@ -876,7 +876,7 @@ Log.ui = {
         ];
 
         const rev = his.slice(his.length - 100).reverse();
-        const {toEpoch, stamp, displayDate, duration} = Log.time;
+        const {stamp, displayDate, duration} = Log.time;
 
         const td = (innerHTML, className = '') => {
           return ø('td', {innerHTML, className});
@@ -1005,7 +1005,7 @@ Log.ui = {
         } else {
           const endTime = Log.time.stamp(Log.time.toEpoch(e));
           time.innerHTML = `${startTime} – ${endTime}`;
-          span.innerHTML = Log.displayStat(Log.time.duration(sd, ed));
+          span.innerHTML = Log.data.displayStat(Log.time.duration(sd, ed));
         }
 
         r.appendChild(ø('td', {
@@ -1017,7 +1017,7 @@ Log.ui = {
         r.appendChild(ø('td', {
           className: 'c-pt hover',
           innerHTML: Log.time.displayDate(sd),
-          onclick: () => Log.nav.toJournal(`'${s}'`)
+          onclick: () => Log.nav.toJournal(s)
         }));
 
         r.appendChild(time);
@@ -1293,5 +1293,15 @@ Log.ui = {
     Log.commanderInput = input;
     commander.append(input);
     return commander;
+  },
+
+  util: {
+    setDayLabel (d = new Date().getDay()) {
+      cd.innerHTML = Log.days[d];
+    },
+
+    setTimeLabel (h = new Date().getHours()) {
+      ch.innerHTML = `${h}:00`;
+    },
   }
 }

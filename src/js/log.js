@@ -69,17 +69,6 @@ let Log = {
     new Audio(`${__dirname}/media/${sound}.mp3`).play();
   },
 
-  displayStat (val, {stat} = Log.config.ui) {
-    if (stat === 'decimal') {
-      return val.toFixed(2);
-    } else {
-      const v = val.toString().split('.');
-      if (v.length === 1) v[1] = '0';
-      const mm = `0${(+`0.${v[1]}` * 60).toFixed(0)}`.substr(-2);
-      return `${v[0]}:${mm}`;
-    }
-  },
-
   /**
    * Summon Edit modal
    * @param {number} id - Entry ID
@@ -129,14 +118,13 @@ let Log = {
     delList.innerHTML = '';
 
     const words = i.split(' ').slice(1);
-    let dlmsg = '';
+    let delmsg = '';
     let count = 0;
 
     if (words[0] === 'project') {
       user.log.forEach((e, id) => {if (e.t === words[1]) count++;});
       delmsg = `Are you sure you want to delete the ${words[1]} project? ${count} entries will be deleted. This can't be undone.`;
     } else if (words[0] === 'sector') {
-      let count = 0;
       user.log.forEach((e, id) => {if (e.c === words[1]) count++;});
       delmsg = `Are you sure you want to delete the ${words[1]} sector? ${count} entries will be deleted. This can't be undone.`;
     } else {
@@ -148,11 +136,11 @@ let Log = {
 
       aui.forEach(i => {
         const {s, e, c, t, d} = user.log[+i - 1];
-        const start = stamp(s);
-        const end = stamp(e);
+        const ss = stamp(toEpoch(s));
+        const se = stamp(toEpoch(e));
         const li = ø('li', {className: 'f6 lhc pb3 mb3'});
         const id = ø(span.cloneNode(), {innerHTML: i});
-        const tm = ø(span.cloneNode(), {innerHTML: `${start} &ndash; ${end}`});
+        const tm = ø(span.cloneNode(), {innerHTML: `${ss} &ndash; ${se}`});
         const sc = ø(span.cloneNode(), {innerHTML: c});
         const pr = ø('span', {className: 'o7', innerHTML: t});
         const dc = ø('p', {className: 'f4 lhc', innerHTML: d});
@@ -212,25 +200,6 @@ let Log = {
     d.append(Log.ui.details.detail.build(mode, key));
   },
 
-  calcDurPercent (h) {
-    if (h in durPercentCache) {
-      return durPercentCache[h];
-    } else {
-      const s = h;
-      return durPercentCache[h] = (
-        +s / 1E3 -
-        +(new Date(
-          s.getFullYear(), s.getMonth(), s.getDate()
-        )) / 1E3
-      ) / 86400 * 100;
-    }
-  },
-
-  calcWidth (dur) {
-    return dur in widthCache ? widthCache[dur] :
-      widthCache[dur] = dur * 3600 / 864;
-  },
-
   /**
    * Open tab
    * @param {string} s - ID
@@ -242,8 +211,8 @@ let Log = {
     const x = document.getElementsByClassName(g);
     const b = document.getElementsByClassName(t);
     const n = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl o5 mr3`;
-    const currentTab = document.getElementById(s);
-    const currentBtn = document.getElementById(`b-${s}`);
+    const cTab = document.getElementById(s);
+    const cBtn = document.getElementById(`b-${s}`);
 
     Log.nav.index = Log.nav.menu.indexOf(s);
 
@@ -255,16 +224,8 @@ let Log = {
       b[i].className = n;
     }
 
-    currentTab.style.display = 'grid';
-    currentBtn.className = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
-  },
-
-  setDayLabel (d = new Date().getDay()) {
-    cd.innerHTML = days[d].substring(0, 3);
-  },
-
-  setTimeLabel (h = new Date().getHours()) {
-    ch.innerHTML = `${h}:00`;
+    cTab.style.display = 'grid';
+    cBtn.className = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
   },
 
   reset () {
@@ -322,9 +283,17 @@ let Log = {
     ä(document.body.style);
     ä(ui.style);
 
+    for (let i = 0; i < 7; i++) {
+      Log.days[Log.days.length] = Log.lexicon.days[i];
+    }
+
+    for (let i = 0; i < 12; i++) {
+      Log.months[Log.months.length] = Log.lexicon.months[i];
+    }
+
     Log.ui.build();
-    Log.setTimeLabel();
-    Log.setDayLabel();
+    Log.ui.util.setTimeLabel();
+    Log.ui.util.setDayLabel();
 
     if (user.log.length === 0) Log.nav.index = 5;
     Log.tab(Log.nav.menu[Log.nav.index]);
@@ -350,7 +319,6 @@ let Log = {
       Log.projectPalette = user.projectPalette;
       Log.log = Log.data.parse(user.log);
     } catch (e) {
-      console.error('User log data contains errors');
       console.error(e);
       new window.Notification('There is something wrong with this file.');
       return;

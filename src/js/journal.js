@@ -8,7 +8,7 @@ Log.journal = {
     const sy = new Date(2018,  0,  1);
     const ey = new Date(2018, 11, 31);
 
-    const year = Log.data.getEntriesByPeriod(sy, ey);
+    const year = Log.data.entByPeriod(sy, ey);
     const sort = Log.data.sortEntries(year);
 
     if (sort.length === 0) return;
@@ -47,7 +47,7 @@ Log.journal = {
     if (date in journalCache) {
       ent = journalCache[date];
     } else {
-      ent = Log.data.getEntriesByDate(date);
+      ent = Log.data.entByDate(date);
       journalCache[date] = ent;
     }
 
@@ -64,10 +64,10 @@ Log.journal = {
 
     jDyc.append(Log.vis.dayChart(ent));
 
-    jSUM.innerHTML = Log.displayStat(Log.data.calcSum(dur));
-    jMIN.innerHTML = Log.displayStat(Log.data.calcMin(dur));
-    jMAX.innerHTML = Log.displayStat(Log.data.calcMax(dur));
-    jAVG.innerHTML = Log.displayStat(Log.data.calcAvg(dur));
+    jSUM.innerHTML = Log.displayStat(Log.data.sum(dur));
+    jMIN.innerHTML = Log.displayStat(Log.data.min(dur));
+    jMAX.innerHTML = Log.displayStat(Log.data.max(dur));
+    jAVG.innerHTML = Log.displayStat(Log.data.avg(dur));
     jCOV.innerHTML = `${Log.data.coverage(ent).toFixed(2)}%`;
     jFOC.innerHTML = Log.data.projectFocus(Log.data.listProjects(ent)).toFixed(2);
 

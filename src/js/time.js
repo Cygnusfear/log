@@ -8,13 +8,9 @@ const months = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-let c_convert = {};
 let c_display = {};
 let c_stamp = {};
-let c_date = {};
 let c_unix = {};
-let c_dur = {};
-let c_hex = {};
 
 /**
  * Add days to date
@@ -30,21 +26,41 @@ Date.prototype.addDays = function (n) {
 Log.time = {
 
   /**
+   * Calculate time ago
+   * @param {number} epoch
+   * @return {string} Time ago
+   */
+  ago (epoch) {
+    const m = Math.abs(~~((new Date() - epoch) / 1E3 / 60));
+    return m === 0     ? 'less than a minute ago' :
+           m === 1     ? 'a minute ago' :
+           m < 59      ? `${m} minutes ago` :
+
+           m < 120     ? 'an hour ago' :
+           m < 1440    ? `${~~(m / 60)} hours ago` :
+
+           m < 2880    ? 'yesterday' :
+           m < 86400   ? `${~~(m / 1440)} days ago` :
+
+           m < 1051199 ? `${~~(m / 43200)} months ago` :
+                         `over ${~~(m / 525960)} years ago`;
+  },
+
+  /**
    * Convert hexadecimal to decimal
    * @param {string} hex
    * @return {number} Decimal
    */
   convert (hex) {
-    return hex in c_convert ?
-      c_convert[hex] : c_convert[hex] = parseInt(hex, 16);
+    return parseInt(hex, 16);
   },
 
   /**
    * Display date
-   * @param {Object} date
+   * @param {Object} [date]
    * @return {string} Formatted date
    */
-  displayDate (date) {
+  displayDate (date = new Date) {
     const d = new Date(date).setHours(0, 0, 0, 0);
     return d in c_display ?
       c_display[d] :
@@ -53,15 +69,14 @@ Log.time = {
 
   /**
    * Calculate duration
-   * @param {string} s - Start hex
-   * @param {string} e - End hex
+   * @param {Object} s - Start date
+   * @param {Object} e - End date
    * @return {number} Duration (1 = 1h)
    */
   duration (s, e) {
     if (e === undefined) return 0;
     const start = s.getTime() / 1E3;
     const end = e.getTime() / 1E3;
-    // console.log(Log.time.convert(e), Log.time.convert(e))
     const secs = end - start;
     return secs / 3600;
   },
@@ -69,7 +84,7 @@ Log.time = {
   /**
    * Format date
    * @param {Object} date
-   * @param {string} cal - Calendar system preference
+   * @param {string} [cal] - Calendar system preference
    * @return {string} Formatted date
    */
   formatDate (date, cal = Log.config.system.calendar) {
@@ -90,7 +105,7 @@ Log.time = {
   /**
    * Format time
    * @param {Object} date
-   * @param {string} format - Time format preference
+   * @param {string} [format] - Time format preference
    * @return {string} Formatted time
    */
   formatTime (date, format = Log.config.system.timeFormat) {
@@ -104,10 +119,10 @@ Log.time = {
   /**
    * List dates
    * @param {Object} start - Start date
-   * @param {Object} end - End date
+   * @param {Object} [end] - End date
    * @return {Object[]} List
    */
-  listDates (start, end) {
+  listDates (start, end = new Date) {
     let list = [];
 
     start.setHours(0, 0, 0);
@@ -143,27 +158,6 @@ Log.time = {
   },
 
   /**
-   * Calculate time ago
-   * @param {number} epoch
-   * @return {string} Time ago
-   */
-  timeago (epoch) {
-    const m = Math.abs(~~((new Date() - epoch) / 1E3 / 60));
-    return m === 0     ? 'less than a minute ago' :
-           m === 1     ? 'a minute ago' :
-           m < 59      ? `${m} minutes ago` :
-
-           m < 120     ? 'an hour ago' :
-           m < 1440    ? `${~~(m / 60)} hours ago` :
-
-           m < 2880    ? 'yesterday' :
-           m < 86400   ? `${~~(m / 1440)} days ago` :
-
-           m < 1051199 ? `${~~(m / 43200)} months ago` :
-                         `over ${~~(m / 525960)} years ago`;
-  },
-
-  /**
    * Display 12-h time
    * @param {Object} date
    * @return {string} 12-h time
@@ -189,14 +183,13 @@ Log.time = {
 
   /**
    * Convert to date ID
-   * @param {string} hex
+   * @param {Object} date
    * @return {string} YYYYMMDD
    */
-  toDate (t) {
-    // const t = Log.time.toEpoch(hex);
-    const y = t.getFullYear();
-    const m = t.getMonth();
-    const d = t.getDate();
+  toDate (date) {
+    const y = date.getFullYear();
+    const m = date.getMonth();
+    const d = date.getDate();
     return `${y}${m}${d}`;
   },
 
@@ -206,15 +199,9 @@ Log.time = {
    * @return {string} Decimal beat
    */
   toDecimal (date) {
-    const b = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      0, 0, 0
-    );
+    const b = new Date(date).setHours(0, 0, 0);
     const v = (date - b) / 8640 / 1E4;
     const t = v.toFixed(6).substr(2,6);
-
     return t.substr(0, 3);
   },
 
@@ -236,12 +223,8 @@ Log.time = {
    */
   toHex (date) {
     if (date === undefined) return;
-    if (date in c_hex) {
-      return c_hex[date];
-    } else {
-      date.setMilliseconds(0);
-      return c_hex[date] = (+date / 1E3).toString(16);
-    }
+    date.setMilliseconds(0);
+    return (+date / 1E3).toString(16);
   },
 
   // Twig

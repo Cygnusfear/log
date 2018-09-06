@@ -270,7 +270,7 @@ Log.command = {
     };
 
     if (key === 'sector') {
-      if (Log.data.getEntriesBySector(oldName).length !== 0) {
+      if (Log.data.entBySec(oldName).length !== 0) {
         user.log.map((e) => {
           if (e.c === oldName) e.c = newName;
         });
@@ -279,7 +279,7 @@ Log.command = {
         return;
       }
     } else {
-      if (Log.data.getEntriesByProject(oldName).length !== 0) {
+      if (Log.data.entByPro(oldName).length !== 0) {
         user.log.map((e) => {
           if (e.t === oldName) e.t = newName;
         });
