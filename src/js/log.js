@@ -26,6 +26,9 @@ let Log = {
 
   clock: {},
 
+  days: [],
+  months: [],
+
   cache: {
     entByDay: [],
     sortEnt: [],
