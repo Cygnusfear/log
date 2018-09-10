@@ -47,13 +47,13 @@ let Log = {
   timerEl: {},
 
   status () {
-    if (Log.log.length === 0) return;
-    return Log.log.slice(-1)[0].e === undefined;
+    if (Log.log.entries.length === 0) return;
+    return Log.log.entries.slice(-1)[0].e === undefined;
   },
 
   timer () {
     if (!Log.status()) return;
-    const l = +Log.log.slice(-1)[0].s;
+    const l = +Log.log.entries.slice(-1)[0].s;
 
     Log.clock = setInterval(_ => {
       let s = ~~((+new Date() - l) / 1E3);
@@ -265,13 +265,13 @@ let Log = {
     if (user.log.length === 0) return;
     const {data} = Log;
     ø(Log.cache, {
-      sortEnt: data.sortEntries(),
-      sec: data.listSectors() || [],
-      pro: data.listProjects() || [],
-      proFoc: data.listFocus(1) || [],
-      pkh: data.peakHours() || [],
-      pkd: data.peakDays() || [],
-      dur: data.listDurations() || []
+      sortEnt: Log.log.sortEntries(),
+      sec: Log.log.sectors || [],
+      pro: Log.log.projects || [],
+      proFoc: Log.log.listFocus(1) || [],
+      pkh: Log.log.peakHours() || [],
+      pkd: Log.log.peakDays() || [],
+      dur: Log.log.durations || []
     });
   },
 

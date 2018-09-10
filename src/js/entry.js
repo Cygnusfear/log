@@ -9,9 +9,14 @@ class Entry {
     this.d = d;
 
     this.dur = Log.time.duration(this.s, this.e);
+  }
 
-    this.sc = user.palette[this.c];
-    this.pc = user.projectPalette[this.t];
+  get sc () {
+    return user.palette[this.c];
+  }
+
+  get pc () {
+    return user.projectPalette[this.t];
   }
 
   get width () {

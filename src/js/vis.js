@@ -189,15 +189,15 @@ Log.vis = {
   },
 
   list (mode, sort, ent = Log.log, {colourMode, colour} = Log.config.ui) {
-    if (mode === undefined || sort === undefined) return;
+    if (sort === undefined) return;
     if (mode < 0 || mode > 1) return;
     const l = sort.length;
     if (l === 0) return;
-    if (ent.length === 0) return;
+    if (ent.entries.length === 0) return;
 
     const pal = mode === 0 ? Log.palette : Log.projectPalette;
     const frag = document.createDocumentFragment();
-    const lh = Log.data.logHours(ent);
+    const lh = ent.logHours();
 
     for (let i = 0; i < l; i++) {
       const item = ø('li', {

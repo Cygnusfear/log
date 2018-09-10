@@ -8,8 +8,8 @@ Log.journal = {
     const sy = new Date(2018,  0,  1);
     const ey = new Date(2018, 11, 31);
 
-    const year = Log.data.entByPeriod(sy, ey);
-    const sort = Log.data.sortEntries(year);
+    const year = new Set(Log.log.entByPeriod(sy, ey));
+    const sort = year.sortEntries();
 
     if (sort.length === 0) return;
 
@@ -47,34 +47,36 @@ Log.journal = {
     if (date in journalCache) {
       ent = journalCache[date];
     } else {
-      ent = Log.data.entByDate(date);
+      ent = new Set(Log.log.entByDate(date));
       journalCache[date] = ent;
     }
 
-    const l = ent.length;
+    const l = ent.entries.length;
     if (l === 0) return;
 
     const frg = document.createDocumentFragment();
-    const dur = Log.data.listDurations(ent);
+    const dur = ent.durations;
 
     jDyc.innerHTML = '';
     jEnt.innerHTML = '';
 
-    journalDate.innerHTML = `${Log.time.displayDate(date)} (${days[date.getDay()]})`;
+    journalDate.innerHTML = `${Log.time.displayDate(date)} (${Log.days[date.getDay()]})`;
 
-    jDyc.append(Log.vis.dayChart(ent));
+    jDyc.append(Log.vis.dayChart(ent.entries));
 
-    jSUM.innerHTML = Log.displayStat(Log.data.sum(dur));
-    jMIN.innerHTML = Log.displayStat(Log.data.min(dur));
-    jMAX.innerHTML = Log.displayStat(Log.data.max(dur));
-    jAVG.innerHTML = Log.displayStat(Log.data.avg(dur));
-    jCOV.innerHTML = `${Log.data.coverage(ent).toFixed(2)}%`;
-    jFOC.innerHTML = Log.data.projectFocus(Log.data.listProjects(ent)).toFixed(2);
+    jSUM.innerHTML = Log.data.displayStat(Log.data.sum(dur));
+    jMIN.innerHTML = Log.data.displayStat(Log.data.min(dur));
+    jMAX.innerHTML = Log.data.displayStat(Log.data.max(dur));
+    jAVG.innerHTML = Log.data.displayStat(Log.data.avg(dur));
+    jCOV.innerHTML = `${ent.coverage().toFixed(2)}%`;
+    jFOC.innerHTML = Log.data.projectFocus(ent.projects).toFixed(2);
 
     const ä = (el, className, innerHTML) => ø(el, {className, innerHTML});
 
+    console.log(ent)
+
     for (let i = 0; i < l; i++) {
-      const {id, s, e, c, t, d, dur} = ent[i];
+      const {id, s, e, c, t, d, dur} = ent.entries[i];
       const st = Log.time.stamp(s);
       const et = Log.time.stamp(e);
 
@@ -83,7 +85,7 @@ Log.journal = {
       const tim = ä('span', 'mr3 o7', `${st} &ndash; ${et}`);
       const sec = ä('span', 'mr3 o7', c);
       const pro = ä('span', 'o7', t);
-      const spn = ä('span', 'rf o7', Log.displayStat(dur));
+      const spn = ä('span', 'rf o7', Log.data.displayStat(dur));
       const dsc = ä('p', 'f4 lhc', d);
 
       itm.append(idd);
