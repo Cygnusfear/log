@@ -13,7 +13,6 @@ Log.command = {
     });
 
     if (!path) return;
-
     let s = '';
 
     console.log('Attempting import...')
@@ -50,13 +49,9 @@ Log.command = {
 
     try {
       Log.config = user.config;
-      console.log('Config installed')
       Log.palette = user.palette;
-      console.log('Sector palette installed')
       Log.projectPalette = user.projectPalette;
-      console.log('Project palette installed')
       Log.log = Log.data.parse(user.log);
-      console.log('Logs installed');
     } catch (e) {
       console.error('User log data contains errors');
       new window.Notification('There is something wrong with this file.');
@@ -67,7 +62,6 @@ Log.command = {
     Log.load();
 
     Log.options.update.all();
-
     new window.Notification('Log data was successfully imported.');
   },
 
@@ -75,7 +69,9 @@ Log.command = {
    * Export data
    */
   exportData () {
-    const data = JSON.stringify(JSON.parse(localStorage.getItem('user')));
+    const data = JSON.stringify(
+      JSON.parse(localStorage.getItem('user'))
+    );
 
     dialog.showSaveDialog(file => {
       if (file === undefined) return;
@@ -97,12 +93,17 @@ Log.command = {
   startPomodoro (input) {
     const clock = timer()()((state, phaseChanged) => {
       if (phaseChanged) {
-        state.phase === 'break' || state.phase === 'longBreak' ?
-          Log.command.endEntry() : Log.command.startEntry(input);
+        let sound = '';
 
-        state.phase === 'break' || state.phase === 'longBreak' ?
-          Log.playSound('timerEnd') : Log.playSound('timerStart');
+        if (state.phase === 'break' || state.phase === 'longBreak') {
+          Log.command.endEntry();
+          sound = 'timerEnd';
+        } else {
+          Log.command.startEntry(input);
+          sound = 'timerStart';
+        }
 
+        Log.playSound(sound);
         new window.Notification(`Started ${state.phase}`);
       }
     });
@@ -113,9 +114,9 @@ Log.command = {
 
   // TODO: Rewrite
   startEntry (input) {
-    const start = Log.time.toHex(new Date());
+    const start = Log.time.toHex(new Date);
 
-    if (user.log.length !== 0 && user.log.slice(-1)[0].e === undefined) {
+    if (user.log.length > 0 && user.log.slice(-1)[0].e === undefined) {
       Log.command.endEntry();
     }
 
@@ -127,9 +128,7 @@ Log.command = {
 
     if (input.includes('"')) {
       p = input.split('');
-
       p.map((e, i) => e === '"' && (indices[indices.length] = i));
-
       for (let i = indices[0] + 1; i < indices[1]; i++) sec += p[i];
       for (let i = indices[2] + 1; i < indices[3]; i++) pro += p[i];
       for (let i = indices[4] + 1; i < indices[5]; i++) dsc += p[i];
@@ -159,9 +158,9 @@ Log.command = {
   },
 
   endEntry () {
-    const end = Log.time.toHex(new Date());
-    if (Log.log === undefined) return;
-    if (Log.log.length === 0) return;
+    const end = Log.time.toHex(new Date);
+    if (Log.log.entries === undefined) return;
+    if (Log.log.count === 0) return;
 
     const last = user.log.slice(-1)[0];
     if (last.e !== undefined) return;
@@ -174,15 +173,14 @@ Log.command = {
   },
 
   resumeEntry () {
-    if (Log.log === undefined) return;
-    if (Log.log.length === 0) return;
+    if (Log.log.entries === undefined) return;
+    if (Log.log.count === 0) return;
 
     const last = user.log.slice(-1)[0];
     if (last.e === undefined) return;
 
     user.log[user.log.length] = {
-      s: Log.time.toHex(new Date()),
-      e: undefined,
+      s: Log.time.toHex(new Date),
       c: last.c,
       t: last.t,
       d: last.d
@@ -194,19 +192,19 @@ Log.command = {
 
   // TODO: Rewrite
   deleteEntry (input) {
-    if (Log.log === undefined) return;
-    if (Log.log.length === 0) return;
+    if (Log.log.entries === undefined) return;
+    if (Log.log.count === 0) return;
 
     // all except first word are entry indices
     const words = input.split(' ').slice(1);
 
     if (words[0] === 'project') {
       user.log.forEach((e, id) => {
-        if (e.t === words[1]) user.log.splice(id, 1);
+        e.t === words[1] && user.log.splice(id, 1);
       });
     } else if (words[0] === 'sector') {
       user.log.forEach((e, id) => {
-        if (e.c === words[1]) user.log.splice(id, 1);
+        e.c === words[1] && user.log.splice(id, 1);
       });
     } else {
       // aui = ascending unique indices
@@ -218,35 +216,34 @@ Log.command = {
     Log.options.update.all();
   },
 
+  /**
+   * Edit an entry
+   * @param {number} id
+   * @param {string} attribute
+   * @param {string|number} value
+   */
   editEntry (i, attribute, value) {
     if (user.log.length === 0) return;
     const id = +i - 1;
 
     switch (attribute) {
-      case 'start':
-        user.log[id].s = Log.time.convertDateTime(value);
-        break;
-      case 'end':
-        user.log[id].e = Log.time.convertDateTime(value);
-        break;
-      case 'sector':
-      case 'sec':
-        user.log[id].c = value;
-        break;
-      case 'project':
-      case 'title':
-      case 'pro':
-        user.log[id].t = value;
-        break;
-      case 'description':
-      case 'desc':
-      case 'dsc':
-        user.log[id].d = value;
-        break;
-      case 'duration':
-      case 'dur':
+      case 'duration': case 'dur':
         const duration = parseInt(value, 10) * 60 || 0;
         user.log[id].e = Log.time.offset(user.log[id].s, duration);
+        break;
+      case 'start': case 'end':
+        const t = Log.time.convertDateTime(value);
+        if (attribute === 'start') user.log[id].s = t;
+        else user.log[id].e = t;
+        break;
+      case 'description': case 'desc': case 'dsc':
+        user.log[id].d = value;
+        break;
+      case 'sector': case 'sec':
+        user.log[id].c = value;
+        break;
+      case 'project': case 'pro':
+        user.log[id].t = value;
         break;
       default:
         return;
@@ -262,27 +259,32 @@ Log.command = {
    * @param {string} newName - New name
    */
   rename (key, oldName, newName) {
-    if (!~['sec', 'sector', 'pro', 'project'].indexOf(key)) return;
+    if (!~secpro.indexOf(key)) return;
     key = (key === 'sector' || key === 'sec') ? 'sector' : 'project';
 
+    const l = user.log.length;
     const notFound = _ => {
-      new window.Notification(`${oldName} does not exist`);
+      new window.Notification(`The ${key} "${oldName}" does not exist`);
     };
 
     if (key === 'sector') {
-      if (Log.data.entBySec(oldName).length !== 0) {
-        user.log.map((e) => {
-          if (e.c === oldName) e.c = newName;
-        });
+      if (Log.log.entBySec(oldName).length > 0) {
+        for (let i = 0; i < l; i++) {
+          if (user.log[i].c === oldName) {
+            user.log[i].c = newName;
+          }
+        }
       } else {
         notFound();
         return;
       }
     } else {
-      if (Log.data.entByPro(oldName).length !== 0) {
-        user.log.map((e) => {
-          if (e.t === oldName) e.t = newName;
-        });
+      if (Log.log.entByPro(oldName).length > 0) {
+        for (let i = 0; i < l; i++) {
+          if (user.log[i].t === oldName) {
+            user.log[i].t = newName;
+          }
+        }
       } else {
         notFound();
         return;
@@ -297,10 +299,9 @@ Log.command = {
    * Invert UI colours
    */
   invert () {
-    const c = user.config.ui.colour;
-    const b = user.config.ui.bg;
-    user.config.ui.colour = b;
-    user.config.ui.bg = c;
+    const {bg, colour} = user.config.ui;
+    user.config.ui.colour = bg;
+    user.config.ui.bg = colour;
     Log.options.update.config();
   },
 
@@ -309,18 +310,15 @@ Log.command = {
    * Undo last action
    */
   undo () {
-    /* TODO: To be implemented */
     const i = Log.console.history.slice(-2)[0];
-    const p = Log.console.getParams(i);
     const s = i.split(' ');
 
     switch (s[0].toLowerCase()) {
-      case 'rename':
-      case 'rn':
+      case 'rename': case 'rn':
+        const p = Log.console.parameterise(i);
         Log.command.rename(p[1], p[3], p[2]);
         break;
-      case 'invert':
-      case 'iv':
+      case 'invert': case 'iv':
         Log.command.invert();
         break;
       default:

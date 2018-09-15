@@ -4,11 +4,15 @@ let journalCache = {};
 
 Log.journal = {
 
+  /**
+   * Display Calendar
+   * @return {Object} Node
+   */
   displayCalendar () {
     const sy = new Date(2018,  0,  1);
     const ey = new Date(2018, 11, 31);
 
-    const year = new Set(Log.log.entByPeriod(sy, ey));
+    const year = new Set(Log.log.byPeriod(sy, ey));
     const sort = year.sortEntries();
 
     if (sort.length === 0) return;
@@ -33,6 +37,9 @@ Log.journal = {
               Log.journal.displayEntry(date)
             }
           });
+        } else {
+          cell.innerHTML = '------';
+          cell.style.opacity = '0.1';
         }
 
         row.append(cell);
@@ -42,16 +49,20 @@ Log.journal = {
     return frg;
   },
 
+  /**
+   * Display journal entry
+   * @param {Date} [date]
+   */
   displayEntry (date = new Date()) {
     let ent = [];
     if (date in journalCache) {
       ent = journalCache[date];
     } else {
-      ent = new Set(Log.log.entByDate(date));
+      ent = new Set(Log.log.byDate(date));
       journalCache[date] = ent;
     }
 
-    const l = ent.entries.length;
+    const l = ent.count;
     if (l === 0) return;
 
     const frg = document.createDocumentFragment();
@@ -64,16 +75,14 @@ Log.journal = {
 
     jDyc.append(Log.vis.dayChart(ent.entries));
 
-    jSUM.innerHTML = Log.data.displayStat(Log.data.sum(dur));
-    jMIN.innerHTML = Log.data.displayStat(Log.data.min(dur));
-    jMAX.innerHTML = Log.data.displayStat(Log.data.max(dur));
-    jAVG.innerHTML = Log.data.displayStat(Log.data.avg(dur));
+    jSUM.innerHTML = Log.data.stat(Log.data.sum(dur));
+    jMIN.innerHTML = Log.data.stat(Log.data.min(dur));
+    jMAX.innerHTML = Log.data.stat(Log.data.max(dur));
+    jAVG.innerHTML = Log.data.stat(Log.data.avg(dur));
     jCOV.innerHTML = `${ent.coverage().toFixed(2)}%`;
-    jFOC.innerHTML = Log.data.projectFocus(ent.projects).toFixed(2);
+    jFOC.innerHTML = ent.projectFocus().toFixed(2);
 
-    const ä = (el, className, innerHTML) => ø(el, {className, innerHTML});
-
-    console.log(ent)
+    const ä = (e, className, innerHTML) => ø(e, {className, innerHTML});
 
     for (let i = 0; i < l; i++) {
       const {id, s, e, c, t, d, dur} = ent.entries[i];
@@ -85,7 +94,7 @@ Log.journal = {
       const tim = ä('span', 'mr3 o7', `${st} &ndash; ${et}`);
       const sec = ä('span', 'mr3 o7', c);
       const pro = ä('span', 'o7', t);
-      const spn = ä('span', 'rf o7', Log.data.displayStat(dur));
+      const spn = ä('span', 'rf o7', Log.data.stat(dur));
       const dsc = ä('p', 'f4 lhc', d);
 
       itm.append(idd);

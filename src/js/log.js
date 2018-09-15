@@ -7,32 +7,25 @@
  */
 
 'use strict';
-
 let user = {};
-let durPercentCache = {};
-let widthCache = {};
-
 let Log = {
-
-  lexicon: {},
 
   path: '',
   modalMode: false,
+
+  lexicon: {},
+  clock: {},
+  timerEl: {},
+  days: [],
+  months: [],
 
   config: {},
   log: [],
   palette: {},
   projectPalette: {},
 
-  clock: {},
-
-  days: [],
-  months: [],
-
   cache: {
-    entByDay: [],
-    sortEnt: [],
-    proFoc: [],
+    sor: [],
     dur: [],
     pkh: [],
     pkd: [],
@@ -42,21 +35,26 @@ let Log = {
 
   commander: {},
   commanderInput: {},
-  commanderIndex: 0,
+  comIndex: 0,
 
-  timerEl: {},
-
+  /**
+   * Get log status
+   * @return {boolean} Status
+   */
   status () {
-    if (Log.log.entries.length === 0) return;
-    return Log.log.entries.slice(-1)[0].e === undefined;
+    return Log.log.count === 0 ?
+      false : Log.log.last.e === undefined;
   },
 
+  /**
+   * Keep track of session time
+   */
   timer () {
     if (!Log.status()) return;
-    const l = +Log.log.entries.slice(-1)[0].s;
+    const l = +Log.log.last.s;
 
     Log.clock = setInterval(_ => {
-      let s = ~~((+new Date() - l) / 1E3);
+      let s = ~~((+new Date - l) / 1E3);
       let m = ~~(s / 60);
       let h = ~~(m / 60);
 
@@ -68,6 +66,10 @@ let Log = {
     }, 1E3);
   },
 
+  /**
+   * Play sound
+   * @param {string} sound
+   */
   playSound (sound) {
     new Audio(`${__dirname}/media/${sound}.mp3`).play();
   },
@@ -121,15 +123,24 @@ let Log = {
     delList.innerHTML = '';
 
     const words = i.split(' ').slice(1);
+    const mode = words[0];
+    const key = words[1];
     let delmsg = '';
-    let count = 0;
 
-    if (words[0] === 'project') {
-      user.log.forEach((e, id) => {if (e.t === words[1]) count++;});
-      delmsg = `Are you sure you want to delete the ${words[1]} project? ${count} entries will be deleted. This can't be undone.`;
-    } else if (words[0] === 'sector') {
-      user.log.forEach((e, id) => {if (e.c === words[1]) count++;});
-      delmsg = `Are you sure you want to delete the ${words[1]} sector? ${count} entries will be deleted. This can't be undone.`;
+    const count = (prop, key) => {
+      let count = 0;
+
+      user.log.forEach(e => {
+        e[prop] === key && count++;
+      });
+
+      return count;
+    }
+
+    if (mode === 'project') {
+      delmsg = `Are you sure you want to delete the ${words[1]} project? ${count('t', key)} entries will be deleted. This can't be undone.`;
+    } else if (mode === 'sector') {
+      delmsg = `Are you sure you want to delete the ${words[1]} sector? ${count('c', key)} entries will be deleted. This can't be undone.`;
     } else {
       const aui = words.filter((v, i, self) => self.indexOf(v) === i).sort();
       const span = ø('span', {className: 'mr3 o7'});
@@ -157,9 +168,8 @@ let Log = {
       });
     }
 
-    delMessage.innerHTML = delmsg;
-
     delConfirm.setAttribute('onclick', `Log.deleteIt('${i}')`);
+    delMessage.innerHTML = delmsg;
     delModal.showModal();
   },
 
@@ -174,19 +184,8 @@ let Log = {
    * Update entry
    * @param {number} id - Entry ID
    */
-  update (id) {
-    const s = new Date(editStart.value);
-    const e = editEnd.value === '' ? '' : new Date(editEnd.value);
-    const sh = Log.time.toHex(s);
-    const eh = e === '' ? undefined : Log.time.toHex(e);
-
-    ø(user.log[id], {
-      s: sh,
-      e: eh,
-      c: editSector.value,
-      t: editProject.value,
-      d: editDesc.value
-    });
+  update (id, {s, e, c, t, d}) {
+    ø(user.log[id], {s, e, c, t, d});
 
     localStorage.setItem('user', JSON.stringify(user));
     dataStore.set('log', user.log);
@@ -197,6 +196,11 @@ let Log = {
     Log.refresh();
   },
 
+  /**
+   * View Details
+   * @param {number} mode - Sector (0) or project (1)
+   * @param {string} key
+   */
   viewDetails (mode, key) {
     const d = document.getElementById(mode === 0 ? 'SSC' : 'PSC');
     d.innerHTML = '';
@@ -211,11 +215,11 @@ let Log = {
    * @param {boolean} v - Vertical orientation?
    */
   tab (s, g = 'sect', t = 'tab', v = false) {
-    const x = document.getElementsByClassName(g);
-    const b = document.getElementsByClassName(t);
     const n = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl o5 mr3`;
-    const cTab = document.getElementById(s);
-    const cBtn = document.getElementById(`b-${s}`);
+    const x =  document.getElementsByClassName(g);
+    const b =  document.getElementsByClassName(t);
+    const cb = document.getElementById(`b-${s}`);
+    const ct = document.getElementById(s);
 
     Log.nav.index = Log.nav.menu.indexOf(s);
 
@@ -227,10 +231,13 @@ let Log = {
       b[i].className = n;
     }
 
-    cTab.style.display = 'grid';
-    cBtn.className = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
+    ct.style.display = 'grid';
+    cb.className = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl of mr3`;
   },
 
+  /**
+   * Reset
+   */
   reset () {
     clearInterval(Log.clock);
     ui.innerHTML = '';
@@ -241,42 +248,67 @@ let Log = {
     menu: [],
     index: 0,
 
-    horizontal () {
+    /**
+     * Move to next tab
+     */
+    next () {
       Log.nav.index = Log.nav.index === 5 ? 0 : Log.nav.index + 1;
       Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
     },
 
+    /**
+     * Navigate to Journal entry
+     * @param {string} h - Hex
+     */
     toJournal (h) {
       Log.tab('JOU');
       Log.journal.translate(h);
     },
 
+    /**
+     * Navigate to sector or project detail
+     * @param {number} mod - Sector (0) or project (1)
+     * @param {string} key
+     */
     toDetail (mod, key) {
       if (mod < 0 || mod > 1) return;
-      if (key.length === 0) return;
+      if (key === undefined) return;
 
-      Log.tab('DTL');
-      Log.tab(mod === 0 ? 'SSC' : 'PSC', 'subsect', 'subtab', true);
       Log.viewDetails(mod, key);
+      Log.tab(mod === 0 ? 'SSC' : 'PSC', 'subsect', 'subtab', true);
+      Log.tab('DTL');
     }
   },
 
+  /**
+   * Generate session cache
+   */
   generateSessionCache () {
     if (user.log.length === 0) return;
-    const {data} = Log;
+    const {log} = Log;
     ø(Log.cache, {
-      sortEnt: Log.log.sortEntries(),
-      sec: Log.log.sectors || [],
-      pro: Log.log.projects || [],
-      proFoc: Log.log.listFocus(1) || [],
-      pkh: Log.log.peakHours() || [],
-      pkd: Log.log.peakDays() || [],
-      dur: Log.log.durations || []
+      sor: log.sortEntries() || [],
+      sec: log.sectors || [],
+      pro: log.projects || [],
+      pkh: log.peakHours() || [],
+      pkd: log.peakDays() || [],
+      dur: log.durations || []
     });
+  },
+
+  installLexicon () {
+    for (let i = 0; i < 7; i++) {
+      Log.days[Log.days.length] = Log.lexicon.days[i];
+    }
+
+    for (let i = 0; i < 12; i++) {
+      Log.months[Log.months.length] = Log.lexicon.months[i];
+    }
   },
 
   load () {
     Log.generateSessionCache();
+    Log.installLexicon();
 
     const ä = o => ø(o, {
       backgroundColor: Log.config.ui.bg,
@@ -285,14 +317,6 @@ let Log = {
 
     ä(document.body.style);
     ä(ui.style);
-
-    for (let i = 0; i < 7; i++) {
-      Log.days[Log.days.length] = Log.lexicon.days[i];
-    }
-
-    for (let i = 0; i < 12; i++) {
-      Log.months[Log.months.length] = Log.lexicon.months[i];
-    }
 
     Log.ui.build();
     Log.ui.util.setTimeLabel();
@@ -323,76 +347,66 @@ let Log = {
       Log.log = Log.data.parse(user.log);
     } catch (e) {
       console.error(e);
-      new window.Notification('There is something wrong with this file.');
+      new window.Notification('Something went wrong.');
       return;
     }
 
     Log.lexicon = Dict.data;
-    console.log('Lexicon installed')
 
-    if (localStorage.hasOwnProperty('logHistory')) {
-      Log.console.history = JSON.parse(localStorage.getItem('logHistory'));
-    } else {
-      Log.console.history = [];
-      localStorage.setItem('logHistory', JSON.stringify(Log.console.history));
-    }
+    Log.console.installHistory();
 
     console.time('Log');
     Log.load();
     console.timeEnd('Log');
 
-    if (!Log.keyEventInitialized) {
-      Log.keyEventInitialized = true;
+    document.onkeydown = e => {
+      if (Log.modalMode) return;
 
-      document.onkeydown = e => {
-        if (Log.modalMode) return;
+      if (e.which >= 65 && e.which <= 90) {
+        Log.commander.style.display = 'block';
+        Log.commanderInput.focus();
+        return;
+      }
 
-        if (e.which >= 65 && e.which <= 90) {
-          Log.commander.style.display = 'block';
-          Log.commanderInput.focus();
-          return;
-        }
+      if (e.which >= 48 && e.which <= 54 && (e.ctrlKey || e.metaKey)) {
+        Log.nav.index = e.which - 49;
+        Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
+        return;
+      }
 
-        if (e.which >= 48 && e.which <= 54 && (e.ctrlKey || e.metaKey)) {
-          Log.nav.index = e.which - 49;
-          Log.tab(Log.nav.menu[Log.nav.index], 'sect', 'tab');
-          return;
-        }
+      const l = Log.console.history.length;
 
-        const l = Log.console.history.length;
+      const focus = _ => {
+        Log.commander.style.display = 'block';
+        Log.commanderInput.focus();
+      }
 
-        const focus = _ => {
-          Log.commander.style.display = 'block';
-          Log.commanderInput.focus();
-        }
-
-        switch (e.which) {
-          case 9: // Tab
-            e.preventDefault();
-            Log.nav.horizontal();
-            break;
-          case 27: // Escape
-            Log.commander.style.display = 'none';
-            Log.commanderInput.value = '';
-            Log.commanderIndex = 0;
-            break;
-          case 38: // Up
-            focus();
-            Log.commanderIndex++;
-            if (Log.commanderIndex > l) Log.commanderIndex = l;
-            Log.commanderInput.value = Log.console.history[l - Log.commanderIndex];
-            break;
-          case 40: // Down
-            focus();
-            Log.commanderIndex--;
-            if (Log.commanderIndex < 1) Log.commanderIndex = 1;
-            Log.commanderInput.value = Log.console.history[l - Log.commanderIndex];
-            break;
-          default:
-            break;
-        }
-      };
-    }
+      switch (e.which) {
+        case 9: // Tab
+          e.preventDefault();
+          Log.nav.next();
+          break;
+        case 27: // Escape
+          Log.commander.style.display = 'none';
+          Log.commanderInput.value = '';
+          Log.comIndex = 0;
+          break;
+        case 38: // Up
+          focus();
+          Log.comIndex++;
+          if (Log.comIndex > l) Log.comIndex = l;
+          Log.commanderInput.value = Log.console.history[l - Log.comIndex];
+          break;
+        case 40: // Down
+          focus();
+          Log.comIndex--;
+          if (Log.comIndex < 1) Log.comIndex = 1;
+          Log.commanderInput.value = Log.console.history[l - Log.comIndex];
+          break;
+        default:
+          break;
+      }
+    };
 
     document.addEventListener('click', ({target}) => {
       target === entryModal && entryModal.close()

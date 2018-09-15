@@ -4,12 +4,21 @@ Log.console = {
 
   history: [],
 
+  installHistory () {
+    if (localStorage.hasOwnProperty('logHistory')) {
+      Log.console.history = JSON.parse(localStorage.getItem('logHistory'));
+    } else {
+      Log.console.history = [];
+      localStorage.setItem('logHistory', JSON.stringify(Log.console.history));
+    }
+  },
+
   /**
    * Extract parameters
    * @param {string} input
    * @return {Object[]} Parameters
    */
-  getParams (input) {
+  parameterise (input) {
     if (input === undefined) return;
     if (!input.includes('"')) return;
 
@@ -40,7 +49,7 @@ Log.console = {
    * @param {string} input
    */
   parse (input) {
-    const p = this.getParams(input);
+    const p = this.parameterise(input);
     const s = input.split(' ');
 
     switch (s[0].toLowerCase()) {
@@ -75,43 +84,43 @@ Log.console = {
         break;
       case 'background':
       case 'bg':
-        Log.options.setBackgroundColour(s[1]);
+        Log.options.set.bg(s[1]);
         break;
       case 'colour':
       case 'color':
       case 'foreground':
       case 'fg':
-        Log.options.setForegroundColour(s[1]);
+        Log.options.set.fg(s[1]);
         break;
       case 'accent':
       case 'highlight':
       case 'ac':
       case 'hl':
-        Log.options.setAccent(s[1]);
+        Log.options.set.accent(s[1]);
         break;
       case 'colourmode':
       case 'colormode':
       case 'cm':
-        Log.options.setColourMode(s[1]);
+        Log.options.set.colourMode(s[1]);
         break;
       case 'colourcode':
       case 'colorcode':
       case 'cc':
-        Log.options.setColourCode(p[1], p[2], p[3]);
+        Log.options.set.colourCode(p[1], p[2], p[3]);
         break;
       case 'view':
-        Log.options.setView(+s[1]);
+        Log.options.set.view(+s[1]);
         break;
       case 'calendar':
       case 'cal':
-        Log.options.setCalendar(s[1]);
+        Log.options.set.calendar(s[1]);
         break;
       case 'time':
       case 'clock':
-        Log.options.setTimeFormat(s[1]);
+        Log.options.set.time(s[1]);
         break;
       case 'stat':
-        Log.options.setStat(s[1]);
+        Log.options.set.stat(s[1]);
         break;
       case 'import':
         Log.command.importData();

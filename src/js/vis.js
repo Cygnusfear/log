@@ -35,17 +35,16 @@ Log.vis = {
   /**
    * Generate bar chart
    * @param {Object[]} data
-   * @param {number} [view]
    * @return {Object} Chart
    */
-  barChart (data, view = Log.config.ui.view) {
+  barChart (data) {
     if (data === undefined) return;
     const l = data.length;
     if (l === 0) return;
 
     const frag = document.createDocumentFragment();
     const column = ø('div', {className: 'dib psr hf'});
-    column.style.width = `${100 / view}%`;
+    column.style.width = `${100 / l}%`;
 
     frag.append(Log.vis.axisLines());
 
@@ -82,16 +81,16 @@ Log.vis = {
 
     for (let i = 0, lastPosition = 0; i < l; i++) {
       const entry = ø('span', {className: 'hf lf'});
-      const {width, durPercent} = ent[i];
+      const {width, margin} = ent[i];
 
       ø(entry.style, {
-        marginLeft: `${durPercent - lastPosition}%`,
         backgroundColor: ent[i][colourMode] || colour,
+        marginLeft: `${margin - lastPosition}%`,
         width: `${width}%`
       });
 
       frag.append(entry);
-      lastPosition = width + durPercent;
+      lastPosition = width + margin;
     }
 
     return frag;
@@ -125,6 +124,12 @@ Log.vis = {
     return frag;
   },
 
+  /**
+   * Generate focus chart
+   * @param {Object[]} data
+   * @param {string} colour
+   * @return {Object} Chart
+   */
   focusChart (data, colour = Log.config.ui.colour) {
     const l = data.length;
     if (l === 0) return;
@@ -188,16 +193,30 @@ Log.vis = {
     return frag;
   },
 
-  list (mode, sort, ent = Log.log, {colourMode, colour} = Log.config.ui) {
+  /**
+   * Generate list
+   * @param {number} mode - Sector (0) or project (1)
+   * @param {Object[]} sort - Sorted values
+   * @param {Set} set
+   * @param {Object} [ui] - UI preferences
+   * @param {string} [ui.colourMode]
+   * @param {string} [ui.colour]
+   * @return {Object} Node
+   */
+  list (mode, sort, set = Log.log, {colourMode, colour} = Log.config.ui) {
     if (sort === undefined) return;
     if (mode < 0 || mode > 1) return;
     const l = sort.length;
     if (l === 0) return;
-    if (ent.entries.length === 0) return;
+    if (set.entries.length === 0) return;
 
     const pal = mode === 0 ? Log.palette : Log.projectPalette;
     const frag = document.createDocumentFragment();
-    const lh = ent.logHours();
+    const lh = set.logHours();
+
+    const ä = (e, className, innerHTML = '') => {
+      return ø(e, {className, innerHTML});
+    }
 
     for (let i = 0; i < l; i++) {
       const item = ø('li', {
@@ -207,17 +226,9 @@ Log.vis = {
 
       const {n, v} = sort[i];
 
-      const name = ø('span', {
-        className: 'dib xw6 elip',
-        innerHTML: n
-      });
-
-      const span = ø('span', {
-        className: 'rf tnum',
-        innerHTML: Log.data.displayStat(v)
-      });
-
-      const bar = ø('div', {className: 'sh1'});
+      const name = ä('span', 'dib xw6 elip', n);
+      const span = ä('span', 'rf tnum', Log.data.stat(v));
+      const bar = ä('div', 'sh1');
 
       ø(bar.style, {
         width: `${(v / lh * 100).toFixed(2)}%`,
@@ -236,24 +247,35 @@ Log.vis = {
 
   /**
    * Generate meter lines
+   * @param {number} [n] - Divisions
    * @return {Object} Lines
    */
-  meterLines () {
+  meterLines (n = 24) {
     const f = document.createDocumentFragment();
+    const y = 100 / n;
 
-    for (let i = 0, x = 0; i < 24; i++) {
+    for (let i = 0, x = 0; i < n; i++) {
       const l = ø('div', {
         className: `psa ${i % 2 === 0 ? 'h5' : 'hf'} br o7`
       });
-      l.style.left = `${x += 4.17}%`;
+      l.style.left = `${x += y}%`;
       f.append(l);
     }
 
     return f;
   },
 
+  /**
+   * Generate peak chart
+   * @param {number} mode - Hour (0) or day (1)
+   * @param {Object[]} peaks
+   * @param {Object} [ui] - UI preferences
+   * @param {string} [ui.accent]
+   * @param {string} [ui.colour]
+   * @return {Object} Chart
+   */
   peakChart (mode, peaks, {accent, colour} = Log.config.ui) {
-    if (mode === undefined || peaks === undefined) return;
+    if (peaks === undefined) return;
     const l = peaks.length;
     if (mode < 0 || mode > 1) return;
     if (l === 0) return;
@@ -261,13 +283,16 @@ Log.vis = {
     const frag = document.createDocumentFragment();
     const columnEl = ø('div', {className: 'dib hf psr'});
     const max = Math.max(...peaks);
-    const d = new Date();
-    let now = d.getHours();
-    let label = Log.ui.util.setTimeLabel;
+    const d = new Date;
+    let now = 0;
+    let label = {};
 
     if (mode === 1) {
       now = d.getDay();
       label = Log.ui.util.setDayLabel;
+    } else {
+      now = d.getHours();
+      label = Log.ui.util.setTimeLabel;
     }
 
     columnEl.style.width = `${100 / l}%`;

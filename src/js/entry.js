@@ -11,21 +11,10 @@ class Entry {
     this.dur = Log.time.duration(this.s, this.e);
   }
 
-  get sc () {
-    return user.palette[this.c];
-  }
-
-  get pc () {
-    return user.projectPalette[this.t];
-  }
-
-  get width () {
-    return this.calcWidth();
-  }
-
-  get durPercent () {
-    return this.calcDurPercent();
-  }
+  get sc () { return user.palette[this.c]; }
+  get pc () { return user.projectPalette[this.t]; }
+  get width () { return this.calcWidth(); }
+  get margin () { return this.calcDurPercent(); }
 
   calcDurPercent () {
     const a = this.s;

@@ -1,125 +1,124 @@
 'use strict';
 
+const calendars = ['aequirys', 'desamber', 'monocal', 'gregorian'];
+const secpro = ['sector', 'sec', 'project', 'pro'];
+const statformats = ['decimal', 'human'];
+const timeformats = ['24', '12', 'decimal'];
+
 Log.options = {
 
-  /**
-   * Set accent
-   * @param {string} accent
-   */
-  setAccent (accent) {
-    if (accent.length === 0) return;
-    user.config.ui.accent = accent;
-    Log.options.update.config();
-  },
+  set: {
+    /**
+     * Set accent
+     * @param {string} a - Accent
+     */
+    accent (a) {
+      if (a === undefined) return;
+      user.config.ui.accent = a;
+      Log.options.update.config();
+    },
 
-  /**
-   * Set background colour
-   * @param {string} bg
-   */
-  setBackgroundColour (bg) {
-    if (bg.length === 0) return;
-    user.config.ui.bg = bg;
-    Log.options.update.config();
-  },
+    /**
+     * Set background colour
+     * @param {string} bg
+     */
+    bg (bg) {
+      if (bg === undefined) return;
+      user.config.ui.bg = bg;
+      Log.options.update.config();
+    },
 
-  /**
-   * Set calendar system
-   * @param {string} cal
-   */
-  setCalendar (cal) {
-    if (cal.length === 0) return;
-    if (!~['aequirys', 'desamber', 'monocal', 'gregorian'].indexOf(cal)) return;
+    /**
+     * Set calendar system
+     * @param {string} cal
+     */
+    calendar (cal) {
+      if (cal === undefined) return;
+      if (!~calendars.indexOf(cal)) return;
+      c_display = {};
+      user.config.system.calendar = cal;
+      Log.options.update.config();
+    },
 
-    c_display = {};
-    user.config.system.calendar = cal;
-    Log.options.update.config();
-  },
+    /**
+     * Set sector/project colour code
+     * @param {string} mode - Sector or project
+     * @param {string} key - Name
+     * @param {string} colour
+     */
+    colourCode (mode, key, colour) {
+      if (!~secpro.indexOf(mode)) return;
+      if (key === undefined || colour === undefined) return;
 
-  /**
-   * Set sector/project colour code
-   * @param {string} mode - Sector or project
-   * @param {string} key - Name
-   * @param {string} colour
-   */
-  setColourCode (mode, key, colour) {
-    if (mode === undefined || key === undefined || colour === undefined) return;
-    if (!~['sector', 'sec', 'project', 'pro'].indexOf(mode)) return;
-    if (key.length === 0) return;
-    if (colour.length === 0) return;
+      if (mode === 'sector' || mode === 'sec') {
+        user.palette[key] = colour;
+        Log.options.update.palette();
+      } else {
+        user.projectPalette[key] = colour;
+        Log.options.update.projectPalette();
+      }
+    },
 
-    if (mode === 'sector' || mode === 'sec') {
-      user.palette[key] = colour;
-      Log.options.update.palette();
-    } else {
-      user.projectPalette[key] = colour;
-      Log.options.update.projectPalette();
+    /**
+     * Set colour mode
+     * @param {string} mode - Sector, project, or none
+     */
+    colourMode (mode) {
+      if (mode === undefined) return;
+      if (!~secpro.indexOf(mode) && mode !== 'none') return;
+
+      switch (mode) {
+        case 'sector':  case 'sec': mode = 'sc'; break;
+        case 'project': case 'pro': mode = 'pc'; break;
+        default: break;
+      }
+
+      user.config.ui.colourMode = mode;
+      Log.options.update.config();
+    },
+
+    /**
+     * Set foreground colour (text colour)
+     * @param {string} colour
+     */
+    fg (colour) {
+      if (colour === undefined) return;
+      user.config.ui.colour = colour;
+      Log.options.update.config();
+    },
+
+    /**
+     * Set stat display format
+     * @param {string} f - Decimal or human
+     */
+    stat (f) {
+      if (f === undefined) return;
+      if (!~statformats.indexOf(f)) return;
+      user.config.ui.stat = f;
+      Log.options.update.config();
+    },
+
+    /**
+     * Set time system
+     * @param {string} f - 24, 12, or decimal
+     */
+    time (f) {
+      if (f === undefined) return;
+      if (!~timeformats.indexOf(f)) return;
+      user.config.system.timeFormat = f;
+      Log.options.update.config();
+    },
+
+    /**
+     * Set view
+     * @param {number} days
+     */
+    view (days) {
+      if (days === undefined) return;
+      if (days < 0) return;
+      user.config.ui.view = days;
+      Log.options.update.config();
     }
-  },
-
-  /**
-   * Set colour mode
-   * @param {string} mode - Sector, project, or none
-   */
-  setColourMode (mode) {
-    if (mode === undefined) return;
-    if (mode.length === 0) return;
-    if (!~['sector', 'sec', 'project', 'pro', 'none'].indexOf(mode)) return;
-
-    switch (mode) {
-      case 'sector': case 'sec': mode = 'sc'; break;
-      case 'project': case 'pro': mode = 'pc'; break;
-      default: break;
-    }
-
-    user.config.ui.colourMode = mode;
-    Log.options.update.config();
-  },
-
-  /**
-   * Set foreground colour (text colour)
-   * @param {string} colour
-   */
-  setForegroundColour (colour) {
-    if (colour.length === 0) return;
-
-    user.config.ui.colour = colour;
-    Log.options.update.config();
-  },
-
-  /**
-   * Set stat display format
-   * @param {string} format
-   */
-  setStat (format) {
-    if (format.length === 0) return;
-    if (!~['decimal', 'human'].indexOf(format)) return;
-
-    user.config.ui.stat = format;
-    Log.options.update.config();
-  },
-
-  /**
-   * Set time system
-   * @param {string} format - 24, 12, or decimal
-   */
-  setTimeFormat (format) {
-    if (format.length === 0) return;
-    if (!~['24', '12', 'decimal'].indexOf(format)) return;
-
-    user.config.system.timeFormat = format;
-    Log.options.update.config();
-  },
-
-  /**
-   * Set view
-   * @param {number} days
-   */
-  setView (days) {
-    if (days === undefined) return;
-    if (days < 0) return;
-
-    user.config.ui.view = days;
-    Log.options.update.config();
   },
 
   update: {
@@ -142,7 +141,7 @@ Log.options = {
     config (ls = true) {
       dataStore.set('config', user.config);
       Log.config = user.config;
-      console.log('Config updated')
+      console.log('Config updated');
       ls && Log.options.update.localStorage();
     },
 
@@ -152,7 +151,7 @@ Log.options = {
     localStorage () {
       localStorage.setItem('user', JSON.stringify(user));
       journalCache = {};
-      console.log('localStorage updated')
+      console.log('localStorage updated');
       Log.refresh();
     },
 
@@ -168,7 +167,7 @@ Log.options = {
 
       dataStore.set('log', user.log);
       Log.log = Log.data.parse(user.log);
-      console.log('Log updated')
+      console.log('Log updated');
       ls && Log.options.update.localStorage();
     },
 
@@ -184,7 +183,7 @@ Log.options = {
 
       dataStore.set('palette', user.palette);
       Log.palette = user.palette;
-      console.log('Sector palette updated')
+      console.log('Sector palette updated');
       ls && Log.options.update.localStorage();
     },
 
@@ -200,7 +199,7 @@ Log.options = {
 
       dataStore.set('projectPalette', user.projectPalette);
       Log.projectPalette = user.projectPalette;
-      console.log('Project palette updated')
+      console.log('Project palette updated');
       ls && Log.options.update.localStorage();
     },
   },

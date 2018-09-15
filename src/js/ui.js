@@ -9,14 +9,14 @@ Log.ui = {
 
   /**
    * Build UI
+   * @param {number} view
    */
-  build () {
-    const {cache: {sortEnt}, data, log, config} = Log;
-    const ovw = new Set(Log.log.getRecentEntries(config.ui.view - 1));
+  build (view = Log.config.ui.view) {
+    const ovw = new Set(Log.log.recent(view - 1));
     const today = new Set(
-      log.entries.slice(-1)[0].e === undefined ?
-        sortEnt.slice(-1)[0].slice(0, -1) :
-        sortEnt.slice(-1)[0]
+      Log.log.last.e === undefined ?
+        Log.cache.sor.slice(-1)[0].slice(0, -1) :
+        Log.cache.sor.slice(-1)[0]
     );
 
     const frag = document.createDocumentFragment();
@@ -64,10 +64,7 @@ Log.ui = {
      */
     build () {
       const h = ø('header', {className: 'mb2 f6 lhc'});
-      const t = ø('h1', {
-        className: 'dib mr3 f5 upc tk',
-        innerHTML: 'Log'
-      });
+      const t = ø('h1', {className: 'dib mr3 f5 upc tk', innerHTML: 'Log'});
 
       h.appendChild(t);
       h.appendChild(this.nav());
@@ -142,10 +139,10 @@ Log.ui = {
     /**
      * Build Overview
      * @param {Set} today - Today's entries
-     * @param {Set} overview - Oerview entries
+     * @param {Set} ovw - Oerview entries
      * @return {Object} Node
      */
-    build (today, overview) {
+    build (today, ovw) {
       const ä = (id, className) => ø('div', {id, className});
       const f = document.createDocumentFragment();
       const c = ä('ovwC', 'oya ns');
@@ -155,7 +152,7 @@ Log.ui = {
       f.append(this.peaks());
       f.append(c);
         c.append(this.recent());
-        c.append(this.chart(overview));
+        c.append(this.chart(ovw));
         c.append(this.stats(today));
       f.append(r);
         r.append(this.lists(today));
@@ -187,8 +184,8 @@ Log.ui = {
      */
     peaks () {
       const {lexicon, data, vis, cache} = Log;
-      const ä = (el, className, innerHTML = '') => {
-        return ø(el, {className, innerHTML});
+      const ä = (e, className, innerHTML = '') => {
+        return ø(e, {className, innerHTML});
       }
 
       const ol = ø('div', {id: 'ovwL'});
@@ -196,7 +193,7 @@ Log.ui = {
       const pd = document.createElement('div');
       const hc = ä('div', 'psr h7 wf nodrag');
       const dc = hc.cloneNode();
-      const st = new Set(Log.log.sortEntriesByDay()[new Date().getDay()]);
+      const st = new Set(Log.log.sortByDay()[new Date().getDay()]);
       const pt = st.peakHours();
 
       ol.append(ä('h3', 'mb3 f6 lhc', lexicon.peaks));
@@ -252,9 +249,9 @@ Log.ui = {
      * @param {Set} overview
      * @return {Object} Node
      */
-    chart (overview) {
+    chart (ovw) {
       const container = ø('div', {className: 'psr'});
-      const data = overview.bar();
+      const data = ovw.bar();
       const chart = Log.vis.barChart(data);
 
       container.append(chart || '');
@@ -267,36 +264,36 @@ Log.ui = {
      * @return {Object} Node
      */
     stats (today) {
-      const ä = (el, className, innerHTML = '') => {
-        return ø(el, {className, innerHTML});
+      const ä = (e, className, innerHTML = '') => {
+        return ø(e, {className, innerHTML});
       }
 
       const stats = ä('ul', 'lsn f6 lhc');
       const {data, log, time, lexicon} = Log;
-      const dur = today.listDurations();
+      const dur = today.durations;
 
       const s = [
         {
           n: lexicon.stats.sum,
-          v: data.displayStat(data.sum(dur))
+          v: data.stat(data.sum(dur))
         }, {
           n: lexicon.stats.minDur,
-          v: data.displayStat(data.min(dur))
+          v: data.stat(data.min(dur))
         }, {
           n: lexicon.stats.maxDur,
-          v: data.displayStat(data.max(dur))
+          v: data.stat(data.max(dur))
         }, {
           n: lexicon.stats.avgDur,
-          v: data.displayStat(data.avg(dur))
+          v: data.stat(data.avg(dur))
         }, {
           n: lexicon.stats.cov,
           v: `${today.coverage().toFixed(2)}%`
         }, {
           n: lexicon.stats.foc,
-          v: data.projectFocus(today.listProjects()).toFixed(2)
+          v: today.projectFocus().toFixed(2)
         }, {
           n: lexicon.entries,
-          v: today.entries.length
+          v: today.count
         }, {
           n: lexicon.stats.streak,
           v: Log.log.streak(),
@@ -320,31 +317,28 @@ Log.ui = {
      */
     lists (today) {
       const ä = innerHTML => ø('h3', {className: 'mb3 f5 lhc', innerHTML});
-      const {vis: {list}, data: {sortValues}, lexicon} = Log;
 
-      const frag = document.createDocumentFragment();
-      const sectors = document.createElement('div');
-      const projects = document.createElement('div');
+      const fr = document.createDocumentFragment();
+      const ds = document.createElement('div');
+      const dp = document.createElement('div');
 
-      const sTitle = ä(lexicon.sec.plural);
-      const pTitle = ä(lexicon.pro.plural);
+      const le = ø('ul', {className: 'nodrag lsn h8 oya hvs'});
+      const sl = le.cloneNode();
+      const pl = le.cloneNode();
 
-      const listEl = ø('ul', {className: 'nodrag lsn h8 oya hvs'});
-      const sList = listEl.cloneNode();
-      const pList = listEl.cloneNode();
-      const sData = list(0, today.sortValues(0, 0), today.entries);
-      const pData = list(1, today.sortValues(1, 0), today.entries);
+      const sd = Log.vis.list(0, today.sortValues(0, 0), today);
+      const pd = Log.vis.list(1, today.sortValues(1, 0), today);
 
-      frag.append(sectors);
-        sectors.append(sTitle);
-        sectors.append(sList);
-          sList.append(sData || '');
-      frag.append(projects);
-        projects.append(pTitle);
-        projects.append(pList);
-          pList.append(pData || '');
+      fr.append(ds);
+        ds.append(ä(Log.lexicon.sec.plural));
+        ds.append(sl);
+          sl.append(sd || '');
+      fr.append(dp);
+        dp.append(ä(Log.lexicon.pro.plural));
+        dp.append(pl);
+          pl.append(pd || '');
 
-      return frag;
+      return fr;
     }
   },
 
@@ -352,10 +346,10 @@ Log.ui = {
 
     /**
      * Build Details
-     * @param {Set} overview
+     * @param {Set} ovw
      * @return {Object} Node
      */
-    build (overview) {
+    build (ovw) {
       const {data: {sortValues}, log} = Log;
       const f = document.createDocumentFragment();
       const d = document.createElement('div');
@@ -370,10 +364,10 @@ Log.ui = {
       f.append(this.menu());
       f.append(m);
         m.append(a);
-          a.append(this.summary.build(overview));
+          a.append(this.summary.build(ovw));
         m.append(b);
         m.append(c);
-        if (log.entries.length > 1) {
+        if (log.count > 1) {
           b.append(this.detail.build(0, Log.log.sortValues(0, 0)[0].n));
           c.append(this.detail.build(1, Log.log.sortValues(1, 0)[0].n));
         }
@@ -386,9 +380,7 @@ Log.ui = {
      * @return {Object} Node
      */
     menu () {
-      const {summary, sec, pro} = Log.lexicon;
       const m = document.createElement('div');
-
       const ä = (i, ih, cn = 'db mb3 subtab on bg-cl o5 mr3') => {
         m.append(ø('button', {
           id: `b-${i}`, className: cn, innerHTML: ih,
@@ -396,9 +388,9 @@ Log.ui = {
         }));
       }
 
-      ä('SUM', summary, 'db mb3 subtab on bg-cl of mr3');
-      ä('SSC', sec.plural);
-      ä('PSC', pro.plural);
+      ä('SUM', Log.lexicon.summary, 'db mb3 subtab on bg-cl of mr3');
+      ä('SSC', Log.lexicon.sec.plural);
+      ä('PSC', Log.lexicon.pro.plural);
 
       return m;
     },
@@ -426,8 +418,8 @@ Log.ui = {
        * @return {Object} Node
        */
       stats () {
-        const ä = (el, className, innerHTML = '') => {
-          return ø(el, {className, innerHTML});
+        const ä = (e, className, innerHTML = '') => {
+          return ø(e, {className, innerHTML});
         }
 
         const {lexicon, data, cache} = Log;
@@ -436,19 +428,19 @@ Log.ui = {
         const s = [
           {
             n: lexicon.stats.sum,
-            v: data.displayStat(data.sum(cache.dur))
+            v: data.stat(data.sum(cache.dur))
           }, {
             n: lexicon.stats.minDur,
-            v: data.displayStat(data.min(cache.dur))
+            v: data.stat(data.min(cache.dur))
           }, {
             n: lexicon.stats.maxDur,
-            v: data.displayStat(data.max(cache.dur))
+            v: data.stat(data.max(cache.dur))
           }, {
             n: lexicon.stats.avgDur,
-            v: data.displayStat(data.avg(cache.dur))
+            v: data.stat(data.avg(cache.dur))
           }, {
             n: lexicon.stats.daily,
-            v: data.displayStat(Log.log.dailyAvg())
+            v: data.stat(Log.log.dailyAvg())
           }, {
             n: lexicon.stats.cov,
             v: `${Log.log.coverage().toFixed(2)}%`
@@ -583,28 +575,31 @@ Log.ui = {
        * Build Detail page
        * @param {number} mode - Sector (0) or project (1)
        * @param {string} key - Sector or project name
+       * @param {number} view
        * @return {Object} Node
        */
-      build (mode, key) {
-        const {data, config} = Log;
+      build (mode, key, view = Log.config.ui.view) {
+        const {data} = Log;
         let ent = [];
         let his = [];
-        let sect = '';
+        let sec = '';
         let ss = '';
         let es = '';
 
-        const recent = new Set(Log.log.getRecentEntries(config.ui.view - 1));
+        const recent = new Set(
+          Log.log.recent(view - 1)
+        );
 
         if (mode === 0) {
-          ent = new Set(recent.entBySec(key));
-          his = new Set(Log.log.entBySec(key));
-          sect = 'secsect';
+          ent = new Set(recent.bySector(key));
+          his = new Set(Log.log.bySector(key));
+          sec = 'secsect';
           ss = 'SST';
           es = 'SEN';
         } else {
-          ent = new Set(recent.entByPro(key));
-          his = new Set(Log.log.entByPro(key));
-          sect = 'prosect';
+          ent = new Set(recent.byProject(key));
+          his = new Set(Log.log.byProject(key));
+          sec = 'prosect';
           ss = 'PST';
           es = 'PEN';
         }
@@ -613,8 +608,8 @@ Log.ui = {
         const ph = his.peakHours();
         const f = document.createDocumentFragment();
         const c = ø('div', {className: 'nodrag oys hvs'});
-        const s1 = ø('div', {id: ss, className: sect});
-        const s2 = ø('div', {id: es, className: `dn ${sect}`});
+        const s1 = ø('div', {id: ss, className: sec});
+        const s2 = ø('div', {id: es, className: `dn ${sec}`});
 
         f.append(c);
           c.append(this.head(key, ent.entries));
@@ -636,9 +631,10 @@ Log.ui = {
        * Build Detail head
        * @param {string} key - Sector or project name
        * @param {Object[]} ent
+       * @param {number} view
        * @return {Object} Node
        */
-      head (key, ent) {
+      head (key, ent, view = Log.config.ui.view) {
         const f = document.createDocumentFragment();
         const ago = Log.time.ago(ent.slice(-1)[0].e);
 
@@ -646,7 +642,7 @@ Log.ui = {
         f.append(ø('p', {
           className: 'mb2 f6 o7',
           innerHTML: ent.length === 0 ?
-            `No activity in the past ${Log.config.ui.view} days` :
+            `No activity in the past ${view} days` :
             `Updated ${ago}`
         }));
 
@@ -655,17 +651,14 @@ Log.ui = {
 
       /**
        * Build Detail overview
-       * @param {Object[]} ent
+       * @param {Set} ent
        * @return {Object} Node
        */
       overview (ent) {
         const o = ø('div', {className: 'psr'});
-
-        if (ent.entries.length !== 0) {
-          // const se = Log.data.sortEntries(ent);
+        if (ent.count > 0) {
           o.append(Log.vis.barChart(ent.bar()));
         }
-
         return o;
       },
 
@@ -699,6 +692,7 @@ Log.ui = {
           id: `b-${stats}`, innerHTML: Log.lexicon.stat,
           onclick: () => Log.tab(stats, sect, tab)
         }));
+
         t.append(ø('button', {
           className: 'pv1 sectab on bg-cl o5',
           id: `b-${entries}`, innerHTML: Log.lexicon.entries,
@@ -720,14 +714,14 @@ Log.ui = {
         const div = document.createElement('div');
         const list = ä('ul', 'lsn f6 lhc r');
 
-        const dur = his.listDurations();
+        const dur = his.durations;
 
         const s = [
-          {n: lexicon.stats.sum,    v: data.displayStat(data.sum(dur))},
-          {n: lexicon.stats.minDur, v: data.displayStat(data.min(dur))},
-          {n: lexicon.stats.maxDur, v: data.displayStat(data.max(dur))},
-          {n: lexicon.stats.avgDur, v: data.displayStat(data.avg(dur))},
-          {n: lexicon.entries,      v: his.entries.length},
+          {n: lexicon.stats.sum,    v: data.stat(data.sum(dur))},
+          {n: lexicon.stats.minDur, v: data.stat(data.min(dur))},
+          {n: lexicon.stats.maxDur, v: data.stat(data.max(dur))},
+          {n: lexicon.stats.avgDur, v: data.stat(data.avg(dur))},
+          {n: lexicon.entries,      v: his.count},
           {n: lexicon.stats.streak, v: his.streak()},
           {n: lexicon.ph,           v: his.peakHour()},
           {n: lexicon.pd,           v: his.peakDay()}
@@ -809,10 +803,7 @@ Log.ui = {
           stats.append(item);
         }
 
-        if (ent.entries.length !== 0) {
-          // const se = ent.sortEntries();
-          chart.append(vis.focusChart(ent.listFocus(1)));
-        }
+        ent.count > 0 && chart.append(vis.focusChart(ent.listFocus(1)));
 
         d.append(ä('h3', 'mb3 f6', lexicon.stats.foc));
         d.append(chart);
@@ -831,15 +822,17 @@ Log.ui = {
         const b = ø('div', {className: 'mb3 wf sh2'});
         const l = ø('ul', {className: 'lsn r'});
 
-        if (ent.entries.length !== 0) {
-          const m = mode === 0 ? 1 : 0;
+        if (ent.count > 0) {
+          const m = 1 >> mode;
           const v = his.sortValues(m, 1);
           b.append(Log.vis.focusBar(m, v));
           l.append(Log.vis.legend(m, v));
         }
 
         d.append(ø('h3', {
-          innerHTML: mode === 0 ? Log.lexicon.pro.plural : Log.lexicon.sec.plural,
+          innerHTML: mode === 0 ?
+            Log.lexicon.pro.plural :
+            Log.lexicon.sec.plural,
           className: 'mb3 f6'
         }));
 
@@ -857,9 +850,9 @@ Log.ui = {
        */
       entries (mode, his) {
         const t = ø('table', {className: 'wf bn f6'});
+        const b = ø('tbody', {className: 'nodrag'});
         const h = document.createElement('thead');
         const r = document.createElement('tr');
-        const b = ø('tbody', {className: 'nodrag'});
 
         const n = [
           Log.lexicon.date,
@@ -870,7 +863,7 @@ Log.ui = {
             Log.lexicon.sec.singular
         ];
 
-        const rev = his.entries.slice(his.entries.length - 100).reverse();
+        const rev = his.entries.slice(his.count - 100).reverse();
         const {stamp, displayDate, duration} = Log.time;
 
         const td = (innerHTML, className = '') => {
@@ -879,21 +872,19 @@ Log.ui = {
 
         for (let i = 0, l = rev.length; i < l; i++) {
           const {s, e, c, t, d, id} = rev[i];
-          const startDate = s;
-          const startTime = stamp(startDate);
-          const end = stamp(e);
           const key = mode === 0 ? t : c;
           const row = document.createElement('tr');
 
           row.append(td(id + 1, 'pl0'));
-          row.append(td(displayDate(startDate)));
-          row.append(td(`${startTime}–${end}`));
+          row.append(td(displayDate(s)));
+          row.append(td(`${stamp(s)}–${stamp(e)}`));
           row.append(td(duration(s, e).toFixed(2)));
 
           row.append(ø('td', {
             innerHTML: key,
             className: 'c-pt',
-            onclick: () => Log.nav.toDetail(mode === 0 ? 1 : 0, key)}));
+            onclick: () => Log.nav.toDetail(1 >> mode, key)
+          }));
 
           row.append(td(d, 'pr0'));
 
@@ -902,13 +893,17 @@ Log.ui = {
 
         t.append(h);
           h.append(r);
-            r.append(ø('th', {className: 'pl0', innerHTML: Log.lexicon.id}));
+            r.append(ø('th', {
+              className: 'pl0', innerHTML: Log.lexicon.id
+            }));
 
             for (let i = 0, l = n.length; i < l; i++) {
               r.append(ø('th', {innerHTML: n[i]}));
             }
 
-            r.append(ø('th', {className: 'pr0', innerHTML: Log.lexicon.desc}));
+            r.append(ø('th', {
+              className: 'pr0', innerHTML: Log.lexicon.desc
+            }));
         t.append(b);
 
         return t;
@@ -922,7 +917,7 @@ Log.ui = {
       list (mode) {
         const list = ø('ul', {className: 'nodrag oys lsn f6 lhc hvs'});
 
-        if (Log.log.entries.length > 1) {
+        if (Log.log.count > 1) {
           const data = Log.log.sortValues(mode, 0);
           list.append(Log.vis.list(mode, data));
         }
@@ -1002,7 +997,7 @@ Log.ui = {
         } else {
           const endTime = Log.time.stamp(Log.time.toEpoch(e));
           time.innerHTML = `${startTime} – ${endTime}`;
-          span.innerHTML = Log.data.displayStat(Log.time.duration(sd, ed));
+          span.innerHTML = Log.data.stat(Log.time.duration(sd, ed));
         }
 
         r.appendChild(ø('td', {
@@ -1048,12 +1043,18 @@ Log.ui = {
 
     /**
      * Build Entries modal
+     * @param {Object} ui
+     * @param {string} ui.bg
+     * @param {string} ui.colour
      * @return {Object} Node
      */
-    modal () {
+    modal ({bg, colour} = Log.config.ui) {
       const m = ø('dialog', {
         id: 'editModal',
-        className: 'p4 cn bn h6'
+        className: 'p4 cn bn h6',
+        onkeydown: e => {
+          e.key === 'Escape' && (Log.modalMode = false);
+        }
       });
 
       const f = ø('form', {
@@ -1064,12 +1065,7 @@ Log.ui = {
 
       const i = ø('input', {className: 'db wf p2 mb3 bn'});
 
-      ø(m.style, {
-        backgroundColor: Log.config.ui.bg,
-        color: Log.config.ui.colour
-      });
-
-      m.onkeydown = e => {e.key === 'Escape' && (Log.modalMode = false);}
+      ø(m.style, {backgroundColor: bg, color: colour});
 
       document.addEventListener('click', ({target}) => {
         if (target === m) {
@@ -1079,7 +1075,17 @@ Log.ui = {
       });
 
       f.addEventListener('submit', _ => {
-        Log.update(editEntryID.value);
+        const e = editEnd.value === '' ?
+          '' : new Date(editEnd.value);
+
+        Log.update(editEntryID.value, {
+          s: Log.time.toHex(new Date(editStart.value)),
+          e: e === '' ? undefined : Log.time.toHex(e),
+          c: editSector.value,
+          t: editProject.value,
+          d: editDesc.value
+        });
+
         Log.modalMode = false;
       });
 
@@ -1215,18 +1221,18 @@ Log.ui = {
 
   /**
    * Build entry deletion modal
+   * @param {Object} ui
+   * @param {string} ui.bg
+   * @param {colour} ui.colour
    * @return {Object} Node
    */
-  delModal () {
+  delModal ({bg, colour} = Log.config.ui) {
     const modal = ø('dialog', {
       className: 'p4 cn bn nodrag',
       id: 'delModal'
     });
 
-    ø(modal.style, {
-      backgroundColor: Log.config.ui.bg,
-      color: Log.config.ui.colour
-    });
+    ø(modal.style, {backgroundColor: bg, color: colour});
 
     const ä = (e, id, className, innerHTML = '') => {
       modal.append(ø(e, {id, className, innerHTML}));
@@ -1270,7 +1276,7 @@ Log.ui = {
       const {history} = Log.console;
       const value = input.value;
 
-      Log.commanderIndex = 0;
+      Log.comIndex = 0;
 
       if (value !== '') {
         const l = history.length;

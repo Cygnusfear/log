@@ -3,11 +3,6 @@
 const Aequirys = require('aequirys');
 const Monocal = require('./utils/monocal.min.js');
 
-const months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
-
 let c_display = {};
 let c_stamp = {};
 let c_unix = {};
@@ -31,7 +26,7 @@ Log.time = {
    * @return {string} Time ago
    */
   ago (epoch) {
-    const m = Math.abs(~~((new Date() - epoch) / 1E3 / 60));
+    const m = Math.abs(~~((new Date - epoch) / 1E3 / 60));
     return m === 0     ? 'less than a minute ago' :
            m === 1     ? 'a minute ago' :
            m < 59      ? `${m} minutes ago` :
@@ -57,7 +52,7 @@ Log.time = {
 
   /**
    * Display date
-   * @param {Object} [date]
+   * @param {Date} [date]
    * @return {string} Formatted date
    */
   displayDate (date = new Date) {
@@ -69,25 +64,23 @@ Log.time = {
 
   /**
    * Calculate duration
-   * @param {Object} s - Start date
-   * @param {Object} e - End date
+   * @param {Date} start
+   * @param {Date} end
    * @return {number} Duration (1 = 1h)
    */
-  duration (s, e) {
-    if (e === undefined) return 0;
-    const start = s.getTime() / 1E3;
-    const end = e.getTime() / 1E3;
-    const secs = end - start;
-    return secs / 3600;
+  duration (start, end) {
+    if (end === undefined) return 0;
+    return ((+end / 1E3) - (+start / 1E3)) / 3600;
   },
 
   /**
    * Format date
-   * @param {Object} date
+   * @param {Date} date
    * @param {string} [cal] - Calendar system preference
+   * @param {Object[]} [months] - Month names
    * @return {string} Formatted date
    */
-  formatDate (date, cal = Log.config.system.calendar) {
+  formatDate (date, cal = Log.config.system.calendar, months = Log.months) {
     switch (cal) {
       case 'aequirys':
       case 'desamber':
@@ -104,7 +97,7 @@ Log.time = {
 
   /**
    * Format time
-   * @param {Object} date
+   * @param {Date} date
    * @param {string} [format] - Time format preference
    * @return {string} Formatted time
    */
@@ -118,8 +111,8 @@ Log.time = {
 
   /**
    * List dates
-   * @param {Object} start - Start date
-   * @param {Object} [end] - End date
+   * @param {Date} start
+   * @param {Date} [end]
    * @return {Object[]} List
    */
   listDates (start, end = new Date) {
@@ -147,19 +140,19 @@ Log.time = {
 
   /**
    * Display timestamp
-   * @param {Object} date
+   * @param {Date} date
    * @return {string} Timestamp
    */
   stamp (date) {
-    const hm = `${date.getHours()}${date.getMinutes()}`;
-    return hm in c_stamp ?
-      c_stamp[hm] :
-      c_stamp[hm] = Log.time.formatTime(date);
+    const x = `${date.getHours()}${date.getMinutes()}`;
+    return x in c_stamp ?
+      c_stamp[x] :
+      c_stamp[x] = Log.time.formatTime(date);
   },
 
   /**
    * Display 12-h time
-   * @param {Object} date
+   * @param {Date} date
    * @return {string} 12-h time
    */
   to12Hours (date) {
@@ -172,7 +165,7 @@ Log.time = {
 
   /**
    * Display 24-h time
-   * @param {Object} date
+   * @param {Date} date
    * @return {string} 24-h time
    */
   to24Hours (date) {
@@ -183,7 +176,7 @@ Log.time = {
 
   /**
    * Convert to date ID
-   * @param {Object} date
+   * @param {Date} date
    * @return {string} YYYYMMDD
    */
   toDate (date) {
@@ -195,7 +188,7 @@ Log.time = {
 
   /**
    * Convert to decimal time
-   * @param {Object} date
+   * @param {Date} date
    * @return {string} Decimal beat
    */
   toDecimal (date) {
@@ -218,7 +211,7 @@ Log.time = {
 
   /**
    * Convert to hexadecimal
-   * @param {Object} date
+   * @param {Date} date
    * @return {string} Hex
    */
   toHex (date) {
