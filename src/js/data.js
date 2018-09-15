@@ -76,6 +76,32 @@ Log.data = {
   },
 
   /**
+   * Calculate range
+   * @param {Object[]} v
+   * @return {number} Range
+   */
+  range (v) {
+    return Log.data.max(v) - Log.data.min(v);
+  },
+
+  /**
+   * Calculate standard deviation
+   * @param {Object[]} v
+   * @return {number} Standard deviation
+   */
+  sd (v) {
+    const x = Log.data.avg(v);
+    const l = v.length;
+    let y = 0;
+
+    for (let i = 0; i < l; i++) {
+      y += (v[i] - x) ** 2;
+    }
+
+    return Math.sqrt(y / (l - 1));
+  },
+
+  /**
    * Display stat
    * @param {number} value
    * @param {string} [stat] - Stat format
@@ -114,5 +140,12 @@ Log.data = {
   trend (a, b) {
     const t = (a - b) / b * 100;
     return `${t < 0 ? '' : '+'}${t.toFixed(2)}%`;
+  },
+
+  /**
+   * Calculate z-score
+   */
+  zScore (value, mean, sd) {
+    return (value - mean) / sd;
   }
 };

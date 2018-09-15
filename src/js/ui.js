@@ -436,11 +436,17 @@ Log.ui = {
             n: lexicon.stats.maxDur,
             v: data.stat(data.max(cache.dur))
           }, {
+            n: 'Range',
+            v: data.stat(data.range(cache.dur))
+          }, {
             n: lexicon.stats.avgDur,
             v: data.stat(data.avg(cache.dur))
           }, {
             n: lexicon.stats.daily,
             v: data.stat(Log.log.dailyAvg())
+          }, {
+            n: 'Standard Deviation',
+            v: data.stat(data.sd(cache.dur))
           }, {
             n: lexicon.stats.cov,
             v: `${Log.log.coverage().toFixed(2)}%`
@@ -456,7 +462,7 @@ Log.ui = {
           }
         ];
 
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < s.length; i++) {
           const item = ä('li', 'mb4 c3');
           item.append(ä('p', 'f4 fwb', s[i].v));
           item.append(ä('p', 'o9', s[i].n));
@@ -529,7 +535,8 @@ Log.ui = {
         const s = [
           {n: lexicon.stats.minFoc, v: data.min(pf)},
           {n: lexicon.stats.maxFoc, v: data.max(pf)},
-          {n: lexicon.stats.avgFoc, v: data.avg(pf)}
+          {n: lexicon.stats.avgFoc, v: data.avg(pf)},
+          {n: 'Standard Deviation', v: data.sd(pf)}
         ];
 
         for (let i = 0, l = s.length; i < l; i++) {
@@ -974,12 +981,16 @@ Log.ui = {
         Log.lexicon.date,
         Log.lexicon.time,
         Log.lexicon.span,
+        'Score',
         Log.lexicon.sec.singular,
         Log.lexicon.pro.singular
       ];
 
       const el = user.log.length;
       const arr = user.log.slice(el - 100).reverse();
+
+      const mean = Log.data.avg(Log.cache.dur);
+      const sd = Log.data.sd(Log.cache.dur);
 
       for (let i = 0, l = arr.length; i < l; i++) {
         const {s, e, c, t, d} = arr[i];
@@ -990,14 +1001,23 @@ Log.ui = {
         const r = ø('tr', {id: `r${id}`});
         const time = document.createElement('td');
         const span = document.createElement('td');
+        const zscore = document.createElement('td');
 
         if (e === undefined) {
           time.innerHTML = `${startTime} –`;
           span.innerHTML = '—';
+          zscore.innerHTML = '—';
         } else {
           const endTime = Log.time.stamp(Log.time.toEpoch(e));
+          const dur = Log.time.duration(sd, ed);
+          const score = dur - mean;
           time.innerHTML = `${startTime} – ${endTime}`;
-          span.innerHTML = Log.data.stat(Log.time.duration(sd, ed));
+          span.innerHTML = Log.data.stat(dur);
+          zscore.innerHTML = Log.data.stat(score);
+
+          if (score < 0) {
+            zscore.style.color = '#eb4e32';
+          }
         }
 
         r.appendChild(ø('td', {
@@ -1014,6 +1034,7 @@ Log.ui = {
 
         r.appendChild(time);
         r.appendChild(span);
+        r.appendChild(zscore);
 
         r.appendChild(ø('td', {
           innerHTML: c,
