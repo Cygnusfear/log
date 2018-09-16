@@ -157,9 +157,9 @@ Log.time = {
    */
   to12Hours (date) {
     let h = date.getHours();
+    const xm = h >= 12 ? 'PM' : 'AM';
     const hh = `0${(h %= 12) ? h : 12}`.substr(-2);
     const mm = `0${date.getMinutes()}`.substr(-2);
-    const xm = h >= 12 ? 'PM' : 'AM';
     return `${hh}:${mm} ${xm}`;
   },
 
