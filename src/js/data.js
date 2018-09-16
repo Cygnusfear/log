@@ -36,7 +36,7 @@ Log.data = {
    * @param {string} [colour] - Default colour
    * @return {Object[]} Entries
    */
-  parse (ent = user.log, colour = Log.config.ui.colour) {
+  parse (ent = Log.entries, colour = Log.config.ui.colour) {
     const l = ent.length;
     if (l === 0) return;
 

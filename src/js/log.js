@@ -7,7 +7,7 @@
  */
 
 'use strict';
-let user = {};
+
 let Log = {
 
   path: '',
@@ -20,6 +20,7 @@ let Log = {
   months: [],
 
   config: {},
+  entries: [],
   log: [],
   palette: {},
   projectPalette: {},
@@ -82,7 +83,7 @@ let Log = {
     editStart.value = '';
     editEnd.value = '';
 
-    const entry = user.log[id];
+    const entry = Log.entries[id];
     const s = Log.time.toEpoch(entry.s);
     const sy = s.getFullYear();
     const sm = `0${s.getMonth() + 1}`.substr(-2);
@@ -130,7 +131,7 @@ let Log = {
     const count = (prop, key) => {
       let count = 0;
 
-      user.log.forEach(e => {
+      Log.entries.forEach(e => {
         e[prop] === key && count++;
       });
 
@@ -149,7 +150,7 @@ let Log = {
       delmsg = `Are you sure you want to delete the following ${aui.length > 1 ? `${aui.length} entries` : 'entry'}? This can't be undone.`;
 
       aui.forEach(i => {
-        const {s, e, c, t, d} = user.log[+i - 1];
+        const {s, e, c, t, d} = Log.entries[+i - 1];
         const ss = stamp(toEpoch(s));
         const se = stamp(toEpoch(e));
         const li = ø('li', {className: 'f6 lhc pb3 mb3'});
@@ -185,10 +186,10 @@ let Log = {
    * @param {number} id - Entry ID
    */
   update (id, {s, e, c, t, d}) {
-    ø(user.log[id], {s, e, c, t, d});
+    ø(Log.entries[id], {s, e, c, t, d});
 
     localStorage.setItem('user', JSON.stringify(user));
-    dataStore.set('log', user.log);
+    dataStore.set('log', Log.entries);
     journalCache = {};
 
     document.getElementById('editModal').close();
@@ -284,7 +285,7 @@ let Log = {
    * Generate session cache
    */
   generateSessionCache () {
-    if (user.log.length === 0) return;
+    if (Log.entries.length === 0) return;
     const {log} = Log;
     ø(Log.cache, {
       sor: log.sortEntries() || [],
@@ -322,7 +323,7 @@ let Log = {
     Log.ui.util.setTimeLabel();
     Log.ui.util.setDayLabel();
 
-    if (user.log.length === 0) Log.nav.index = 5;
+    if (Log.entries.length === 0) Log.nav.index = 5;
     Log.tab(Log.nav.menu[Log.nav.index]);
   },
 
@@ -333,18 +334,12 @@ let Log = {
 
   init () {
 
-    user = {
-      config: dataStore.get('config'),
-      palette: dataStore.get('palette'),
-      projectPalette: dataStore.get('projectPalette'),
-      log: dataStore.get('log')
-    }
-
     try {
-      Log.config = user.config;
-      Log.palette = user.palette;
-      Log.projectPalette = user.projectPalette;
-      Log.log = Log.data.parse(user.log);
+      Log.config = dataStore.get('config');
+      Log.palette = dataStore.get('palette');
+      Log.projectPalette = dataStore.get('projectPalette');
+      Log.entries = dataStore.get('log');
+      Log.log = Log.data.parse(Log.entries);
     } catch (e) {
       console.error(e);
       new window.Notification('Something went wrong.');

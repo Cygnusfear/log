@@ -452,7 +452,7 @@ Log.ui = {
             v: `${Log.log.coverage().toFixed(2)}%`
           }, {
             n: lexicon.entries,
-            v: user.log.length
+            v: Log.entries.length
           }, {
             n: lexicon.sec.plural,
             v: cache.sec.length
@@ -986,8 +986,8 @@ Log.ui = {
         Log.lexicon.pro.singular
       ];
 
-      const el = user.log.length;
-      const arr = user.log.slice(el - 100).reverse();
+      const el = Log.entries.length;
+      const arr = Log.entries.slice(el - 100).reverse();
 
       const mean = Log.data.avg(Log.cache.dur);
       const sd = Log.data.sd(Log.cache.dur);

@@ -51,7 +51,7 @@ Log.command = {
       Log.config = user.config;
       Log.palette = user.palette;
       Log.projectPalette = user.projectPalette;
-      Log.log = Log.data.parse(user.log);
+      Log.log = Log.data.parse(Log.entries);
     } catch (e) {
       console.error('User log data contains errors');
       new window.Notification('There is something wrong with this file.');
@@ -116,7 +116,7 @@ Log.command = {
   startEntry (input) {
     const start = Log.time.toHex(new Date);
 
-    if (user.log.length > 0 && user.log.slice(-1)[0].e === undefined) {
+    if (Log.entries.length > 0 && Log.entries.slice(-1)[0].e === undefined) {
       Log.command.endEntry();
     }
 
@@ -146,7 +146,7 @@ Log.command = {
       dsc = p[2].trim();
     }
 
-    user.log[user.log.length] = {
+    Log.entries[Log.entries.length] = {
       s: start,
       c: sec,
       t: pro,
@@ -162,7 +162,7 @@ Log.command = {
     if (Log.log.entries === undefined) return;
     if (Log.log.count === 0) return;
 
-    const last = user.log.slice(-1)[0];
+    const last = Log.entries.slice(-1)[0];
     if (last.e !== undefined) return;
 
     last.e = end;
@@ -176,10 +176,10 @@ Log.command = {
     if (Log.log.entries === undefined) return;
     if (Log.log.count === 0) return;
 
-    const last = user.log.slice(-1)[0];
+    const last = Log.entries.slice(-1)[0];
     if (last.e === undefined) return;
 
-    user.log[user.log.length] = {
+    Log.entries[Log.entries.length] = {
       s: Log.time.toHex(new Date),
       c: last.c,
       t: last.t,
@@ -199,18 +199,18 @@ Log.command = {
     const words = input.split(' ').slice(1);
 
     if (words[0] === 'project') {
-      user.log.forEach((e, id) => {
-        e.t === words[1] && user.log.splice(id, 1);
+      Log.entries.forEach((e, id) => {
+        e.t === words[1] && Log.entries.splice(id, 1);
       });
     } else if (words[0] === 'sector') {
-      user.log.forEach((e, id) => {
-        e.c === words[1] && user.log.splice(id, 1);
+      Log.entries.forEach((e, id) => {
+        e.c === words[1] && Log.entries.splice(id, 1);
       });
     } else {
       // aui = ascending unique indices
       const aui = words.filter((v, i, self) => self.indexOf(v) === i).sort();
       // remove all indices. We start from the highest to avoid the shifting of indices after removal.
-      aui.reverse().forEach(i => user.log.splice(+i - 1, 1));
+      aui.reverse().forEach(i => Log.entries.splice(+i - 1, 1));
     }
 
     Log.options.update.all();
@@ -223,27 +223,27 @@ Log.command = {
    * @param {string|number} value
    */
   editEntry (i, attribute, value) {
-    if (user.log.length === 0) return;
+    if (Log.entries.length === 0) return;
     const id = +i - 1;
 
     switch (attribute) {
       case 'duration': case 'dur':
         const duration = parseInt(value, 10) * 60 || 0;
-        user.log[id].e = Log.time.offset(user.log[id].s, duration);
+        Log.entries[id].e = Log.time.offset(Log.entries[id].s, duration);
         break;
       case 'start': case 'end':
         const t = Log.time.convertDateTime(value);
-        if (attribute === 'start') user.log[id].s = t;
-        else user.log[id].e = t;
+        if (attribute === 'start') Log.entries[id].s = t;
+        else Log.entries[id].e = t;
         break;
       case 'description': case 'desc': case 'dsc':
-        user.log[id].d = value;
+        Log.entries[id].d = value;
         break;
       case 'sector': case 'sec':
-        user.log[id].c = value;
+        Log.entries[id].c = value;
         break;
       case 'project': case 'pro':
-        user.log[id].t = value;
+        Log.entries[id].t = value;
         break;
       default:
         return;
@@ -262,7 +262,7 @@ Log.command = {
     if (!~secpro.indexOf(key)) return;
     key = (key === 'sector' || key === 'sec') ? 'sector' : 'project';
 
-    const l = user.log.length;
+    const l = Log.entries.length;
     const notFound = _ => {
       new window.Notification(`The ${key} "${oldName}" does not exist`);
     };
@@ -270,8 +270,8 @@ Log.command = {
     if (key === 'sector') {
       if (Log.log.entBySec(oldName).length > 0) {
         for (let i = 0; i < l; i++) {
-          if (user.log[i].c === oldName) {
-            user.log[i].c = newName;
+          if (Log.entries[i].c === oldName) {
+            Log.entries[i].c = newName;
           }
         }
       } else {
@@ -281,8 +281,8 @@ Log.command = {
     } else {
       if (Log.log.entByPro(oldName).length > 0) {
         for (let i = 0; i < l; i++) {
-          if (user.log[i].t === oldName) {
-            user.log[i].t = newName;
+          if (Log.entries[i].t === oldName) {
+            Log.entries[i].t = newName;
           }
         }
       } else {
@@ -299,9 +299,9 @@ Log.command = {
    * Invert UI colours
    */
   invert () {
-    const {bg, colour} = user.config.ui;
-    user.config.ui.colour = bg;
-    user.config.ui.bg = colour;
+    const {bg, colour} = Log.config.ui;
+    Log.config.ui.colour = bg;
+    Log.config.ui.bg = colour;
     Log.options.update.config();
   },
 

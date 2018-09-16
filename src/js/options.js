@@ -14,7 +14,7 @@ Log.options = {
      */
     accent (a) {
       if (a === undefined) return;
-      user.config.ui.accent = a;
+      Log.config.ui.accent = a;
       Log.options.update.config();
     },
 
@@ -24,7 +24,7 @@ Log.options = {
      */
     bg (bg) {
       if (bg === undefined) return;
-      user.config.ui.bg = bg;
+      Log.config.ui.bg = bg;
       Log.options.update.config();
     },
 
@@ -36,7 +36,7 @@ Log.options = {
       if (cal === undefined) return;
       if (!~calendars.indexOf(cal)) return;
       c_display = {};
-      user.config.system.calendar = cal;
+      Log.config.system.calendar = cal;
       Log.options.update.config();
     },
 
@@ -51,10 +51,10 @@ Log.options = {
       if (key === undefined || colour === undefined) return;
 
       if (mode === 'sector' || mode === 'sec') {
-        user.palette[key] = colour;
+        Log.palette[key] = colour;
         Log.options.update.palette();
       } else {
-        user.projectPalette[key] = colour;
+        Log.projectPalette[key] = colour;
         Log.options.update.projectPalette();
       }
     },
@@ -73,7 +73,7 @@ Log.options = {
         default: break;
       }
 
-      user.config.ui.colourMode = mode;
+      Log.config.ui.colourMode = mode;
       Log.options.update.config();
     },
 
@@ -83,7 +83,7 @@ Log.options = {
      */
     fg (colour) {
       if (colour === undefined) return;
-      user.config.ui.colour = colour;
+      Log.config.ui.colour = colour;
       Log.options.update.config();
     },
 
@@ -94,7 +94,7 @@ Log.options = {
     stat (f) {
       if (f === undefined) return;
       if (!~statformats.indexOf(f)) return;
-      user.config.ui.stat = f;
+      Log.config.ui.stat = f;
       Log.options.update.config();
     },
 
@@ -105,7 +105,7 @@ Log.options = {
     time (f) {
       if (f === undefined) return;
       if (!~timeformats.indexOf(f)) return;
-      user.config.system.timeFormat = f;
+      Log.config.system.timeFormat = f;
       Log.options.update.config();
     },
 
@@ -116,7 +116,7 @@ Log.options = {
     view (days) {
       if (days === undefined) return;
       if (days < 0) return;
-      user.config.ui.view = days;
+      Log.config.ui.view = days;
       Log.options.update.config();
     }
   },
@@ -139,8 +139,7 @@ Log.options = {
      * @param {boolean} [ls] - Update localStorage?
      */
     config (ls = true) {
-      dataStore.set('config', user.config);
-      Log.config = user.config;
+      dataStore.set('config', Log.config);
       console.log('Config updated');
       ls && Log.options.update.localStorage();
     },
@@ -160,13 +159,13 @@ Log.options = {
      * @param {boolean} [ls] - Update localStorage?
      */
     log (ls = true) {
-      if (user.log.length === 0) {
+      if (Log.entries.length === 0) {
         console.error('Empty log');
         return;
       }
 
-      dataStore.set('log', user.log);
-      Log.log = Log.data.parse(user.log);
+      dataStore.set('log', Log.entries);
+      Log.log = Log.data.parse(Log.entries);
       console.log('Log updated');
       ls && Log.options.update.localStorage();
     },
@@ -176,13 +175,12 @@ Log.options = {
      * @param {boolean} [ls] - Update localStorage?
      */
     palette (ls = true) {
-      if (user.palette === {}) {
+      if (Log.palette === {}) {
         console.error('Empty sector palette');
         return;
       }
 
-      dataStore.set('palette', user.palette);
-      Log.palette = user.palette;
+      dataStore.set('palette', Log.palette);
       console.log('Sector palette updated');
       ls && Log.options.update.localStorage();
     },
@@ -192,13 +190,12 @@ Log.options = {
      * @param {boolean} [ls] - Update localStorage?
      */
     projectPalette (ls = true) {
-      if (user.projectPalette === {}) {
+      if (Log.projectPalette === {}) {
         console.error('Empty roject palette');
         return;
       }
 
-      dataStore.set('projectPalette', user.projectPalette);
-      Log.projectPalette = user.projectPalette;
+      dataStore.set('projectPalette', Log.projectPalette);
       console.log('Project palette updated');
       ls && Log.options.update.localStorage();
     },
