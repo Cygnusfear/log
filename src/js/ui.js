@@ -1388,7 +1388,7 @@ Log.ui = {
         val !== history[l - 1] && (history[l] = val);
         l >= 100 && history.shift();
 
-        localStorage.setItem('logHistory', JSON.stringify(history));
+        localStorage.setItem('histoire', JSON.stringify(history));
         Log.console.parse(val);
       }
 

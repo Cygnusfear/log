@@ -9,11 +9,11 @@ Log.console = {
   history: [],
 
   installHistory () {
-    if (localStorage.hasOwnProperty('logHistory')) {
-      Log.console.history = JSON.parse(localStorage.getItem('logHistory'));
+    if (localStorage.hasOwnProperty('histoire')) {
+      Log.console.history = JSON.parse(localStorage.getItem('histoire'));
     } else {
       Log.console.history = [];
-      localStorage.setItem('logHistory', '[]');
+      localStorage.setItem('histoire', '[]');
     }
   },
 
