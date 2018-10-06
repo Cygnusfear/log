@@ -13,7 +13,7 @@ Log.options = {
      * @param {string} a - Accent
      */
     accent (a) {
-      if (a === undefined) return;
+      if (!a) return;
       Log.config.ui.accent = a;
       Log.options.update.config();
     },
@@ -23,7 +23,7 @@ Log.options = {
      * @param {string} bg
      */
     bg (bg) {
-      if (bg === undefined) return;
+      if (!bg) return;
       Log.config.ui.bg = bg;
       Log.options.update.config();
     },
@@ -33,10 +33,24 @@ Log.options = {
      * @param {string} cal
      */
     calendar (cal) {
-      if (cal === undefined) return;
+      if (!cal) return;
       if (!~calendars.indexOf(cal)) return;
       c_display = {};
-      Log.config.system.calendar = cal;
+
+      let n = 0;
+      switch (cal) {
+        case 'aequirys':
+        case 'desamber':
+          n = 1;
+          break;
+        case 'monocal':
+          n = 2;
+          break;
+        default:
+          break;
+      }
+
+      Log.config.system.calendar = n;
       Log.options.update.config();
     },
 
@@ -48,7 +62,7 @@ Log.options = {
      */
     colourCode (mode, key, colour) {
       if (!~secpro.indexOf(mode)) return;
-      if (key === undefined || colour === undefined) return;
+      if (!key || !colour) return;
 
       if (mode === 'sector' || mode === 'sec') {
         Log.palette[key] = colour;
@@ -61,19 +75,19 @@ Log.options = {
 
     /**
      * Set colour mode
-     * @param {string} mode - Sector, project, or none
+     * @param {string} m - Sector, project, or none
      */
-    colourMode (mode) {
-      if (mode === undefined) return;
-      if (!~secpro.indexOf(mode) && mode !== 'none') return;
+    colourMode (m) {
+      if (!m) return;
+      if (!~secpro.indexOf(m) && m !== 'none') return;
 
-      switch (mode) {
-        case 'sector':  case 'sec': mode = 'sc'; break;
-        case 'project': case 'pro': mode = 'pc'; break;
+      switch (m) {
+        case 'sector':  case 'sec': m = 'sc'; break;
+        case 'project': case 'pro': m = 'pc'; break;
         default: break;
       }
 
-      Log.config.ui.colourMode = mode;
+      Log.config.ui.cm = m;
       Log.options.update.config();
     },
 
@@ -82,7 +96,7 @@ Log.options = {
      * @param {string} colour
      */
     fg (colour) {
-      if (colour === undefined) return;
+      if (!colour) return;
       Log.config.ui.colour = colour;
       Log.options.update.config();
     },
@@ -92,9 +106,9 @@ Log.options = {
      * @param {string} f - Decimal or human
      */
     stat (f) {
-      if (f === undefined) return;
+      if (!f) return;
       if (!~statformats.indexOf(f)) return;
-      Log.config.ui.stat = f;
+      Log.config.ui.stat = +!(f === 'decimal');
       Log.options.update.config();
     },
 
@@ -103,20 +117,28 @@ Log.options = {
      * @param {string} f - 24, 12, or decimal
      */
     time (f) {
-      if (f === undefined) return;
+      if (!f) return;
       if (!~timeformats.indexOf(f)) return;
-      Log.config.system.timeFormat = f;
+
+      let n = 0;
+      switch (f) {
+        case '24': n = 1; break;
+        case 'decimal': n = 2; break;
+        default: break;
+      }
+
+      Log.config.system.timeFormat = n;
       Log.options.update.config();
     },
 
     /**
      * Set view
-     * @param {number} days
+     * @param {number} n - Number of days
      */
-    view (days) {
-      if (days === undefined) return;
-      if (days < 0) return;
-      Log.config.ui.view = days;
+    view (n) {
+      if (!n) return;
+      if (n < 0) return;
+      Log.config.ui.view = n;
       Log.options.update.config();
     }
   },
@@ -127,10 +149,10 @@ Log.options = {
      * Update everything
      */
     all () {
-      this.config(false);
-      this.palette(false);
-      this.projectPalette(false);
-      this.log(false);
+      this.config(!1);
+      this.palette(!1);
+      this.projectPalette(!1);
+      this.log(!1);
       this.localStorage();
     },
 
@@ -138,7 +160,7 @@ Log.options = {
      * Update config
      * @param {boolean} [ls] - Update localStorage?
      */
-    config (ls = true) {
+    config (ls = !0) {
       dataStore.set('config', Log.config);
       console.log('Config updated');
       ls && Log.options.update.localStorage();
@@ -148,8 +170,7 @@ Log.options = {
      * Update localStorage
      */
     localStorage () {
-      localStorage.setItem('user', JSON.stringify(user));
-      journalCache = {};
+      // localStorage.setItem('user', JSON.stringify(user));
       console.log('localStorage updated');
       Log.refresh();
     },
@@ -158,8 +179,8 @@ Log.options = {
      * Update log
      * @param {boolean} [ls] - Update localStorage?
      */
-    log (ls = true) {
-      if (Log.entries.length === 0) {
+    log (ls = !0) {
+      if (!Log.entries.length) {
         console.error('Empty log');
         return;
       }
@@ -174,7 +195,7 @@ Log.options = {
      * Update sector palette
      * @param {boolean} [ls] - Update localStorage?
      */
-    palette (ls = true) {
+    palette (ls = !0) {
       if (Log.palette === {}) {
         console.error('Empty sector palette');
         return;
@@ -189,7 +210,7 @@ Log.options = {
      * Update proejct palette
      * @param {boolean} [ls] - Update localStorage?
      */
-    projectPalette (ls = true) {
+    projectPalette (ls = !0) {
       if (Log.projectPalette === {}) {
         console.error('Empty roject palette');
         return;

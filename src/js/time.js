@@ -13,7 +13,7 @@ let c_unix = {};
  * @return {Object} New date
  */
 Date.prototype.addDays = function (n) {
-  const d = new Date(this.valueOf());
+  let d = new Date(this.valueOf());
   d.setDate(d.getDate() + n);
   return d;
 };
@@ -43,188 +43,178 @@ Log.time = {
 
   /**
    * Convert hexadecimal to decimal
-   * @param {string} hex
+   * @param {string} h
    * @return {number} Decimal
    */
-  convert (hex) {
-    return parseInt(hex, 16);
+  convert (h) {
+    return parseInt(h, 16);
   },
 
   /**
    * Display date
-   * @param {Date} [date]
+   * @param {Date} [d]
    * @return {string} Formatted date
    */
-  displayDate (date = new Date) {
-    const d = new Date(date).setHours(0, 0, 0, 0);
-    return d in c_display ?
-      c_display[d] :
-      c_display[d] = Log.time.formatDate(date);
+  displayDate (d = new Date) {
+    const x = new Date(d).setHours(0, 0, 0, 0);
+    return x in c_display ?
+      c_display[x] :
+      c_display[x] = Log.time.formatDate(d);
   },
 
   /**
    * Calculate duration
-   * @param {Date} start
-   * @param {Date} end
+   * @param {Date} s - Start
+   * @param {Date} e - End
    * @return {number} Duration (1 = 1h)
    */
-  duration (start, end) {
-    if (end === undefined) return 0;
-    return ((+end / 1E3) - (+start / 1E3)) / 3600;
+  duration (s, e) {
+    return !e ? 0 : ((+e / 1E3) - (+s / 1E3)) / 3600;
   },
 
   /**
    * Format date
-   * @param {Date} date
-   * @param {string} [cal] - Calendar system preference
-   * @param {Object[]} [months] - Month names
+   * @param {Date} d
+   * @param {number} [c] - Calendar system
+   * @param {Object[]} [m] - Month names
    * @return {string} Formatted date
    */
-  formatDate (date, cal = Log.config.system.calendar, months = Log.months) {
-    switch (cal) {
-      case 'aequirys':
-      case 'desamber':
-        return Aequirys.display(Aequirys.convert(date));
-      case 'monocal':
-        return Monocal.short(Monocal.convert(date));
+  formatDate (d, c = Log.config.system.calendar, m = Log.months) {
+    switch (c) {
+      case 1:
+        return Aequirys.display(Aequirys.convert(d));
+      case 2:
+        return Monocal.short(Monocal.convert(d));
       default:
-        const y = `${date.getFullYear()}`.substr(-2);
-        const d = `0${date.getDate()}`.substr(-2);
-        const m = months[date.getMonth()];
-        return `${d} ${m} ${y}`;
+        const yy = `${d.getFullYear()}`.substr(-2);
+        const dd = `0${d.getDate()}`.substr(-2);
+        const mm =  m[d.getMonth()];
+        return `${dd} ${mm} ${yy}`;
     }
   },
 
   /**
    * Format time
-   * @param {Date} date
-   * @param {string} [format] - Time format preference
+   * @param {Date} d
+   * @param {string} [f] - Time format preference
    * @return {string} Formatted time
    */
-  formatTime (date, format = Log.config.system.timeFormat) {
-    switch (format) {
-      case '24': return Log.time.to24Hours(date);
-      case '12': return Log.time.to12Hours(date);
-      default:   return Log.time.toDecimal(date);
+  formatTime (d, f = Log.config.system.timeFormat) {
+    switch (f) {
+      case 0:  return Log.time.to12Hours(d);
+      case 1:  return Log.time.to24Hours(d);
+      default: return Log.time.toDecimal(d);
     }
   },
 
   /**
    * List dates
-   * @param {Date} start
-   * @param {Date} [end]
+   * @param {Date} s - Start
+   * @param {Date} [e] - End
    * @return {Object[]} List
    */
-  listDates (start, end = new Date) {
-    let list = [];
+  listDates (s, e = new Date) {
+    let l = [];
 
-    start.setHours(0, 0, 0);
+    s.setHours(0, 0, 0, 0);
 
-    for (; start <= end;) {
-      list[list.length] = start;
-      start = start.addDays(1);
+    for (; s <= e;) {
+      l[l.length] = s;
+      s = s.addDays(1);
     }
 
-    return list;
+    return l;
   },
 
   /**
    * Calculate offset
    * @param {string} hex
-   * @param {number} duration - Duration in seconds
+   * @param {number} dur - Duration in seconds
    * @return {string} Offset in hexadecimal
    */
-  offset (hex, duration) {
-    return (Log.time.convert(hex) + duration).toString(16);
+  offset (hex, dur) {
+    return (Log.time.convert(hex) + dur).toString(16);
   },
 
   /**
    * Display timestamp
-   * @param {Date} date
+   * @param {Date} d
    * @return {string} Timestamp
    */
-  stamp (date) {
-    const x = `${date.getHours()}${date.getMinutes()}`;
+  stamp (d) {
+    const x = `${d.getHours()}${d.getMinutes()}`;
     return x in c_stamp ?
-      c_stamp[x] :
-      c_stamp[x] = Log.time.formatTime(date);
+      c_stamp[x] : c_stamp[x] = Log.time.formatTime(d);
   },
 
   /**
    * Display 12-h time
-   * @param {Date} date
+   * @param {Date} d
    * @return {string} 12-h time
    */
-  to12Hours (date) {
-    let h = date.getHours();
+  to12Hours (d) {
+    let h = d.getHours();
     const xm = h >= 12 ? 'PM' : 'AM';
     const hh = `0${(h %= 12) ? h : 12}`.substr(-2);
-    const mm = `0${date.getMinutes()}`.substr(-2);
+    const mm = `0${d.getMinutes()}`.substr(-2);
     return `${hh}:${mm} ${xm}`;
   },
 
   /**
    * Display 24-h time
-   * @param {Date} date
+   * @param {Date} d
    * @return {string} 24-h time
    */
-  to24Hours (date) {
-    const hh = `0${date.getHours()}`.substr(-2);
-    const mm = `0${date.getMinutes()}`.substr(-2);
+  to24Hours (d) {
+    const hh = `0${d.getHours()}`.substr(-2);
+    const mm = `0${d.getMinutes()}`.substr(-2);
     return `${hh}:${mm}`;
   },
 
   /**
    * Convert to date ID
-   * @param {Date} date
+   * @param {Date} d
    * @return {string} YYYYMMDD
    */
-  toDate (date) {
-    const y = date.getFullYear();
-    const m = date.getMonth();
-    const d = date.getDate();
-    return `${y}${m}${d}`;
+  toDate (d) {
+    const yy = d.getFullYear();
+    const mm = d.getMonth();
+    const dd = d.getDate();
+    return `${yy}${mm}${dd}`;
   },
 
   /**
    * Convert to decimal time
-   * @param {Date} date
+   * @param {Date} d
    * @return {string} Decimal beat
    */
-  toDecimal (date) {
-    const b = new Date(date).setHours(0, 0, 0);
-    const v = (date - b) / 8640 / 1E4;
+  toDecimal (d) {
+    const b = new Date(d).setHours(0, 0, 0);
+    const v = (d - b) / 8640 / 1E4;
     const t = v.toFixed(6).substr(2,6);
     return t.substr(0, 3);
   },
 
   /**
    * Convert to epoch time
-   * @param {string} hex
+   * @param {string} h
    * @return {number} Epoch time
    */
-  toEpoch (hex) {
-    return hex in c_unix ?
-      c_unix[hex] :
-      c_unix[hex] = new Date(Log.time.convert(hex) * 1E3);
+  toEpoch (h) {
+    return h in c_unix ?
+      c_unix[h] : c_unix[h] = new Date(
+        Log.time.convert(h) * 1E3
+      );
   },
 
   /**
    * Convert to hexadecimal
-   * @param {Date} date
+   * @param {Date} d
    * @return {string} Hex
    */
-  toHex (date) {
-    if (date === undefined) return;
-    date.setMilliseconds(0);
-    return (+date / 1E3).toString(16);
-  },
-
-  // Twig
-  convertDateTime (d) {
-    const s = d.split(' ');
-    return (
-      +new Date(s[0], +(s[1] - 1), s[2], s[3], s[4], s[5]) / 1E3
-    ).toString(16);
+  toHex (d) {
+    if (!d) return;
+    d.setMilliseconds(0);
+    return (+d / 1E3).toString(16);
   }
 };

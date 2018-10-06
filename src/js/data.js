@@ -9,7 +9,7 @@ Log.data = {
    */
   avg (v = []) {
     const l = v.length;
-    return l === 0 ? 0 : Log.data.sum(v) / l;
+    return !l ? 0 : Log.data.sum(v) / l;
   },
 
   /**
@@ -18,7 +18,7 @@ Log.data = {
    * @return {number} Maximum
    */
   max (v = []) {
-    return v.length === 0 ? 0 : Math.max(...v);
+    return !v.length ? 0 : Math.max(...v);
   },
 
   /**
@@ -27,7 +27,7 @@ Log.data = {
    * @return {number} Minimum
    */
   min (v = []) {
-    return v.length === 0 ? 0 : Math.min(...v);
+    return !v.length ? 0 : Math.min(...v);
   },
 
   /**
@@ -38,7 +38,7 @@ Log.data = {
    */
   parse (ent = Log.entries, colour = Log.config.ui.colour) {
     const l = ent.length;
-    if (l === 0) return;
+    if (!l) return;
 
     const parsed = [];
     const {toEpoch, toDate} = Log.time;
@@ -47,14 +47,14 @@ Log.data = {
     for (let i = 0; i < l; i++) {
       const {s, e, c, t, d} = ent[i];
       const a = toEpoch(s);
-      const b = e === undefined ? undefined : toEpoch(e);
+      const b = !e ? undefined : toEpoch(e);
 
-      if (e !== undefined && !sameDay(a, b)) {
+      if (!!e && !sameDay(a, b)) {
         const x = new Date(a);
         const y = new Date(b);
 
         x.setHours(23, 59, 59);
-        y.setHours( 0,  0,  0);
+        y.setHours(0, 0, 0);
 
         parsed[parsed.length] = new Entry({
           id: i, s: a, e: x, c, t, d
@@ -80,7 +80,7 @@ Log.data = {
    * @param {Object[]} v
    * @return {number} Range
    */
-  range (v) {
+  range (v = []) {
     return Log.data.max(v) - Log.data.min(v);
   },
 
@@ -103,21 +103,21 @@ Log.data = {
 
   /**
    * Display stat
-   * @param {number} value
-   * @param {string} [stat] - Stat format
+   * @param {number} val
+   * @param {number} [stat] - Stat format
    * @return {string} Stat
    */
-  stat (value, stat = Log.config.ui.stat) {
+  stat (val, stat = Log.config.ui.stat) {
     switch (stat) {
-      case 'decimal':
-        return value.toFixed(2);
-      case 'human':
-        const v = value.toString().split('.');
-        if (v.length === 1) v[1] = '0';
+      case 0:
+        return val.toFixed(2);
+      case 1:
+        const v = val.toString().split('.');
+        v.length === 1 && (v[1] = '0');
         const m = `0${(+`0.${v[1]}` * 60).toFixed(0)}`.substr(-2);
         return `${v[0]}:${m}`;
       default:
-        return value;
+        return val;
     }
   },
 
@@ -127,8 +127,7 @@ Log.data = {
    * @return {number} Sum
    */
   sum (v = []) {
-    return v.length === 0 ?
-      0 : v.reduce((t, n) => t + n, 0);
+    return v.reduce((t, n) => t + n, 0);
   },
 
   /**

@@ -26,15 +26,19 @@ window.addEventListener('drop', e => {
     reader.onload = e => {
       const o = JSON.parse(e.target.result);
 
-      user.config.ui.bg = o.config.ui.bg || '#f8f8f8';
-      user.config.ui.colour = o.config.ui.colour || '#202020';
-      user.config.ui.accent = o.config.ui.accent || '#eb4e32';
-      user.config.ui.colourMode = o.config.ui.colourMode || 'sector';
-      user.config.ui.view = o.config.ui.view || 28;
-      user.config.ui.stat = o.config.ui.stat || 'decimal';
+      ø(user.config.ui, {
+        bg:     o.config.ui.bg     || '#f8f8f8',
+        colour: o.config.ui.colour || '#202020',
+        accent: o.config.ui.accent || '#eb4e32',
+        cm:     o.config.ui.cm     || 'sector',
+        view:   o.config.ui.view   || 28,
+        stat:   o.config.ui.stat   || 0
+      });
 
-      user.config.system.calendar = o.config.system.calendar || 'gregorian';
-      user.config.system.timeFormat = o.config.system.timeFormat || '24';
+      ø(user.config.system, {
+        calendar: o.config.system.calendar || 'gregorian',
+        timeFormat: o.config.system.timeFormat || '24'
+      });
 
       user.palette = o.palette || {};
       user.projectPalette = o.projectPalette || {};

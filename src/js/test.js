@@ -24,8 +24,8 @@ t('entByPeriod impossible range', Log.data.entByPeriod(new Date(2018, 0, 2), new
 
 console.log('');
 
-t('getRecentEntries string', Log.data.getRecentEntries('1'), undefined);
-t('getRecentEntries 0', Log.data.getRecentEntries(0), undefined);
+t('recent string', Log.data.recent('1'), undefined);
+t('recent 0', Log.data.recent(0), undefined);
 
 console.log('');
 

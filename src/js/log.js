@@ -11,7 +11,7 @@
 let Log = {
 
   path: '',
-  modalMode: false,
+  modalMode: !1,
 
   lexicon: {},
   clock: {},
@@ -43,12 +43,11 @@ let Log = {
    * @return {boolean} Status
    */
   status () {
-    return Log.log.count === 0 ?
-      false : Log.log.last.e === undefined;
+    return !Log.log.count ? !1 : !Log.log.last.e;
   },
 
   /**
-   * Keep track of session time
+   * Display session time
    */
   timer () {
     if (!Log.status()) return;
@@ -100,7 +99,7 @@ let Log = {
 
     editStart.value = `${sy}-${sm}-${sd}T${sh}:${sn}:${ss}`;
 
-    if (entry.e !== undefined) {
+    if (!!entry.e) {
       const e = Log.time.toEpoch(entry.e);
       const ey = e.getFullYear();
       const em = `0${e.getMonth() + 1}`.substr(-2);
@@ -112,7 +111,7 @@ let Log = {
       editEnd.value = `${ey}-${em}-${ed}T${eh}:${en}:${es}`;
     }
 
-    Log.modalMode = true;
+    Log.modalMode = !0;
     document.getElementById('editModal').showModal();
   },
 
@@ -188,12 +187,11 @@ let Log = {
   update (id, {s, e, c, t, d}) {
     ø(Log.entries[id], {s, e, c, t, d});
 
-    localStorage.setItem('user', JSON.stringify(user));
+    // localStorage.setItem('user', JSON.stringify(user));
     dataStore.set('log', Log.entries);
-    journalCache = {};
 
     document.getElementById('editModal').close();
-    Log.modalMode = false;
+    Log.modalMode = !1;
     Log.refresh();
   },
 
@@ -203,7 +201,7 @@ let Log = {
    * @param {string} key
    */
   viewDetails (mode, key) {
-    const d = document.getElementById(mode === 0 ? 'SSC' : 'PSC');
+    const d = document.getElementById(!mode ? 'SSC' : 'PSC');
     d.innerHTML = '';
     d.append(Log.ui.details.detail.build(mode, key));
   },
@@ -211,11 +209,11 @@ let Log = {
   /**
    * Open tab
    * @param {string} s - ID
-   * @param {string} g - Group
-   * @param {string} t - Tab group
-   * @param {boolean} v - Vertical orientation?
+   * @param {string} [g] - Group
+   * @param {string} [t] - Tab group
+   * @param {boolean} [v] - Vertical orientation?
    */
-  tab (s, g = 'sect', t = 'tab', v = false) {
+  tab (s, g = 'sect', t = 'tab', v = !1) {
     const n = `${v ? `db mb3 ${t}` : `pv1 ${t}`} on bg-cl o5 mr3`;
     const x =  document.getElementsByClassName(g);
     const b =  document.getElementsByClassName(t);
@@ -273,10 +271,10 @@ let Log = {
      */
     toDetail (mod, key) {
       if (mod < 0 || mod > 1) return;
-      if (key === undefined) return;
+      if (!key) return;
 
       Log.viewDetails(mod, key);
-      Log.tab(mod === 0 ? 'SSC' : 'PSC', 'subsect', 'subtab', true);
+      Log.tab(!mod ? 'SSC' : 'PSC', 'subsect', 'subtab', !0);
       Log.tab('DTL');
     }
   },
@@ -285,7 +283,7 @@ let Log = {
    * Generate session cache
    */
   generateSessionCache () {
-    if (Log.entries.length === 0) return;
+    if (!Log.entries.length) return;
     const {log} = Log;
     ø(Log.cache, {
       sor: log.sortEntries() || [],
@@ -311,10 +309,12 @@ let Log = {
     Log.generateSessionCache();
     Log.installLexicon();
 
-    const ä = o => ø(o, {
-      backgroundColor: Log.config.ui.bg,
-      color: Log.config.ui.colour
-    });
+    function ä (o) {
+      return ø(o, {
+        backgroundColor: Log.config.ui.bg,
+        color: Log.config.ui.colour
+      });
+    }
 
     ä(document.body.style);
     ä(ui.style);
@@ -323,7 +323,7 @@ let Log = {
     Log.ui.util.setTimeLabel();
     Log.ui.util.setDayLabel();
 
-    if (Log.entries.length === 0) Log.nav.index = 5;
+    !Log.entries.length && (Log.nav.index = 5)
     Log.tab(Log.nav.menu[Log.nav.index]);
   },
 
@@ -357,9 +357,13 @@ let Log = {
     document.onkeydown = e => {
       if (Log.modalMode) return;
 
-      if (e.which >= 65 && e.which <= 90) {
+      function focus () {
         Log.commander.style.display = 'block';
         Log.commanderInput.focus();
+      }
+
+      if (e.which >= 65 && e.which <= 90) {
+        focus();
         return;
       }
 
@@ -370,11 +374,6 @@ let Log = {
       }
 
       const l = Log.console.history.length;
-
-      const focus = _ => {
-        Log.commander.style.display = 'block';
-        Log.commanderInput.focus();
-      }
 
       switch (e.which) {
         case 9: // Tab

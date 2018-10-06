@@ -18,7 +18,6 @@
   <script src="js/vis.js"></script>
   <script src="js/time.js"></script>
   <script src="js/data.js"></script>
-  <script src="js/journal.js"></script>
   <!-- <script src="js/test.js"></script> -->
 </head>
 <body class="hf">
@@ -38,8 +37,8 @@
       console.log('Data path found');
       dataPath = localStorage.getItem('logDataPath');
     } else {
-      console.error('No data path found. Reverting to default data location');
-      dataPath = `${app.getPath('appData')}/log-data.json`;
+      console.error('Data path not found');
+      dataPath = `${app.getPath('appData')}/log.json`;
       localStorage.setItem('logDataPath', dataPath);
     }
 
@@ -52,11 +51,9 @@
             bg: '#f8f8f8',
             colour: '#202020',
             accent: '#eb4e32',
-            colourMode: 'sector',
-            font: 'sans-serif',
+            cm: 'sc',
             view: 28,
-            tableView: 50,
-            stat: 'decimal'
+            stat: 0
           },
           system: {
             calendar: 'gregorian',
