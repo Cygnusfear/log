@@ -15,7 +15,7 @@ app.on('ready', _ => {
   if (process.platform === 'win32') app.quit();
 
   win = new BrowserWindow({
-    icon: __dirname + '/icon.ico',
+    icon: __dirname + '/icon.icns',
     backgroundColor: '#0c0c0c',
     autoHideMenuBar: true,
     resizable: false,
