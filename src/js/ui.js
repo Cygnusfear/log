@@ -2,13 +2,21 @@
 
 /**
  * Create Object
- * @param {string|Object} el
+ * @param {string} el
  * @param {Object} params
- * return {Object}
+ * @return {Object}
  */
-function ø (el, params) {
-  const e = typeof el === 'string' ?
-    document.createElement(el) : el;
+function ø (e, params) {
+  return Object.assign(document.createElement(e), params);
+}
+
+/**
+ * Create Object
+ * @param {Object} el
+ * @param {Object} params
+ * @return {Object}
+ */
+function Ø (e, params) {
   return Object.assign(e, params);
 }
 
@@ -16,21 +24,22 @@ Log.ui = {
 
   /**
    * Build UI
-   * @param {number} [view]
+   * @param {number=} view
    */
   build (view = Log.config.ui.view) {
-    const ovw = new Set(Log.log.recent(view - 1));
-    const sor = Log.cache.sor.slice(-1)[0];
-    const tdy = new Set(!Log.log.last.e ? sor.slice(0, -1) : sor);
-
-    const F = document.createDocumentFragment();
-    const M = document.createElement('main');
-
     function ä (id, className) {
-      Log.nav.menu[Log.nav.menu.length] = id;
+      Nav.menu[Nav.menu.length] = id;
       return ø('div', {id, className});
     }
 
+    const ovw = new Set(Log.log.recent(view - 1));
+    const sor = Log.cache.sor.slice(-1)[0];
+    const tdy = new Set(
+      Log.log.last.e === undefined ? sor.slice(0, -1) : sor
+    );
+
+    const F = document.createDocumentFragment();
+    const M = document.createElement('main');
     const c = ø('div', {id: 'container', className: 'hf'});
     const o = ä('OVW', 'sect');
     const d = ä('DTL', 'dn sect');
@@ -42,18 +51,12 @@ Log.ui = {
     F.append(c);
       c.append(this.header.build());
       c.append(M);
-        M.append(o);
-          o.append(this.overview.build(tdy, ovw));
-        M.append(d);
-          d.append(this.details.build(ovw));
-        M.append(v);
-          v.append(this.visualisation(ovw));
-        M.append(e);
-          e.append(this.entries.build());
-        M.append(j);
-          j.append(this.journal.build());
-        M.append(g);
-          // g.append(Log.ui.guide.build());
+        M.append(o); o.append(this.overview.build(tdy, ovw));
+        M.append(d); d.append(this.details.build(ovw));
+        M.append(v); v.append(this.visual(ovw));
+        M.append(e); e.append(this.entries.build());
+        M.append(j); j.append(this.journal.build());
+        M.append(g); // g.append(Log.ui.guide.build());
       c.append(this.delModal());
     F.append(this.commander());
 
@@ -64,7 +67,7 @@ Log.ui = {
 
     /**
      * Build Header
-     * @return {Node}
+     * @return {Object}
      */
     build () {
       const h = ø('header', {
@@ -85,7 +88,7 @@ Log.ui = {
 
     /**
      * Build Navigation
-     * @return {Node}
+     * @return {Object}
      */
     nav () {
       const F = document.createDocumentFragment();
@@ -112,7 +115,7 @@ Log.ui = {
 
     /**
      * Build Clock
-     * @return {Node}
+     * @return {Object}
      */
     clock () {
       const c = ø('span', {
@@ -128,7 +131,7 @@ Log.ui = {
 
   /**
    * Build Main
-   * @return {Node}
+   * @return {Object}
    */
   main () {
     function ä (id, className) {
@@ -153,7 +156,7 @@ Log.ui = {
      * Build Overview
      * @param {Set} t - Today
      * @param {Set} o - Overview
-     * @return {Node}
+     * @return {Object}
      */
     build (t, o) {
       function ä (id, className) {
@@ -178,10 +181,11 @@ Log.ui = {
 
     /**
      * Build Overview Top
-     * @param {Set} t - Today
-     * @return {Node}
+     * @param {Set}   t - Today
+     * @param {Array} t.logs
+     * @return {Object}
      */
-    top (t) {
+    top ({logs}) {
       const d = ø('div', {id: 'ovwT'});
       const m = ø('div', {className: 'mb3 psr wf sh2 bl br'});
       const c = ø('div', {className: 'psr wf sh2 nodrag'});
@@ -189,19 +193,21 @@ Log.ui = {
       d.append(m);
         m.append(Log.vis.meterLines());
       d.append(c);
-        c.append(Log.vis.dayChart(t.entries) || '');
+        c.append(Log.vis.dayChart(logs) || '');
 
       return d;
     },
 
     /**
      * Build Overview Left
-     * @return {Node}
+     * @return {Object}
      */
     peaks () {
-      const {lexicon, data, vis, cache} = Log;
-      const ä = (e, c, i = '') => ø(e, {className: c, innerHTML: i});
+      function ä (e, className, innerHTML = '') {
+        return ø(e, {className, innerHTML});
+      }
 
+      const {lexicon, data, vis, cache} = Log;
       const ol = ø('div', {id: 'ovwL'});
       const ph = document.createElement('div');
       const pd = document.createElement('div');
@@ -225,12 +231,11 @@ Log.ui = {
 
     /**
      * Build Overview Recent
-     * @return {Node}
+     * @return {Object}
      */
     recent () {
-      const {time, log, lexicon} = Log;
-      const {id, s, e, c, t, d} = log.entries.slice(-1)[0];
-      const st = time.stamp(s);
+      const {log, lexicon} = Log;
+      const {id, start, end, c, t, d} = log.logs.slice(-1)[0];
       const le = document.createElement('div');
       const lt = ø('table', {className: 'wf bn f6 lhc'});
       const th = ø('thead', {className: 'al'});
@@ -248,7 +253,7 @@ Log.ui = {
           tb.append(r2);
             r2.append(ø('td', {className: 'pl0', innerHTML: id + 1}));
             r2.append(ø('td', {
-              innerHTML: `${st} - ${!e ? '' : time.stamp(e)}`
+              innerHTML: `${start.stamp()} - ${!end ? '' : end.stamp()}`
             }));
             r2.append(ø('td', {innerHTML: c}));
             r2.append(ø('td', {innerHTML: t}));
@@ -260,7 +265,7 @@ Log.ui = {
     /**
      * Build Overview Chart
      * @param {Set} ovw
-     * @return {Node}
+     * @return {Object}
      */
     chart (ovw) {
       const c = ø('div', {className: 'psr'});
@@ -272,30 +277,30 @@ Log.ui = {
     /**
      * Build Overview stats
      * @param {Set} today
-     * @return {Node}
+     * @return {Object}
      */
     stats (today) {
-      const ä = (e, className, innerHTML = '') => {
+      function ä (e, className, innerHTML = '') {
         return ø(e, {className, innerHTML});
       }
 
       const stats = ä('ul', 'lsn f6 lhc');
-      const {data, log, time, lexicon} = Log;
-      const dur = today.durations;
+      const {log, lexicon} = Log;
+      const dur = today.listDurations();
 
       const s = [
         {
           n: lexicon.stats.sum,
-          v: data.stat(data.sum(dur))
+          v: stat(sum(dur))
         }, {
           n: lexicon.stats.minDur,
-          v: data.stat(data.min(dur))
+          v: stat(min(dur))
         }, {
           n: lexicon.stats.maxDur,
-          v: data.stat(data.max(dur))
+          v: stat(max(dur))
         }, {
           n: lexicon.stats.avgDur,
-          v: data.stat(data.avg(dur))
+          v: stat(avg(dur))
         }, {
           n: lexicon.stats.cov,
           v: `${today.coverage().toFixed(2)}%`
@@ -324,10 +329,12 @@ Log.ui = {
     /**
      * Build Overview lists
      * @param {Set} today
-     * @return {Node}
+     * @return {Object}
      */
     lists (today) {
-      const ä = innerHTML => ø('h3', {className: 'mb3 f5 lhc', innerHTML});
+      function ä (innerHTML) {
+        return ø('h3', {className: 'mb3 f5 lhc', innerHTML});
+      }
 
       const fr = document.createDocumentFragment();
       const ds = document.createElement('div');
@@ -358,15 +365,16 @@ Log.ui = {
     /**
      * Build Details
      * @param {Set} ovw
-     * @return {Node}
+     * @return {Object}
      */
     build (ovw) {
+      function ä (id, className) {
+        return ø('div', {id, className});
+      }
+
       const {data: {sortValues}, log} = Log;
       const f = document.createDocumentFragment();
       const d = document.createElement('div');
-
-      const ä = (id, className) => ø('div', {id, className});
-
       const m = ø('div', {className: 'oya'});
       const a = ä('SUM', 'nodrag subsect oya hvs');
       const b = ä('SSC', 'dn subsect');
@@ -388,7 +396,7 @@ Log.ui = {
 
     /**
      * Build Details menu
-     * @return {Node}
+     * @return {Object}
      */
     menu () {
       function ä (i, h, c = 'db mb3 subtab on bg-cl o5 mr3') {
@@ -412,7 +420,7 @@ Log.ui = {
       /**
        * Build Summary
        * @param {Set} o - Overview
-       * @return {Node}
+       * @return {Object}
        */
       build (o) {
         const f = document.createDocumentFragment();
@@ -427,7 +435,7 @@ Log.ui = {
 
       /**
        * Build Summary stats
-       * @return {Node}
+       * @return {Object}
        */
       stats () {
         function ä (e, className, innerHTML = '') {
@@ -440,25 +448,25 @@ Log.ui = {
         const s = [
           {
             n: lexicon.stats.sum,
-            v: data.stat(data.sum(cache.dur))
+            v: stat(sum(cache.dur))
           }, {
             n: lexicon.stats.minDur,
-            v: data.stat(data.min(cache.dur))
+            v: stat(min(cache.dur))
           }, {
             n: lexicon.stats.maxDur,
-            v: data.stat(data.max(cache.dur))
+            v: stat(max(cache.dur))
           }, {
             n: 'Range',
-            v: data.stat(data.range(cache.dur))
+            v: stat(range(cache.dur))
           }, {
             n: lexicon.stats.avgDur,
-            v: data.stat(data.avg(cache.dur))
+            v: stat(avg(cache.dur))
           }, {
             n: lexicon.stats.daily,
-            v: data.stat(Log.log.dailyAvg())
+            v: stat(Log.log.dailyAvg())
           }, {
             n: 'Standard Deviation',
-            v: data.stat(data.sd(cache.dur))
+            v: stat(sd(cache.dur))
           }, {
             n: lexicon.stats.cov,
             v: `${Log.log.coverage().toFixed(2)}%`
@@ -487,12 +495,14 @@ Log.ui = {
 
       /**
        * Build Summary peaks
-       * @return {Node}
+       * @return {Object}
        */
       peaks () {
-        const ä = (e, c, i = '') => ø(e, {className: c, innerHTML: i});
-        const {cache, data, lexicon, vis} = Log;
+        function ä (e, c, i = '') {
+          return ø(e, {className: c, innerHTML: i});
+        }
 
+        const {cache, data, lexicon, vis} = Log;
         const c = document.createElement('div');
         const title = ä('h3', 'mb3 f6 lhc', lexicon.peaks);
         const a = ä('div', 'dib mb4 pr4 lf sh6 w5');
@@ -532,10 +542,10 @@ Log.ui = {
       /**
        * Build Summary focus
        * @param {Set} o - Overview
-       * @return {Node}
+       * @return {Object}
        */
       focus (o) {
-        const ä = (e, className, innerHTML = '') => {
+        function ä (e, className, innerHTML = '') {
           return ø(e, {className, innerHTML});
         }
 
@@ -546,10 +556,10 @@ Log.ui = {
 
         const pf = Log.log.listFocus(1);
         const s = [
-          {n: lexicon.stats.minFoc, v: data.min(pf)},
-          {n: lexicon.stats.maxFoc, v: data.max(pf)},
-          {n: lexicon.stats.avgFoc, v: data.avg(pf)},
-          {n: 'Standard Deviation', v: data.sd(pf)}
+          {n: lexicon.stats.minFoc, v: min(pf)},
+          {n: lexicon.stats.maxFoc, v: max(pf)},
+          {n: lexicon.stats.avgFoc, v: avg(pf)},
+          {n: 'Standard Deviation', v: sd(pf)}
         ];
 
         for (let i = 0, l = s.length; i < l; i++) {
@@ -569,7 +579,7 @@ Log.ui = {
 
       /**
        * Build Summary distribution
-       * @return {Node}
+       * @return {Object}
        */
       distri () {
         const v = Log.log.sortValues(0, 1);
@@ -594,10 +604,10 @@ Log.ui = {
 
       /**
        * Build Detail page
-       * @param {number} mode - Sector (0) or project (1)
-       * @param {string} key - Sector or project name
-       * @param {number} [view]
-       * @return {Node}
+       * @param {number}  mode - Sector (0) or project (1)
+       * @param {string}  key - Sector or project name
+       * @param {number=} view
+       * @return {Object}
        */
       build (mode, key, view = Log.config.ui.view) {
         const rec = new Set(Log.log.recent(view - 1));
@@ -607,7 +617,7 @@ Log.ui = {
         let ss = 'SST';
         let es = 'SEN';
 
-        if (!mode) {
+        if (mode === 0) {
           ent = new Set(rec.bySector(key));
           his = new Set(Log.log.bySector(key));
         } else {
@@ -643,31 +653,35 @@ Log.ui = {
 
       /**
        * Build Detail head
-       * @param {string} key - Sector/project
-       * @param {Object} set
-       * @param {number} set.count
-       * @param {Object} set.last
-       * @param {number} [view]
-       * @return {Node}
+       * @param {string}  key - Sector/project
+       * @param {Object}  set
+       * @param {number}  set.count
+       * @param {Object}  set.last
+       * @param {number=} view
+       * @return {Object}
        */
       head (key, {count, last}, view = Log.config.ui.view) {
-        const f = document.createDocumentFragment();
+        const F = document.createDocumentFragment();
 
-        f.append(ø('h2', {className: 'mb0 f4 lht', innerHTML: key}));
-        f.append(ø('p', {
-          className: 'mb2 f6 o7',
-          innerHTML: !count ?
-            `No activity in the past ${view} days` :
-            `Updated ${Log.time.ago(last.e)}`
+        F.append(ø('h2', {
+          className: 'mb0 f4 lht',
+          innerHTML: key
         }));
 
-        return f;
+        F.append(ø('p', {
+          className: 'mb2 f6 o7',
+          innerHTML: count === 0 ?
+            `No activity in the past ${view} days` :
+            `Updated ${last.end.ago()}`
+        }));
+
+        return F;
       },
 
       /**
        * Build Detail overview
        * @param {Set} set
-       * @return {Node}
+       * @return {Object}
        */
       ovw (set) {
         const o = ø('div', {className: 'psr'});
@@ -677,8 +691,8 @@ Log.ui = {
 
       /**
        * Build Detail tabs
-       * @param {number} [mode] - Sector (0) or project (1)
-       * @return {Node}
+       * @param {number=} mode - Sector (0) or project (1)
+       * @return {Object}
        */
       tabs (mode = 0) {
         const t = ø('div', {className: 'mb3 lhc'});
@@ -688,7 +702,7 @@ Log.ui = {
         let sta = '';
         let ent = '';
 
-        if (!mode) {
+        if (mode === 0) {
           sec = 'secsect';
           tab = 'sectab';
           sta = 'SST';
@@ -700,12 +714,12 @@ Log.ui = {
           ent = 'PEN';
         }
 
-        const ä = (i, innerHTML, c) => {
+        function ä (i, innerHTML, c) {
           t.append(ø('button', {
-            innerHTML,
-            id: `b-${i}`,
+            className: `pv1 sectab on bg-cl ${c}`,
             onclick: () => Log.tab(i, sec, tab),
-            className: `pv1 sectab on bg-cl ${c}`
+            id: `b-${i}`,
+            innerHTML
           }));
         }
 
@@ -717,27 +731,28 @@ Log.ui = {
 
       /**
        * Build Detail stats
-       * @param {Set} his
-       * @return {Node}
+       * @param {Set} histoire
+       * @return {Object}
        */
-      stats (his) {
-        const ä = (e, c, i = '') => ø(e, {className: c, innerHTML: i});
-        const {lexicon, data} = Log;
+      stats (histoire) {
+        function ä (e, c, i = '') {
+          return ø(e, {className: c, innerHTML: i});
+        }
 
         const div = document.createElement('div');
         const list = ä('ul', 'lsn f6 lhc r');
-
-        const dur = his.durations;
+        const dur = histoire.listDurations();
+        const lex = Log.lexicon;
 
         const s = [
-          {n: lexicon.stats.sum,    v: data.stat(data.sum(dur))},
-          {n: lexicon.stats.minDur, v: data.stat(data.min(dur))},
-          {n: lexicon.stats.maxDur, v: data.stat(data.max(dur))},
-          {n: lexicon.stats.avgDur, v: data.stat(data.avg(dur))},
-          {n: lexicon.entries,      v: his.count},
-          {n: lexicon.stats.streak, v: his.streak()},
-          {n: lexicon.ph,           v: his.peakHour()},
-          {n: lexicon.pd,           v: his.peakDay()}
+          {v: stat(sum(dur)),      n: lex.stats.sum},
+          {v: stat(min(dur)),      n: lex.stats.minDur},
+          {v: stat(max(dur)),      n: lex.stats.maxDur},
+          {v: stat(avg(dur)),      n: lex.stats.avgDur},
+          {v: histoire.count,      n: lex.entries},
+          {v: histoire.streak(),   n: lex.stats.streak},
+          {v: histoire.peakHour(), n: lex.ph},
+          {v: histoire.peakDay(),  n: lex.pd}
         ];
 
         for (let i = 0, sl = s.length; i < sl; i++) {
@@ -753,18 +768,20 @@ Log.ui = {
 
       /**
        * Build Detail peaks
-       * @param {Object[]} pkh
-       * @param {Object[]} pkd
-       * @return {Node}
+       * @param {Array} pkh
+       * @param {Array} pkd
+       * @return {Object}
        */
       peaks (pkh, pkd) {
+        function ä (className) {
+          return ø('div', {className});
+        }
+
         const w = document.createElement('div');
-        const ä = className => ø('div', {className});
         const a = ä('dib mb4 pr4 lf sh6 w5');
         const b = ä('dib mb4 pl4 lf sh6 w5');
         const h = ä('psr hf wf');
         const d = h.cloneNode();
-
         const t = ø('h3', {
           innerHTML: Log.lexicon.peaks,
           className: 'mb3 f6'
@@ -783,27 +800,25 @@ Log.ui = {
 
       /**
        * Build Detail focus
-       * @param {Object[]} ent
-       * @param {Object[]} sortHis
-       * @return {Node}
+       * @param {Array} ent
+       * @param {Array} sortHis
+       * @return {Object}
        */
       focus (mode, ent, his) {
-        const {data, lexicon, vis} = Log;
-        const mod = 1 >> mode;
-        const foci = his.listFocus(mod);
-
-        const ä = (el, className, innerHTML = '') => {
+        function ä (el, className, innerHTML = '') {
           return ø(el, {className, innerHTML});
         }
 
+        const mod = 1 >> mode;
+        const foci = his.listFocus(mod);
         const d = document.createElement('div');
         const stats = ä('ul', 'mb4 lsn f6 lhc r');
         const chart = ä('div', 'psr mb4 wf');
 
         const focusStats = [
-          {n: lexicon.stats.minFoc, v: data.min(foci)},
-          {n: lexicon.stats.maxFoc, v: data.max(foci)},
-          {n: lexicon.stats.avgFoc, v: data.avg(foci)},
+          {n: Log.lexicon.stats.minFoc, v: min(foci)},
+          {n: Log.lexicon.stats.maxFoc, v: max(foci)},
+          {n: Log.lexicon.stats.avgFoc, v: avg(foci)},
         ];
 
         for (let i = 0; i < 3; i++) {
@@ -814,9 +829,11 @@ Log.ui = {
           stats.append(item);
         }
 
-        !!ent.count && chart.append(vis.focusChart(ent.listFocus(mod)));
+        if (ent.count > 0) {
+          chart.append(Log.vis.focusChart(ent.listFocus(mod)));
+        }
 
-        d.append(ä('h3', 'mb3 f6', lexicon.stats.foc));
+        d.append(ä('h3', 'mb3 f6', Log.lexicon.stats.foc));
         d.append(chart);
         d.append(stats);
 
@@ -825,15 +842,15 @@ Log.ui = {
 
       /**
        * @param {number} mode - Sector (0) or project (1)
-       * @param {Object[]} ent - Entries
-       * @param {Object[]} his - Entries
+       * @param {Array}  ent  - Entries
+       * @param {Array}  his  - Entries
        */
       distri (mode, ent, his) {
         const d = document.createElement('div');
         const b = ø('div', {className: 'mb3 wf sh2'});
         const l = ø('ul', {className: 'lsn r'});
 
-        if (!!ent.count) {
+        if (ent.count > 0) {
           const m = 1 >> mode;
           const v = his.sortValues(m, 1);
           b.append(Log.vis.focusBar(m, v));
@@ -841,7 +858,7 @@ Log.ui = {
         }
 
         d.append(ø('h3', {
-          innerHTML: !mode ?
+          innerHTML: mode === 0 ?
             Log.lexicon.pro.plural :
             Log.lexicon.sec.plural,
           className: 'mb3 f6'
@@ -856,8 +873,8 @@ Log.ui = {
       /**
        * Build Detail entries
        * @param {number} mode - Sector (0) or project (1)
-       * @param {Object[]} his
-       * @return {Node}
+       * @param {Array} his
+       * @return {Object}
        */
       entries (mode, his) {
         const t = ø('table', {className: 'wf bn f6'});
@@ -869,30 +886,31 @@ Log.ui = {
           Log.lexicon.date,
           Log.lexicon.time,
           Log.lexicon.span,
-          !mode ?
+          mode === 0 ?
             Log.lexicon.pro.singular :
             Log.lexicon.sec.singular
         ];
 
-        const rev = his.entries.slice(his.count - 100).reverse();
-        const {stamp, displayDate, duration} = Log.time;
+        const rev = his.logs.slice(his.count - 100).reverse();
 
-        const td = (i, c = '') => ø('td', {innerHTML: i, className: c});
+        function td (i, c = '') {
+          return ø('td', {innerHTML: i, className: c});
+        }
 
         for (let i = 0, l = rev.length; i < l; i++) {
           const {s, e, c, t, d, id} = rev[i];
-          const key = !mode ? t : c;
+          const key = mode === 0 ? t : c;
           const row = document.createElement('tr');
 
           row.append(td(id + 1, 'pl0'));
-          row.append(td(displayDate(s)));
-          row.append(td(`${stamp(s)}–${stamp(e)}`));
+          row.append(td(s.display()));
+          row.append(td(`${s.stamp()}–${e.stamp()}`));
           row.append(td(duration(s, e).toFixed(2)));
 
           row.append(ø('td', {
             innerHTML: key,
             className: 'c-pt',
-            onclick: () => Log.nav.toDetail(1 >> mode, key)
+            onclick: () => Nav.toDetail(1 >> mode, key)
           }));
 
           row.append(td(d, 'pr0'));
@@ -921,7 +939,7 @@ Log.ui = {
       /**
        * Build Detail list
        * @param {number} mode - Sector (0) or project (1)
-       * @return {Node}
+       * @return {Object}
        */
       list (mode) {
         const l = ø('ul', {className: 'nodrag oys lsn f6 lhc hvs'});
@@ -939,9 +957,9 @@ Log.ui = {
   /**
    * Build Visualisation
    * @param {Set} o - Overview
-   * @return {Node}
+   * @return {Object}
    */
-  visualisation (o) {
+  visual (o) {
     const ä = c => ø('div', {className: c});
     const f = document.createDocumentFragment();
     const m = ä('psr wf sh2 bl br');
@@ -959,7 +977,7 @@ Log.ui = {
 
     /**
      * Build Entries
-     * @return {Node}
+     * @return {Object}
      */
     build () {
       const f = document.createDocumentFragment();
@@ -970,10 +988,12 @@ Log.ui = {
 
     /**
      * Build Entries table
-     * @return {Node}
+     * @return {Object}
      */
     table () {
-      const ä = (e, c, i = '') => ø(e, {className: c, innerHTML: i});
+      function ä (e, className, innerHTML = '') {
+        return ø(e, {className, innerHTML});
+      }
 
       const t = ä('table', 'wf bn f6');
       const h = ä('thead', 'al');
@@ -983,7 +1003,6 @@ Log.ui = {
         Log.lexicon.date,
         Log.lexicon.time,
         Log.lexicon.span,
-        'Score',
         Log.lexicon.sec.singular,
         Log.lexicon.pro.singular
       ];
@@ -991,60 +1010,49 @@ Log.ui = {
       const el = Log.entries.length;
       const arr = Log.entries.slice(el - 100).reverse();
 
-      const mean = Log.data.avg(Log.cache.dur);
-      const sd = Log.data.sd(Log.cache.dur);
-
       for (let i = 0, l = arr.length; i < l; i++) {
         const {s, e, c, t, d} = arr[i];
-        const sd = Log.time.toEpoch(s);
-        const ed = Log.time.toEpoch(e);
-        const st = Log.time.stamp(sd);
+        const sd = toEpoch(s);
+        const ed = toEpoch(e);
+        const st = sd.stamp();
         const id = el - i - 1;
         const r = ø('tr', {id: `r${id}`});
         const time = document.createElement('td');
         const span = time.cloneNode();
-        const zscore = time.cloneNode();
 
-        if (!e) {
+        if (e === undefined) {
           time.innerHTML = `${st} –`;
           span.innerHTML = '—';
-          zscore.innerHTML = '—';
         } else {
-          const et = Log.time.stamp(Log.time.toEpoch(e));
-          const dur = Log.time.duration(sd, ed);
-          const score = dur - mean;
-
-          time.innerHTML = `${st} – ${et}`;
-          span.innerHTML = Log.data.stat(dur);
-          zscore.innerHTML = Log.data.stat(score);
+          time.innerHTML = `${st} – ${toEpoch(e).stamp()}`;
+          span.innerHTML = stat(duration(sd, ed));
         }
 
         r.appendChild(ø('td', {
-          innerHTML: el - i,
+          onclick: () => Log.edit(id),
           className: 'pl0 c-pt hover',
-          onclick: () => Log.edit(id)
+          innerHTML: el - i,
         }));
 
         r.appendChild(ø('td', {
+          onclick: () => Nav.toJournal(s),
           className: 'c-pt hover',
-          innerHTML: Log.time.displayDate(sd),
-          onclick: () => Log.nav.toJournal(s)
+          innerHTML: sd.display()
         }));
 
         r.appendChild(time);
         r.appendChild(span);
-        r.appendChild(zscore);
 
         r.appendChild(ø('td', {
-          innerHTML: c,
+          onclick: () => Nav.toDetail(0, c),
           className: 'c-pt hover',
-          onclick: () => Log.nav.toDetail(0, c)
+          innerHTML: c
         }));
 
         r.appendChild(ø('td', {
-          innerHTML: t,
+          onclick: () => Nav.toDetail(1, t),
           className: 'c-pt hover',
-          onclick: () => Log.nav.toDetail(1, t)
+          innerHTML: t
         }));
 
         r.appendChild(ä('td', 'pr0', d));
@@ -1053,8 +1061,9 @@ Log.ui = {
 
       t.append(h);
         h.append(ä('th', 'pl0', Log.lexicon.id));
-        for (let i = 0, l = n.length; i < l; i++)
+        for (let i = 0, l = n.length; i < l; i++) {
           h.append(ä('th', '', n[i]));
+        }
         h.append(ä('th', 'pr0', Log.lexicon.desc));
       t.append(b);
 
@@ -1066,30 +1075,30 @@ Log.ui = {
      * @param {Object} ui
      * @param {string} ui.bg
      * @param {string} ui.colour
-     * @return {Node}
+     * @return {Object}
      */
     modal ({bg, colour} = Log.config.ui) {
       const m = ø('dialog', {
         id: 'editModal',
         className: 'p4 cn bn h6',
         onkeydown: e => {
-          e.key === 'Escape' && (Log.modalMode = !1);
+          e.key === 'Escape' && (Log.modalMode = false);
         }
       });
 
       const f = ø('form', {
-        id: 'editForm',
+        onsubmit: () => false,
         className: 'nodrag',
-        onsubmit: () => !1
+        id: 'editForm'
       });
 
       const i = ø('input', {className: 'db wf p2 mb3 bn'});
 
-      ø(m.style, {backgroundColor: bg, color: colour});
+      Ø(m.style, {backgroundColor: bg, color: colour});
 
       document.addEventListener('click', ({target}) => {
         if (target === m) {
-          Log.modalMode = !1;
+          Log.modalMode = false;
           m.close();
         }
       });
@@ -1099,34 +1108,34 @@ Log.ui = {
           '' : new Date(editEnd.value);
 
         Log.update(editEntryID.value, {
-          s: Log.time.toHex(new Date(editStart.value)),
-          e: e === '' ? undefined : Log.time.toHex(e),
+          s: new Date(editStart.value).toHex(),
+          e: e === '' ? undefined : e.toHex(),
           c: editSector.value,
           t: editProject.value,
           d: editDesc.value
         });
 
-        Log.modalMode = !1;
+        Log.modalMode = false;
       });
 
       m.append(ø('p', {id: 'editID', className: 'mb4 f6 lhc'}));
       m.append(f);
         f.append(ø('input', {id: 'editEntryID', type: 'hidden'}));
 
-        f.append(ø(i.cloneNode(), {
+        f.append(Ø(i.cloneNode(), {
           id: 'editSector', type: 'text', placeholder: 'Sector'}));
 
-        f.append(ø(i.cloneNode(), {
+        f.append(Ø(i.cloneNode(), {
           id: 'editProject', type: 'text', placeholder: 'Project'}));
 
         f.append(ø('textarea', {
           id: 'editDesc', className: 'db wf p2 mb3 bn',
           rows: '3', placeholder: 'Description (optional)'}));
 
-        f.append(ø(i.cloneNode(), {
+        f.append(Ø(i.cloneNode(), {
           id: 'editStart', type: 'datetime-local', step: '1'}));
 
-        f.append(ø(i.cloneNode(), {
+        f.append(Ø(i.cloneNode(), {
           id: 'editEnd', type: 'datetime-local', step: '1'}));
 
         f.append(ø('input', {
@@ -1137,7 +1146,7 @@ Log.ui = {
           id: 'editCancel', className: 'dib p2 br1 bn',
           type: 'button', value: 'Cancel',
           onclick: () => {
-            Log.modalMode = !1;
+            Log.modalMode = false;
             m.close();
           }}));
 
@@ -1149,7 +1158,7 @@ Log.ui = {
 
     /**
      * Build Journal
-     * @return {Node}
+     * @return {Object}
      */
     build () {
       const f = document.createDocumentFragment();
@@ -1160,7 +1169,7 @@ Log.ui = {
 
     /**
      * Build Journal Calendar
-     * @return {Node}
+     * @return {Object}
      */
     cal () {
       const c = ø('table', {className: 'cal nodrag hf wf f6 lhc c-pt bn'});
@@ -1169,27 +1178,26 @@ Log.ui = {
       const year = new Set(Log.log.byPeriod(sy, ey));
       const sort = year.sortEntries();
 
-      if (!sort.length) return;
+      if (sort.length === 0) return c;
 
       for (let i = 0; i < 26; i++) {
         const row = document.createElement('tr');
         c.append(row);
 
         for (let o = 0; o < 14; o++) {
-          const id = (14 * i) + o;
           const cell = document.createElement('td');
+          const id = (14 * i) + o;
           const pos = sort[id];
 
-          if (!!pos && !!pos.length) {
-            const date = pos[0].s;
-            const d = Log.time.displayDate(date);
-            ø(cell, {
-              innerHTML: d,
-              onclick: () => Log.ui.journal.displayEntry(date)
-            });
-          } else {
+          if (pos === undefined || pos.length < 1) {
             cell.innerHTML = '-----';
             cell.style.opacity = '0.1';
+          } else {
+            const d = pos[0].start;
+            Ø(cell, {
+              onclick: () => Log.ui.journal.displayEntry(d),
+              innerHTML: d.display()
+            });
           }
 
           row.append(cell);
@@ -1201,13 +1209,16 @@ Log.ui = {
 
     /**
      * Build Journal Modal
-     * @param {Object} [ui] - UI config
-     * @param {string} [ui.bg] - Background colour
-     * @param {string} [ui.colour] - Colour
-     * @return {Node}
+     * @param {Object=} ui        - UI config
+     * @param {string=} ui.bg     - Background colour
+     * @param {string=} ui.colour - Foreground colour
+     * @return {Object}
      */
     modal ({bg, colour} = Log.config.ui) {
-      const ä = (el, className) => ø(el, {className});
+      function ä (el, className) {
+        return ø(el, {className});
+      }
+
       const m = ø('dialog', {id: 'entryModal', className: 'p4 cn bn h6'});
       const h2 = ø('h2', {id: 'journalDate', className: 'mb4 f6 lhc'});
       const t = ä('div', 'h2');
@@ -1215,17 +1226,16 @@ Log.ui = {
       const sb = ä('div', 'r h7');
       const st = ä('ul', 'c3 hf oys pr4 lsn f6 lhc hvs');
 
-      const {stats} = Log.lexicon;
       const s = [
-        {id: 'jSUM', n: stats.abbr.sum},
-        {id: 'jMIN', n: stats.abbr.minDur},
-        {id: 'jMAX', n: stats.abbr.maxDur},
-        {id: 'jAVG', n: stats.abbr.avgDur},
-        {id: 'jCOV', n: stats.cov},
-        {id: 'jFOC', n: stats.foc},
+        {id: 'jSUM', n: Log.lexicon.stats.abbr.sum},
+        {id: 'jMIN', n: Log.lexicon.stats.abbr.minDur},
+        {id: 'jMAX', n: Log.lexicon.stats.abbr.maxDur},
+        {id: 'jAVG', n: Log.lexicon.stats.abbr.avgDur},
+        {id: 'jCOV', n: Log.lexicon.stats.cov},
+        {id: 'jFOC', n: Log.lexicon.stats.foc},
       ];
 
-      ø(m.style, {backgroundColor: bg, color: colour});
+      Ø(m.style, {backgroundColor: bg, color: colour});
 
       for (let i = 0, l = s.length; i < l; i++) {
         const stat = ø('li', {className: 'mb3'});
@@ -1251,44 +1261,48 @@ Log.ui = {
 
     /**
      * Display journal entry
-     * @param {Date} [date]
+     * @param {Date=} d
      */
-    displayEntry (date = new Date()) {
-      const ent = new Set(Log.log.byDate(date));
-      const l = ent.count;
-      if (!l) return;
+    displayEntry (d = (new Date)) {
+      const thisDay = new Set(Log.log.byDate(d));
+      const l = thisDay.count;
+      if (l === 0) return;
 
       const frg = document.createDocumentFragment();
-      const dur = ent.durations;
+      const dur = thisDay.listDurations();
 
       jDyc.innerHTML = '';
       jEnt.innerHTML = '';
 
-      journalDate.innerHTML = `${Log.time.displayDate(date)} (${Log.days[date.getDay()]})`;
+      journalDate.innerHTML = `${d.display()} (${Log.days[d.getDay()]})`;
 
-      jDyc.append(Log.vis.dayChart(ent.entries));
+      jDyc.append(Log.vis.dayChart(thisDay.logs));
 
-      jSUM.innerHTML = Log.data.stat(Log.data.sum(dur));
-      jMIN.innerHTML = Log.data.stat(Log.data.min(dur));
-      jMAX.innerHTML = Log.data.stat(Log.data.max(dur));
-      jAVG.innerHTML = Log.data.stat(Log.data.avg(dur));
-      jCOV.innerHTML = `${ent.coverage().toFixed(2)}%`;
-      jFOC.innerHTML = ent.projectFocus().toFixed(2);
+      jSUM.innerHTML = stat(sum(dur));
+      jMIN.innerHTML = stat(min(dur));
+      jMAX.innerHTML = stat(max(dur));
+      jAVG.innerHTML = stat(avg(dur));
+      jCOV.innerHTML = `${thisDay.coverage().toFixed(2)}%`;
+      jFOC.innerHTML = thisDay.projectFocus().toFixed(2);
 
-      const ä = (e, className, innerHTML) => ø(e, {className, innerHTML});
+      function ä (e, className, innerHTML) {
+        return ø(e, {className, innerHTML});
+      }
 
       for (let i = 0; i < l; i++) {
-        const {id, s, e, c, t, d, dur} = ent.entries[i];
-        const st = Log.time.stamp(s);
-        const et = Log.time.stamp(e);
+        const {
+          id, start, end, sector, project, desc, dur
+        } = thisDay.logs[i];
+        const st = start.stamp();
+        const et = end.stamp();
 
         const itm = ø('li', {className: 'f6 lhc pb3 mb3'});
         const idd = ä('span', 'mr3 o7', id + 1);
         const tim = ä('span', 'mr3 o7', `${st} &ndash; ${et}`);
-        const sec = ä('span', 'mr3 o7', c);
-        const pro = ä('span', 'o7', t);
-        const spn = ä('span', 'rf o7', Log.data.stat(dur));
-        const dsc = ä('p', 'f4 lhc', d);
+        const sec = ä('span', 'mr3 o7', sector);
+        const pro = ä('span', 'o7', project);
+        const spn = ä('span', 'rf o7', stat(dur));
+        const dsc = ä('p', 'f4 lhc', desc);
 
         itm.append(idd);
         itm.append(tim);
@@ -1328,19 +1342,19 @@ Log.ui = {
    * Build entry deletion modal
    * @param {string} bg - Background colour
    * @param {string} dc - Default colour
-   * @return {Node}
+   * @return {Object}
    */
   delModal (bg = Log.config.ui.bg, dc = Log.config.ui.colour) {
+    function ä (e, id, className, innerHTML = '') {
+      modal.append(ø(e, {id, className, innerHTML}));
+    }
+
     const modal = ø('dialog', {
       className: 'p4 cn bn nodrag',
       id: 'delModal'
     });
 
-    ø(modal.style, {backgroundColor: bg, color: dc});
-
-    function ä (e, id, className, innerHTML = '') {
-      modal.append(ø(e, {id, className, innerHTML}));
-    }
+    Ø(modal.style, {backgroundColor: bg, color: dc});
 
     ä('p', 'delMessage', 'mb4 f6 lhc');
     ä('ul', 'delList', 'mb3 lsn');
@@ -1360,7 +1374,7 @@ Log.ui = {
 
   /**
    * Build commander
-   * @return {Node}
+   * @return {Object}
    */
   commander () {
     const commander = ø('form', {
@@ -1385,8 +1399,8 @@ Log.ui = {
       if (val !== '') {
         const l = history.length;
 
-        val !== history[l - 1] && (history[l] = val);
-        l >= 100 && history.shift();
+        if (val !== history[l - 1]) history[l] = val;
+        if (l >= 100) history.shift();
 
         localStorage.setItem('histoire', JSON.stringify(history));
         Log.console.parse(val);

@@ -115,7 +115,7 @@ Log.command = {
 
   // TODO: Rewrite
   startEntry (input) {
-    const s = Log.time.toHex(new Date);
+    const s = (new Date).toHex();
 
     if (!Log.entries.length && !Log.entries.slice(-1)[0].e) {
       Log.command.endEntry();
@@ -153,9 +153,9 @@ Log.command = {
   },
 
   endEntry () {
-    const end = Log.time.toHex(new Date);
-    if (!Log.log.entries) return;
-    if (!Log.log.count) return;
+    const end = (new Date).toHex();
+    // if (!Log.log.entries) return;
+    if (Log.log.count === 0) return;
 
     const last = Log.entries.slice(-1)[0];
     if (!!last.e) return;
@@ -168,9 +168,9 @@ Log.command = {
   },
 
   resumeEntry () {
-    const s = Log.time.toHex(new Date);
-    if (!Log.log.entries) return;
-    if (!Log.log.count) return;
+    const s = (new Date).toHex();
+    // if (!Log.log.entries) return;
+    if (Log.log.count === 0) return;
 
     const {e, c, t, d} = Log.entries.slice(-1)[0];
     if (!e) return;
@@ -187,7 +187,7 @@ Log.command = {
    */
   deleteEntry (input) {
     if (!Log.log.entries) return;
-    if (!Log.log.count) return;
+    if (Log.log.count === 0) return;
 
     // all except first word are entry indices
     const words = input.split(' ').slice(1);
@@ -220,19 +220,19 @@ Log.command = {
    * @param {string|number} val
    */
   editEntry (i, attr, val) {
-    if (!Log.entries.length) return;
+    if (Log.entries.length === 0) return;
     const id = +i - 1;
 
     switch (attr) {
       case 'duration': case 'dur':
         const duration = parseInt(val, 10) * 60 || 0;
-        Log.entries[id].e = Log.time.offset(Log.entries[id].s, duration);
+        Log.entries[id].e = offset(Log.entries[id].s, duration);
         break;
-      case 'start': case 'end':
-        const t = Log.time.convertDateTime(val);
-        if (attr === 'start') Log.entries[id].s = t;
-        else Log.entries[id].e = t;
-        break;
+      // case 'start': case 'end':
+      //   const t = Log.time.convertDateTime(val);
+      //   if (attr === 'start') Log.entries[id].s = t;
+      //   else Log.entries[id].e = t;
+      //   break;
       case 'description': case 'desc': case 'dsc':
         Log.entries[id].d = val;
         break;

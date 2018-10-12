@@ -20,7 +20,7 @@ Log.console = {
   /**
    * Extract parameters
    * @param {string} input
-   * @return {Object[]} Parameters
+   * @return {Array} Parameters
    */
   parameterise (input) {
     if (!input) return;

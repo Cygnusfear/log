@@ -1,53 +1,129 @@
 'use strict';
 
+/**
+ * Calculate average
+ * @param {Array=} v - Values
+ * @return {number} Average
+ */
+function avg (v = []) {
+  const l = v.length;
+  return l === 0 ? 0 : sum(v) / l;
+}
+
+/**
+ * Calculate maximum value
+ * @param {Array=} v - Values
+ * @return {number} Maximum
+ */
+function max (v = []) {
+  return v.length === 0 ? 0 : Math.max(...v);
+}
+
+/**
+ * Calculate minimum value
+ * @param {Array=} v - Values
+ * @return {number} Minimum
+ */
+function min (v = []) {
+  return v.length === 0 ? 0 : Math.min(...v);
+}
+
+/**
+ * Calculate range
+ * @param {Array=} v - Values
+ * @return {number} Range
+ */
+function range (v = []) {
+  return v.length === 0 ? 0 : max(v) - min(v);
+}
+
+/**
+ * Calculate standard deviation
+ * @param {Array=} v - Values
+ * @return {number} Standard deviation
+ */
+function sd (v = []) {
+  const x = avg(v);
+  const l = v.length;
+  if (l === 0) return 0;
+  let y = 0;
+
+  for (let i = 0; i < l; i++) {
+    y += (v[i] - x) ** 2;
+  }
+
+  return Math.sqrt(y / (l - 1));
+}
+
+/**
+ * Display stat
+ * @param {number} val
+ * @param {number=} format - Stat format
+ * @return {string} Stat
+ */
+function stat (val, format = Log.config.ui.stat) {
+  switch (format) {
+    case 0:
+      return val.toFixed(2);
+    case 1:
+      const v = val.toString().split('.');
+      if (v.length === 1) v[1] = '0';
+      const m = `0${(+`0.${v[1]}` * 60).toFixed(0)}`.substr(-2);
+      return `${v[0]}:${m}`;
+    default:
+      return val;
+  }
+}
+
+/**
+ * Calculate sum
+ * @param {Array=} v - Values
+ * @return {number} Sum
+ */
+function sum (v = []) {
+  return v.reduce((t, n) => t + n, 0);
+}
+
+/**
+ * Calculate trend
+ * @param {number} a
+ * @param {number} b
+ * @return {number} Trend
+ */
+function trend (a, b) {
+  const t = (a - b) / b * 100;
+  return `${t < 0 ? '' : '+'}${t.toFixed(2)}%`;
+}
+
+/**
+ * Calculate z-score
+ */
+function zScore (value, mean, sd) {
+  return (value - mean) / sd;
+}
+
 Log.data = {
 
   /**
-   * Calculate average
-   * @param {Object[]} [v] - Values
-   * @return {number} Average
-   */
-  avg (v = []) {
-    const l = v.length;
-    return !l ? 0 : Log.data.sum(v) / l;
-  },
-
-  /**
-   * Calculate maximum value
-   * @param {Object[]} [v] - Values
-   * @return {number} Maximum
-   */
-  max (v = []) {
-    return !v.length ? 0 : Math.max(...v);
-  },
-
-  /**
-   * Calculate minimum value
-   * @param {Object[]} [v] - Values
-   * @return {number} Minimum
-   */
-  min (v = []) {
-    return !v.length ? 0 : Math.min(...v);
-  },
-
-  /**
    * Parse logs
-   * @param {Object[]} [ent] - Entries
-   * @param {string} [colour] - Default colour
-   * @return {Object[]} Entries
+   * @param {Array=} ent     - Entries
+   * @param {string=} colour - Default colour
+   * @return {Array} Entries
    */
   parse (ent = Log.entries, colour = Log.config.ui.colour) {
     const l = ent.length;
-    if (!l) return;
+    if (l === 0) return;
 
     const parsed = [];
-    const {toEpoch, toDate} = Log.time;
-    const sameDay = (s, e) => toDate(s) === toDate(e);
+
+    function sameDay (s, e) {
+      return s.toDate() === e.toDate();
+    }
 
     for (let i = 0; i < l; i++) {
       const {s, e, c, t, d} = ent[i];
       const a = toEpoch(s);
-      const b = !e ? undefined : toEpoch(e);
+      const b = e === undefined ? undefined : toEpoch(e);
 
       if (!!e && !sameDay(a, b)) {
         const x = new Date(a);
@@ -73,78 +149,5 @@ Log.data = {
     }
 
     return new Set(parsed);
-  },
-
-  /**
-   * Calculate range
-   * @param {Object[]} v
-   * @return {number} Range
-   */
-  range (v = []) {
-    return Log.data.max(v) - Log.data.min(v);
-  },
-
-  /**
-   * Calculate standard deviation
-   * @param {Object[]} v
-   * @return {number} Standard deviation
-   */
-  sd (v) {
-    const x = Log.data.avg(v);
-    const l = v.length;
-    let y = 0;
-
-    for (let i = 0; i < l; i++) {
-      y += (v[i] - x) ** 2;
-    }
-
-    return Math.sqrt(y / (l - 1));
-  },
-
-  /**
-   * Display stat
-   * @param {number} val
-   * @param {number} [stat] - Stat format
-   * @return {string} Stat
-   */
-  stat (val, stat = Log.config.ui.stat) {
-    switch (stat) {
-      case 0:
-        return val.toFixed(2);
-      case 1:
-        const v = val.toString().split('.');
-        v.length === 1 && (v[1] = '0');
-        const m = `0${(+`0.${v[1]}` * 60).toFixed(0)}`.substr(-2);
-        return `${v[0]}:${m}`;
-      default:
-        return val;
-    }
-  },
-
-  /**
-   * Calculate sum
-   * @param {Object[]} [v] - Values
-   * @return {number} Sum
-   */
-  sum (v = []) {
-    return v.reduce((t, n) => t + n, 0);
-  },
-
-  /**
-   * Calculate trend
-   * @param {number} a
-   * @param {number} b
-   * @return {number} Trend
-   */
-  trend (a, b) {
-    const t = (a - b) / b * 100;
-    return `${t < 0 ? '' : '+'}${t.toFixed(2)}%`;
-  },
-
-  /**
-   * Calculate z-score
-   */
-  zScore (value, mean, sd) {
-    return (value - mean) / sd;
   }
 };
