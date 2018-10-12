@@ -12,6 +12,8 @@ if (process.argv[2] && process.argv[2] === 'dev') {
 let win
 
 app.on('ready', _ => {
+  if (process.platform === 'win32') app.quit();
+
   win = new BrowserWindow({
     icon: __dirname + '/icon.ico',
     backgroundColor: '#0c0c0c',
