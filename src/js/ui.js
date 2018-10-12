@@ -26,7 +26,7 @@ Log.ui = {
    * Build UI
    * @param {number=} view
    */
-  build (view = Log.config.ui.view) {
+  build (view = Log.config.vw) {
     function ä (id, className) {
       Nav.menu[Nav.menu.length] = id;
       return ø('div', {id, className});
@@ -609,7 +609,7 @@ Log.ui = {
        * @param {number=} view
        * @return {Object}
        */
-      build (mode, key, view = Log.config.ui.view) {
+      build (mode, key, view = Log.config.vw) {
         const rec = new Set(Log.log.recent(view - 1));
         let ent = {};
         let his = {};
@@ -660,7 +660,7 @@ Log.ui = {
        * @param {number=} view
        * @return {Object}
        */
-      head (key, {count, last}, view = Log.config.ui.view) {
+      head (key, {count, last}, view = Log.config.vw) {
         const F = document.createDocumentFragment();
 
         F.append(ø('h2', {
@@ -1072,12 +1072,12 @@ Log.ui = {
 
     /**
      * Build Entries modal
-     * @param {Object} ui
-     * @param {string} ui.bg
-     * @param {string} ui.colour
+     * @param {Object} config
+     * @param {string} config.bg - Background
+     * @param {string} config.fg - Foreground
      * @return {Object}
      */
-    modal ({bg, colour} = Log.config.ui) {
+    modal ({bg, fg} = Log.config) {
       const m = ø('dialog', {
         id: 'editModal',
         className: 'p4 cn bn h6',
@@ -1094,7 +1094,7 @@ Log.ui = {
 
       const i = ø('input', {className: 'db wf p2 mb3 bn'});
 
-      Ø(m.style, {backgroundColor: bg, color: colour});
+      Ø(m.style, {backgroundColor: bg, color: fg});
 
       document.addEventListener('click', ({target}) => {
         if (target === m) {
@@ -1209,12 +1209,12 @@ Log.ui = {
 
     /**
      * Build Journal Modal
-     * @param {Object=} ui        - UI config
-     * @param {string=} ui.bg     - Background colour
-     * @param {string=} ui.colour - Foreground colour
+     * @param {Object=} config
+     * @param {string=} config.bg     - Background colour
+     * @param {string=} config.colour - Foreground colour
      * @return {Object}
      */
-    modal ({bg, colour} = Log.config.ui) {
+    modal ({bg, fg} = Log.config) {
       function ä (el, className) {
         return ø(el, {className});
       }
@@ -1235,7 +1235,7 @@ Log.ui = {
         {id: 'jFOC', n: Log.lexicon.stats.foc},
       ];
 
-      Ø(m.style, {backgroundColor: bg, color: colour});
+      Ø(m.style, {backgroundColor: bg, color: fg});
 
       for (let i = 0, l = s.length; i < l; i++) {
         const stat = ø('li', {className: 'mb3'});
@@ -1340,11 +1340,12 @@ Log.ui = {
 
   /**
    * Build entry deletion modal
-   * @param {string} bg - Background colour
-   * @param {string} dc - Default colour
+   * @param {Object=} config
+   * @param {string=} config.bg - Background colour
+   * @param {string=} config.fg - Foreground colour
    * @return {Object}
    */
-  delModal (bg = Log.config.ui.bg, dc = Log.config.ui.colour) {
+  delModal ({bg, fg} = Log.config) {
     function ä (e, id, className, innerHTML = '') {
       modal.append(ø(e, {id, className, innerHTML}));
     }
@@ -1354,7 +1355,7 @@ Log.ui = {
       id: 'delModal'
     });
 
-    Ø(modal.style, {backgroundColor: bg, color: dc});
+    Ø(modal.style, {backgroundColor: bg, color: fg});
 
     ä('p', 'delMessage', 'mb4 f6 lhc');
     ä('ul', 'delList', 'mb3 lsn');

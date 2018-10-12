@@ -275,8 +275,8 @@ const Log = {
   load () {
     function ä (o) {
       return Ø(o, {
-        backgroundColor: Log.config.ui.bg,
-        color: Log.config.ui.colour
+        backgroundColor: Log.config.bg,
+        color: Log.config.fg
       });
     }
 
@@ -305,7 +305,7 @@ const Log = {
   init () {
 
     try {
-      Log.config = dataStore.get('config');
+      Log.config = new Config(dataStore.get('config'));
       Log.palette = dataStore.get('palette');
       Log.projectPalette = dataStore.get('projectPalette');
       Log.entries = dataStore.get('log');

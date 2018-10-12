@@ -61,7 +61,7 @@ function sd (v = []) {
  * @param {number=} format - Stat format
  * @return {string} Stat
  */
-function stat (val, format = Log.config.ui.stat) {
+function stat (val, format = Log.config.st) {
   switch (format) {
     case 0:
       return val.toFixed(2);
@@ -110,7 +110,7 @@ Log.data = {
    * @param {string=} colour - Default colour
    * @return {Array} Entries
    */
-  parse (ent = Log.entries, colour = Log.config.ui.colour) {
+  parse (ent = Log.entries, colour = Log.config.fg) {
     const l = ent.length;
     if (l === 0) return;
 

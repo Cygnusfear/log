@@ -62,7 +62,7 @@ Log.command = {
     Log.reset();
     Log.load();
 
-    Log.options.update.all();
+    Update.all();
     new window.Notification('Log data was successfully imported.');
   },
 
@@ -149,7 +149,7 @@ Log.command = {
 
     Log.entries[Log.entries.length] = {s, c, t, d};
     new window.Notification(`Started: ${c} - ${t} - ${d}`);
-    Log.options.update.log();
+    Update.log();
   },
 
   endEntry () {
@@ -164,7 +164,7 @@ Log.command = {
     clearInterval(timer);
 
     new window.Notification(`Ended: ${last.c} - ${last.t} - ${last.d}`);
-    Log.options.update.log();
+    Update.log();
   },
 
   resumeEntry () {
@@ -177,7 +177,7 @@ Log.command = {
 
     Log.entries[Log.entries.length] = {s, c, t, d};
     new window.Notification(`Resumed: ${c} - ${t} - ${d}`);
-    Log.options.update.log();
+    Update.log();
   },
 
   /**
@@ -210,7 +210,7 @@ Log.command = {
       aui.reverse().forEach(i => Log.entries.splice(+i - 1, 1));
     }
 
-    Log.options.update.all();
+    Update.all();
   },
 
   /**
@@ -246,7 +246,7 @@ Log.command = {
         return;
     }
 
-    Log.options.update.all();
+    Update.all();
   },
 
   /**
@@ -290,17 +290,17 @@ Log.command = {
     }
 
     new window.Notification(`${oldName} has been renamed to ${newName}`);
-    Log.options.update.all();
+    Update.all();
   },
 
   /**
    * Invert UI colours
    */
   invert () {
-    const {bg, colour} = Log.config.ui;
-    Log.config.ui.colour = bg;
-    Log.config.ui.bg = colour;
-    Log.options.update.config();
+    const {bg, fg} = Log.config;
+    Log.config.fg = bg;
+    Log.config.bg = fg;
+    Update.config();
   },
 
   /**

@@ -70,13 +70,13 @@ Log.vis = {
 
   /**
    * Generate day chart
-   * @param {Array}   logs       - Entries
-   * @param {Object=} ui        - UI config
-   * @param {string=} ui.cm     - Colour mode
-   * @param {string=} ui.colour - Foreground colour
+   * @param {Array}   logs
+   * @param {Object=} config
+   * @param {string=} config.cm - Colour mode
+   * @param {string=} config.fg - Foreground colour
    * @return {Object} Chart
    */
-  dayChart (logs, {cm, colour} = Log.config.ui) {
+  dayChart (logs, {cm, fg} = Log.config) {
     const fr = document.createDocumentFragment();
     const l = logs.length;
     if (l === 0) return fr;
@@ -100,12 +100,12 @@ Log.vis = {
 
   /**
    * Generate focus bar
-   * @param {number}  mode   - Sector (0) or project (1)
-   * @param {Array=}  val    - Values
-   * @param {string=} colour
+   * @param {number}  mode - Sector (0) or project (1)
+   * @param {Array=}  val  - Values
+   * @param {string=} fg   - Foreground colour
    * @return {Object} Focus bar
    */
-  focusBar (mode, val = [], colour = Log.config.ui.colour) {
+  focusBar (mode, val = [], fg = Log.config.fg) {
     const fr = document.createDocumentFragment();
     if (mode < 0 || mode > 1) return fr;
     const l = val.length;
@@ -116,7 +116,7 @@ Log.vis = {
     for (let i = 0; i < l; i++) {
       const seg = ø('div', {className: 'hf lf'});
       Ø(seg.style, {
-        backgroundColor: pal[val[i].n] || colour,
+        backgroundColor: pal[val[i].n] || fg,
         width: `${val[i].v}%`
       });
       fr.append(seg);
@@ -127,11 +127,11 @@ Log.vis = {
 
   /**
    * Generate focus chart
-   * @param {Array=}  data   - Chart data
-   * @param {string=} colour - Foreground colour
+   * @param {Array=}  data - Chart data
+   * @param {string=} fg   - Foreground colour
    * @return {Object} Chart
    */
-  focusChart (data = [], colour = Log.config.ui.colour) {
+  focusChart (data = [], fg = Log.config.fg) {
     const fr = document.createDocumentFragment();
     const l = data.length;
     if (l === 0) return fr;
@@ -140,7 +140,7 @@ Log.vis = {
     const core = ø('div', {className: 'psa sw1 b0'});
 
     column.style.width = `${100 / l}%`;
-    core.style.backgroundColor = colour;
+    core.style.backgroundColor = fg;
 
     for (let i = 0; i < l; i++) {
       const cl = column.cloneNode();
@@ -159,10 +159,10 @@ Log.vis = {
    * Generate legend
    * @param {number}  mode - Sector (0) or project (1)
    * @param {Array=}  val
-   * @param {string=} colour
+   * @param {string=} fg
    * @return {Object} Legend
    */
-  legend (mode, val = [], colour = Log.config.ui.colour) {
+  legend (mode, val = [], fg = Log.config.fg) {
     const fr = document.createDocumentFragment();
     if (mode < 0 || mode > 1) return fr;
     const l = val.length;
@@ -183,7 +183,7 @@ Log.vis = {
         className: 'dib vm sw6 elip tnum'
       });
 
-      icon.style.backgroundColor = pal[val[i].n] || colour;
+      icon.style.backgroundColor = pal[val[i].n] || fg;
 
       item.append(icon);
       item.append(info);
@@ -200,12 +200,12 @@ Log.vis = {
    * @param {Set=}    set       - Set
    * @param {number=} set.count - Set log count
    * @param {number=} set.lh    - Set log hours
-   * @param {Object=} ui        - UI config
-   * @param {string=} ui.cm     - Colour mode
-   * @param {string=} ui.colour - Foreground colour
+   * @param {Object=} config
+   * @param {string=} config.cm - Colour mode
+   * @param {string=} config.fg - Foreground colour
    * @return {Object} List
    */
-  list (mode, sort = [], {count, lh} = Log.log, {cm, colour} = Log.config.ui) {
+  list (mode, sort = [], {count, lh} = Log.log, {cm, fg} = Log.config) {
     const fr = document.createDocumentFragment();
     if (mode < 0 || mode > 1) return fr;
     const l = sort.length;
@@ -231,7 +231,7 @@ Log.vis = {
       Ø(bar.style, {
         width: `${(v / lh * 100).toFixed(2)}%`,
         backgroundColor: (cm === 'none' ?
-          colour : pal[n]) || colour
+          colour : pal[n]) || fg
       });
 
       item.append(name);
@@ -267,12 +267,12 @@ Log.vis = {
    * Generate peak chart
    * @param {number}  mode      - Hour (0) or day (1)
    * @param {Array=}  peaks
-   * @param {Object=} ui        - UI config
-   * @param {string=} ui.accent - Accent colour
-   * @param {string=} ui.colour - Foreground colour
+   * @param {Object=} config
+   * @param {string=} config.ac - Accent colour
+   * @param {string=} config.fg - Foreground colour
    * @return {Object} Chart
    */
-  peakChart (mode, peaks = [], {accent, colour} = Log.config.ui) {
+  peakChart (mode, peaks = [], {ac, fg} = Log.config) {
     const fr = document.createDocumentFragment();
     if (mode < 0 || mode > 1) return fr;
     const l = peaks.length;
@@ -290,7 +290,7 @@ Log.vis = {
       });
 
       Ø(core.style, {
-        backgroundColor: i === now ? accent : colour,
+        backgroundColor: i === now ? ac : fg,
         height: perc(val)
       });
 

@@ -10,6 +10,8 @@
   <script src="js/drop.js"></script>
   <script src="js/entry.js"></script>
   <script src="js/set.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/update.js"></script>
   <script src="js/log.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/nav.js"></script>
@@ -48,18 +50,14 @@
       defaults: {
         locale: 'en',
         config: {
-          ui: {
-            bg: '#f8f8f8',
-            colour: '#202020',
-            accent: '#eb4e32',
-            cm: 'sc',
-            view: 28,
-            stat: 0
-          },
-          system: {
-            calendar: 'gregorian',
-            timeFormat: '24'
-          }
+          bg: '#f8f8f8', // Background
+          fg: '#202020', // Foreground
+          ac: '#eb4e32', // Accent
+          cm: 'sc', // Colour mode
+          vw: 28, // View
+          st: 0, // Stat format
+          ca: 'gregorian', // Calendar
+          tm: '24' // Time format
         },
         palette: {},
         projectPalette: {},

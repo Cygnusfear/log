@@ -17,18 +17,19 @@ class Set {
 
   /**
    * Generate bar chart data
-   * @param {string=} dc - Default colour
-   * @param {string=} cm - Colour mode
+   * @param {Object=} config
+   * @param {string=} config.cm - Colour mode
+   * @param {string=} config.fg - Foreground colour
    * @return {Array} Data
    */
-  bar (dc = Log.config.ui.colour, cm = Log.config.ui.cm) {
+  bar ({cm, fg} = Log.config) {
     const sorted = this.sortEntries();
     const l = sorted.length;
     let data = [];
     if (l === 0) return data;
 
     if (cm === 'none') {
-      const c = dc;
+      const c = fg;
 
       for (let i = l - 1; i >= 0; i--) {
         const h = `${new Set(sorted[i]).coverage()}%`;
@@ -43,7 +44,7 @@ class Set {
 
       for (let o = 0, ol = sorted[i].length, lh = 0; o < ol; o++) {
         const x = sorted[i][o].wh;
-        const c = sorted[i][o][cm] || dc;
+        const c = sorted[i][o][cm] || fg;
         const b = `${lh}%`;
         const h = `${x}%`;
 
@@ -465,11 +466,12 @@ class Set {
 
   /**
    * Generate visualisation data
-   * @param {string=} dc - Default colour
-   * @param {string=} cm - Colour mode
+   * @param {Object=} config
+   * @param {string=} config.cm - Colour mode
+   * @param {string=} config.fg - Foreground colour
    * @return {Object} Data
    */
-  visualisation (dc = Log.config.ui.colour, cm = Log.config.ui.cm) {
+  visualisation ({cm, fg} = Log.config) {
     const sorted = this.sortEntries();
     const l = sorted.length;
     const data = [];
@@ -479,7 +481,7 @@ class Set {
       data[i] = [];
       for (let o = 0, ol = sorted[i].length, pos = 0; o < ol; o++) {
         const {wh, mg} = sorted[i][o];
-        const c = sorted[i][o][cm] || dc;
+        const c = sorted[i][o][cm] || fg;
         const m = `${mg - pos}%`;
         const w = `${wh}%`;
 

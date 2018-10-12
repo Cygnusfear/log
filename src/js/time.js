@@ -51,7 +51,7 @@ Date.prototype.display = function () {
  * @return {string} Formatted date
  */
 Date.prototype.formatDate = function () {
-  switch (Log.config.system.calendar) {
+  switch (Log.config.ca) {
     case 1: return Aequirys.display(Aequirys.convert(this));
     case 2: return Monocal.short(Monocal.convert(this));
     default:
@@ -67,7 +67,7 @@ Date.prototype.formatDate = function () {
  * @return {string} Formatted time
  */
 Date.prototype.formatTime = function () {
-  switch (Log.config.system.timeFormat) {
+  switch (Log.config.tm) {
     case 0:  return this.to12H();
     case 1:  return this.to24H();
     default: return this.toDec();

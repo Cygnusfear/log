@@ -86,38 +86,38 @@ Log.console = {
           break;
         case 'background':
         case 'bg':
-          Log.options.set.bg(s[1]);
+          Log.config.setBackgroundColour(s[1]);
           break;
         case 'colour':
         case 'color':
         case 'foreground':
         case 'fg':
-          Log.options.set.fg(s[1]);
+          Log.config.setForegroundColour(s[1]);
           break;
         case 'accent':
         case 'highlight':
         case 'ac':
         case 'hl':
-          Log.options.set.accent(s[1]);
+          Log.config.setAccent(s[1]);
           break;
         case 'colourmode':
         case 'colormode':
         case 'cm':
-          Log.options.set.colourMode(s[1]);
+          Log.config.setColourMode(s[1]);
           break;
         case 'view':
-          Log.options.set.view(+s[1]);
+          Log.config.setView(+s[1]);
           break;
         case 'calendar':
         case 'cal':
-          Log.options.set.calendar(s[1]);
+          Log.config.setCalendar(s[1]);
           break;
         case 'time':
         case 'clock':
-          Log.options.set.time(s[1]);
+          Log.config.setTimeFormat(s[1]);
           break;
         case 'stat':
-          Log.options.set.stat(s[1]);
+          Log.config.setStatFormat(s[1]);
           break;
         case 'import':
           Log.command.importData();
