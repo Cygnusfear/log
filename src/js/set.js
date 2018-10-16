@@ -92,6 +92,18 @@ class Set {
   }
 
   /**
+   * Get logs by month
+   * @param {number} m - Month
+   * @return {Array} Entries
+   */
+  byMonth (m) {
+    if (m < 0 || m > 12 || this.count === 0) return [];
+    return this.logs.filter(({start, end}) =>
+      end !== undefined && start.getMonth() === m
+    );
+  }
+
+  /**
    * Get logs by period
    * @param {Date}  start
    * @param {Date=} end
@@ -341,6 +353,35 @@ class Set {
     }
 
     return hours;
+  }
+
+  /**
+   * Get peak month
+   * @return {string} Peak month
+   */
+  peakMonth () {
+    const p = this.peakMonths();
+    return p.length === 0 ?
+      '-' : Glossary.months[p.indexOf(Math.max(...p))];
+  }
+
+  /**
+   * Calculate peak months
+   * @return {Array} Peaks
+   */
+  peakMonths () {
+    const l = this.count;
+    if (l === 0) return [];
+
+    const n = this.last.end === undefined ? 2 : 1;
+    const months = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    for (let i = l - n; i >= 0; i--) {
+      const {start, dur} = this.logs[i];
+      months[start.getMonth()] += dur;
+    }
+
+    return months;
   }
 
   /**

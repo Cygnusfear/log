@@ -152,7 +152,7 @@ const Details = {
       const s = [
         {n: Glossary.ph, v: Session.peakHour()},
         {n: Glossary.pd, v: Session.peakDay()},
-        {n: Glossary.pm, v: '-'}
+        {n: Glossary.pm, v: Session.peakMonth()}
       ];
 
       const dayChart = UI.vis.peakChart(0, Log.cache.pkh);
