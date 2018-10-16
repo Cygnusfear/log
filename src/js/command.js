@@ -2,21 +2,17 @@
 
 const timer = require('headless-work-timer');
 
-Log.command = {
+const Command = {
 
-  /**
-   * Import data
-   */
   importData () {
     const path = dialog.showOpenDialog({
       properties: ['openFile']
     });
 
-    if (!path) return;
+    if (path === undefined) return;
     let s = '';
 
     console.log('Attempting import...');
-    console.log('Checking file...');
     try {
       s = fs.readFileSync(path[0], 'utf-8');
     } catch (e) {
@@ -40,19 +36,19 @@ Log.command = {
     }
 
     console.log('Installing new path...');
-    Log.path = path[0];
-    console.log(Log.path);
-    localStorage.setItem('logDataPath', Log.path);
-    dataStore.path = Log.path;
+    const newPath = path[0];
+    console.log(newPath);
+    localStorage.setItem('logDataPath', newPath);
+    dataStore.path = newPath;
 
     localStorage.setItem('user', s);
     user = JSON.parse(localStorage.getItem('user'));
 
     try {
       Log.config = user.config;
-      Log.palette = user.palette;
-      Log.projectPalette = user.projectPalette;
-      Log.log = Log.data.parse(Log.entries);
+      Palette.sp = user.sp;
+      Palette.pp = user.pp;
+      Session = parse(Log.entries);
     } catch (e) {
       console.error('User log data contains errors');
       new window.Notification('There is something wrong with this file.');
@@ -66,16 +62,13 @@ Log.command = {
     new window.Notification('Log data was successfully imported.');
   },
 
-  /**
-   * Export data
-   */
   exportData () {
     const data = JSON.stringify(
       JSON.parse(localStorage.getItem('user'))
     );
 
     dialog.showSaveDialog(file => {
-      if (!file) return;
+      if (file === undefined) return;
       fs.writeFile(file, data, err => {
         new window.Notification(
           err ?
@@ -97,10 +90,10 @@ Log.command = {
         let sound = '';
 
         if (state.phase === 'break' || state.phase === 'longBreak') {
-          Log.command.endEntry();
+          Command.endEntry();
           sound = 'timerEnd';
         } else {
-          Log.command.startEntry(input);
+          Command.startEntry(input);
           sound = 'timerStart';
         }
 
@@ -109,16 +102,19 @@ Log.command = {
       }
     });
 
-    //Log.stopTimer = _ => clock.stop();
-    Log.command.startEntry(input);
+    Log.stopTimer = _ => clock.stop();
+    Command.startEntry(input);
   },
 
   // TODO: Rewrite
   startEntry (input) {
     const s = (new Date).toHex();
 
-    if (!Log.entries.length && !Log.entries.slice(-1)[0].e) {
-      Log.command.endEntry();
+    // End ongoing log, if any
+    if (
+      Log.entries.length !== 0 &&
+      Log.entries.slice(-1)[0].e === undefined) {
+      Command.endEntry();
     }
 
     let indices = [];
@@ -154,11 +150,11 @@ Log.command = {
 
   endEntry () {
     const end = (new Date).toHex();
-    // if (!Log.log.entries) return;
-    if (Log.log.count === 0) return;
+    if (Session.logs === undefined) return;
+    if (Session.count === 0) return;
 
     const last = Log.entries.slice(-1)[0];
-    if (!!last.e) return;
+    if (last.e !== undefined) return;
 
     last.e = end;
     clearInterval(timer);
@@ -169,11 +165,11 @@ Log.command = {
 
   resumeEntry () {
     const s = (new Date).toHex();
-    // if (!Log.log.entries) return;
-    if (Log.log.count === 0) return;
+    if (Session.logs === undefined) return;
+    if (Session.count === 0) return;
 
     const {e, c, t, d} = Log.entries.slice(-1)[0];
-    if (!e) return;
+    if (e === undefined) return;
 
     Log.entries[Log.entries.length] = {s, c, t, d};
     new window.Notification(`Resumed: ${c} - ${t} - ${d}`);
@@ -186,8 +182,8 @@ Log.command = {
    * @param {string} input
    */
   deleteEntry (input) {
-    if (!Log.log.entries) return;
-    if (Log.log.count === 0) return;
+    if (Session.logs === undefined) return;
+    if (Session.count === 0) return;
 
     // all except first word are entry indices
     const words = input.split(' ').slice(1);
@@ -214,6 +210,7 @@ Log.command = {
   },
 
   /**
+   * TODO: Re-implement timestamp editing
    * Edit an entry
    * @param {number} id
    * @param {string} attr
@@ -228,11 +225,6 @@ Log.command = {
         const duration = parseInt(val, 10) * 60 || 0;
         Log.entries[id].e = offset(Log.entries[id].s, duration);
         break;
-      // case 'start': case 'end':
-      //   const t = Log.time.convertDateTime(val);
-      //   if (attr === 'start') Log.entries[id].s = t;
-      //   else Log.entries[id].e = t;
-      //   break;
       case 'description': case 'desc': case 'dsc':
         Log.entries[id].d = val;
         break;
@@ -256,35 +248,33 @@ Log.command = {
    * @param {string} newName - New name
    */
   rename (key, oldName, newName) {
-    if (!~secpro.indexOf(key)) return;
+    if (secpro.indexOf(key) < 0) return;
     const typ = (key === 'sector' || key === 'sec') ?
       'sector' : 'project';
 
     const l = Log.entries.length;
-    const notFound = _ => {
-      new window.Notification(`The ${typ} "${oldName}" does not exist`);
-    };
+    const notFound = `The ${typ} "${oldName}" does not exist`;
 
     if (typ === 'sector') {
-      if (!!Log.log.bySector(oldName).length) {
+      if (Session.bySector(oldName).length > 0) {
         for (let i = 0; i < l; i++) {
           if (Log.entries[i].c === oldName) {
             Log.entries[i].c = newName;
           }
         }
       } else {
-        notFound();
+        new window.Notification(notFound);
         return;
       }
     } else {
-      if (!!Log.log.byProject(oldName).length) {
+      if (Session.byProject(oldName).length > 0) {
         for (let i = 0; i < l; i++) {
           if (Log.entries[i].t === oldName) {
             Log.entries[i].t = newName;
           }
         }
       } else {
-        notFound();
+        new window.Notification(notFound);
         return;
       }
     }
@@ -308,19 +298,21 @@ Log.command = {
    * Undo last action
    */
   undo () {
-    const i = Log.console.history.slice(-2)[0];
+    const i = CLI.history.slice(-2)[0];
     const s = i.split(' ');
 
     switch (s[0].toLowerCase()) {
       case 'rename': case 'rn':
-        const p = Log.console.parameterise(i);
-        Log.command.rename(p[1], p[3], p[2]);
+        const p = CLI.parameterise(i);
+        Command.rename(p[1], p[3], p[2]);
         break;
       case 'invert': case 'iv':
-        Log.command.invert();
+        Command.invert();
         break;
       default:
         return;
     }
   }
 }
+
+module.exports = Command;

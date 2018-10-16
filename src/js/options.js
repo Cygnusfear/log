@@ -11,15 +11,18 @@ Log.options = {
      * @param {string} colour
      */
     colourCode (mode, key, colour) {
-      if (secpro.indexOf(mode) < 0) return;
-      if (key === undefined || colour === undefined) return;
+      if (
+        secpro.indexOf(mode) < 0 ||
+        key === undefined ||
+        colour === undefined
+      ) return;
 
       if (mode === 'sector' || mode === 'sec') {
-        Log.palette[key] = colour;
-        Update.palette();
+        Palette.sp[key] = colour;
+        Update.secPalette();
       } else {
-        Log.projectPalette[key] = colour;
-        Update.projectPalette();
+        Palette.pp[key] = colour;
+        Update.proPalette();
       }
     }
   }

@@ -8,22 +8,34 @@
 
 'use strict';
 
+/**
+ * Create Object
+ * @param {string} el
+ * @param {Object} params
+ * @return {Object}
+ */
+function ø (e, params) {
+  return Object.assign(document.createElement(e), params);
+}
+
+/**
+ * Create Object
+ * @param {Object} el
+ * @param {Object} params
+ * @return {Object}
+ */
+function Ø (e, params) {
+  return Object.assign(e, params);
+}
+
+let Session = {};
+let Glossary = {};
+let Palette = {};
+
 const Log = {
-
-  path: '',
-  modalMode: false,
-
-  lexicon: {},
   clock: {},
-  timerEl: {},
-  days: [],
-  months: [],
-
   config: {},
   entries: [],
-  log: [],
-  palette: {},
-  projectPalette: {},
 
   cache: {
     sor: [],
@@ -34,17 +46,13 @@ const Log = {
     sec: [],
   },
 
-  commander: {},
-  commanderInput: {},
-  comIndex: 0,
-
   /**
    * Get log status
    * @return {boolean} Status
    */
   status () {
-    return Log.log.count === 0 ?
-      false : !Log.log.last.end;
+    return Session.count === 0 ?
+      false : !Session.last.end;
   },
 
   /**
@@ -52,25 +60,25 @@ const Log = {
    */
   timer () {
     if (Log.status() === false) return;
-    const l = +Log.log.last.start;
+    const l = +Session.last.start;
     let d = +new Date;
     let h = 0;
     let m = 0;
     let s = 0;
 
     Log.clock = setInterval(_ => {
-      d += 1E3;
+      d += 1000;
 
-      s = ~~((d - l) / 1E3);
+      s = ~~((d - l) / 1000);
       m = ~~(s / 60);
       h = ~~(m / 60);
 
-      h = `0${h %= 24}`.substr(-2);
-      m = `0${m %= 60}`.substr(-2);
-      s = `0${s %= 60}`.substr(-2);
+      h = (h %= 24).pad();
+      m = (m %= 60).pad();
+      s = (s %= 60).pad();
 
-      Log.timerEl.innerHTML = `${h}:${m}:${s}`;
-    }, 1E3);
+      UI.timerEl.innerHTML = `${h}:${m}:${s}`;
+    }, 1000);
   },
 
   /**
@@ -81,43 +89,46 @@ const Log = {
     new Audio(`${__dirname}/media/${sound}.mp3`).play();
   },
 
+  setEditFormValues (id) {
+    const {s, e, c, t, d} = Log.entries[id];
+
+    editID.innerHTML = id + 1;
+    editEntryID.value = id;
+    editSector.value = c;
+    editProject.value = t;
+    editDesc.value = d;
+
+    const start = toEpoch(s);
+    const sy = start.getFullYear();
+    const sm = (start.getMonth() + 1).pad();
+    const sd = start.getDate().pad();
+    const sh = start.getHours().pad();
+    const sn = start.getMinutes().pad();
+    const ss = start.getSeconds().pad();
+
+    editStart.value = `${sy}-${sm}-${sd}T${sh}:${sn}:${ss}`;
+
+    if (e !== undefined && typeof e === 'string') {
+      const end = toEpoch(e);
+      const ey = end.getFullYear();
+      const em = (end.getMonth() + 1).pad();
+      const ed = end.getDate().pad();
+      const eh = end.getHours().pad();
+      const en = end.getMinutes().pad();
+      const es = end.getSeconds().pad();
+
+      editEnd.value = `${ey}-${em}-${ed}T${eh}:${en}:${es}`;
+    }
+  },
+
   /**
    * Summon Edit modal
    * @param {number} id - Entry ID
    */
   edit (id) {
-    editStart.value = '';
     editEnd.value = '';
-
-    const entry = Log.entries[id];
-    const s = toEpoch(entry.s);
-    const sy = s.getFullYear();
-    const sm = `0${s.getMonth() + 1}`.substr(-2);
-    const sd = `0${s.getDate()}`.substr(-2);
-    const sh = `0${s.getHours()}`.substr(-2);
-    const sn = `0${s.getMinutes()}`.substr(-2);
-    const ss = `0${s.getSeconds()}`.substr(-2);
-
-    editID.innerHTML = id + 1;
-    editEntryID.value = id;
-    editSector.value = entry.c;
-    editProject.value = entry.t;
-    editDesc.value = entry.d;
-    editStart.value = `${sy}-${sm}-${sd}T${sh}:${sn}:${ss}`;
-
-    if (entry.e !== undefined && typeof entry.e === 'string') {
-      const e = toEpoch(entry.e);
-      const ey = e.getFullYear();
-      const em = `0${e.getMonth() + 1}`.substr(-2);
-      const ed = `0${e.getDate()}`.substr(-2);
-      const eh = `0${e.getHours()}`.substr(-2);
-      const en = `0${e.getMinutes()}`.substr(-2);
-      const es = `0${e.getSeconds()}`.substr(-2);
-
-      editEnd.value = `${ey}-${em}-${ed}T${eh}:${en}:${es}`;
-    }
-
-    Log.modalMode = true;
+    Log.setEditFormValues(id);
+    UI.modalMode = true;
     document.getElementById('editModal').showModal();
   },
 
@@ -131,28 +142,29 @@ const Log = {
     const words = i.split(' ').slice(1);
     const mode = words[0];
     const key = words[1];
-    let delmsg = '';
+    let confirmation = '';
 
     function count (prop, key) {
+      const entries = Log.entries;
+      const l = entries.length;
       let count = 0;
 
-      for (let i = 0; i < Log.entries.length; i++) {
-        if (Log.entries[i][prop] === key) count++;
+      for (let i = 0; i < l; i++) {
+        if (entries[i][prop] === key) count++;
       }
 
       return count;
     }
 
     if (mode === 'project') {
-      delmsg = `Are you sure you want to delete the ${words[1]} project? ${count('t', key)} entries will be deleted. This can't be undone.`;
+      confirmation = `Are you sure you want to delete the ${words[1]} project? ${count('t', key)} entries will be deleted. This can't be undone.`;
     } else if (mode === 'sector') {
-      delmsg = `Are you sure you want to delete the ${words[1]} sector? ${count('c', key)} entries will be deleted. This can't be undone.`;
+      confirmation = `Are you sure you want to delete the ${words[1]} sector? ${count('c', key)} entries will be deleted. This can't be undone.`;
     } else {
       const aui = words.filter((v, i, self) => self.indexOf(v) === i).sort();
       const span = ø('span', {className: 'mr3 o7'});
-      const {stamp} = Log.time;
 
-      delmsg = `Are you sure you want to delete the following ${aui.length > 1 ? `${aui.length} entries` : 'entry'}? This can't be undone.`;
+      confirmation = `Are you sure you want to delete the following ${aui.length > 1 ? `${aui.length} entries` : 'entry'}? This can't be undone.`;
 
       aui.forEach(i => {
         const {s, e, c, t, d} = Log.entries[+i - 1];
@@ -176,7 +188,7 @@ const Log = {
     }
 
     delConfirm.setAttribute('onclick', `Log.deleteIt('${i}')`);
-    delMessage.innerHTML = delmsg;
+    delMessage.innerHTML = confirmation;
     delModal.showModal();
   },
 
@@ -184,7 +196,7 @@ const Log = {
    * Hacky solution
    */
   deleteIt (i) {
-    Log.command.deleteEntry(i);
+    Command.deleteEntry(i);
   },
 
   /**
@@ -193,9 +205,9 @@ const Log = {
    */
   update (id, {s, e, c, t, d}) {
     Ø(Log.entries[id], {s, e, c, t, d});
-    dataStore.set('log', Log.entries);
+    data.set('log', Log.entries);
     editModal.close();
-    Log.modalMode = false;
+    UI.modalMode = false;
     Log.refresh();
   },
 
@@ -205,43 +217,16 @@ const Log = {
    * @param {string} key
    */
   viewDetails (mode, key) {
+    if (mode < 0 || mode > 1) return;
     const d = document.getElementById(!mode ? 'SSC' : 'PSC');
     d.innerHTML = '';
-    d.append(Log.ui.details.detail.build(mode, key));
-  },
+    d.append(UI.details.detail.build(mode, key));
 
-  /**
-   * Open tab
-   * @param {string}   s - ID
-   * @param {string=}  g - Group
-   * @param {string=}  t - Tab group
-   * @param {boolean=} v - Vertical?
-   */
-  tab (s, g = 'sect', t = 'tab', v = false) {
-    const o =  v ? 'db mb3' : 'pv1';
-    const n = `${o} ${t} on bg-cl o5 mr3`;
-    const x =  document.getElementsByClassName(g);
-    const b =  document.getElementsByClassName(t);
-    const cb = document.getElementById(`b-${s}`);
-    const ct = document.getElementById(s);
-
-    Nav.index = Nav.menu.indexOf(s);
-
-    for (let i = 0, l = x.length; i < l; i++) {
-      x[i].style.display = 'none';
-    }
-
-    for (let i = 0, l = b.length; i < l; i++) {
-      b[i].className = n;
-    }
-
-    ct.style.display = 'grid';
-    cb.className = `${o} ${t} on bg-cl of mr3`;
   },
 
   reset () {
     clearInterval(Log.clock);
-    ui.innerHTML = '';
+    document.getElementById('ui').innerHTML = '';
     console.log('Reset')
   },
 
@@ -251,50 +236,35 @@ const Log = {
   generateSessionCache () {
     if (Log.entries.length === 0) return;
     Ø(Log.cache, {
-      dur: Log.log.listDurations() || [],
-      pro: Log.log.listProjects() || [],
-      sec: Log.log.listSectors() || [],
-      sor: Log.log.sortEntries() || [],
-      pkh: Log.log.peakHours() || [],
-      pkd: Log.log.peakDays() || []
+      pro: Session.listProjects() || [],
+      sec: Session.listSectors() || [],
+      pkh: Session.peakHours() || [],
+      pkd: Session.peakDays() || []
     });
   },
 
-  installLexicon () {
-    const {days, months} = Log.lexicon;
-
-    for (let i = 0; i < 7; i++) {
-      Log.days[Log.days.length] = days[i];
-    }
-
-    for (let i = 0; i < 12; i++) {
-      Log.months[Log.months.length] = months[i];
-    }
-  },
-
   load () {
-    function ä (o) {
-      return Ø(o, {
+    function ä (obj) {
+      return Ø(obj, {
         backgroundColor: Log.config.bg,
         color: Log.config.fg
       });
     }
 
     Log.generateSessionCache();
-    Log.installLexicon();
 
     ä(document.body.style);
     ä(ui.style);
 
-    Log.ui.build();
-    Log.ui.util.setTimeLabel();
-    Log.ui.util.setDayLabel();
+    UI.build();
+    UI.util.setTimeLabel();
+    UI.util.setDayLabel();
 
     if (Log.entries.length === 0) {
       Nav.index = 5;
     }
 
-    Log.tab(Nav.menu[Nav.index]);
+    Nav.tab(Nav.menu[Nav.index]);
   },
 
   refresh () {
@@ -302,34 +272,42 @@ const Log = {
     Log.load();
   },
 
-  init () {
+  init (data) {
+    if (data === undefined) {
+      console.error('Data store not found');
+      return;
+    }
 
     try {
-      Log.config = new Config(dataStore.get('config'));
-      Log.palette = dataStore.get('palette');
-      Log.projectPalette = dataStore.get('projectPalette');
-      Log.entries = dataStore.get('log');
-      Log.log = Log.data.parse(Log.entries);
+      const ent = data.get('log');
+      Session = parse(ent);
+      Object.assign(Log, {
+        config: new Config(data.get('config')),
+        entries: ent
+      });
+      Object.assign(Palette, {
+        pp: data.get('pp'),
+        sp: data.get('sp')
+      });
     } catch (e) {
       console.error(e);
       new window.Notification('Something went wrong.');
       return;
     }
 
-    Log.lexicon = Dict.data;
+    Glossary = new Lexicon({
+      path: `${__dirname}/lexicon/en.json`
+    }).data;
 
-    Log.console.installHistory();
-
-    console.time('Log');
+    CLI.installHistory();
     Log.load();
-    console.timeEnd('Log');
 
     document.onkeydown = e => {
-      if (Log.modalMode) return;
+      if (UI.modalMode) return;
 
       function focus () {
-        Log.commander.style.display = 'block';
-        Log.commanderInput.focus();
+        UI.commanderEl.style.display = 'block';
+        UI.commanderInput.focus();
       }
 
       if (e.which >= 65 && e.which <= 90) {
@@ -339,11 +317,11 @@ const Log = {
 
       if (e.which >= 48 && e.which <= 54 && (e.ctrlKey || e.metaKey)) {
         Nav.index = e.which - 49;
-        Log.tab(Nav.menu[Nav.index]);
+        Nav.tab(Nav.menu[Nav.index]);
         return;
       }
 
-      const l = Log.console.history.length;
+      const l = CLI.history.length;
 
       switch (e.which) {
         case 9: // Tab
@@ -351,21 +329,21 @@ const Log = {
           Nav.next();
           break;
         case 27: // Escape
-          Log.commander.style.display = 'none';
-          Log.commanderInput.value = '';
-          Log.comIndex = 0;
+          UI.commanderEl.style.display = 'none';
+          UI.commanderInput.value = '';
+          UI.comIndex = 0;
           break;
         case 38: // Up
           focus();
-          Log.comIndex++;
-          if (Log.comIndex > l) Log.comIndex = l;
-          Log.commanderInput.value = Log.console.history[l - Log.comIndex];
+          UI.comIndex++;
+          if (UI.comIndex > l) UI.comIndex = l;
+          UI.commanderInput.value = CLI.history[l - UI.comIndex];
           break;
         case 40: // Down
           focus();
-          Log.comIndex--;
-          if (Log.comIndex < 1) Log.comIndex = 1;
-          Log.commanderInput.value = Log.console.history[l - Log.comIndex];
+          UI.comIndex--;
+          if (UI.comIndex < 1) UI.comIndex = 1;
+          UI.commanderInput.value = CLI.history[l - UI.comIndex];
           break;
         default:
           break;

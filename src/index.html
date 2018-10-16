@@ -3,25 +3,14 @@
 <head>
   <meta charset="utf-8">
   <title>Log</title>
-
   <link rel="stylesheet" href="css/font/inter-ui.css">
   <link rel="stylesheet" href="css/macian.min.css">
-
   <script src="js/drop.js"></script>
-  <script src="js/entry.js"></script>
-  <script src="js/set.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/update.js"></script>
   <script src="js/log.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/nav.js"></script>
   <script src="js/options.js"></script>
-  <script src="js/command.js"></script>
-  <script src="js/console.js"></script>
-  <script src="js/vis.js"></script>
+  <script src="js/cli.js"></script>
   <script src="js/time.js"></script>
   <script src="js/data.js"></script>
-  <!-- <script src="js/test.js"></script> -->
 </head>
 <body class="hf">
 
@@ -29,49 +18,54 @@
 
   <script>
     const {dialog, app} = require('electron').remote;
-    const fs = require('fs');
-    const Store = require('./js/store.js');
-    const Lexicon = require('./js/lexicon.js');
     const path = require('path');
+    const fs = require('fs');
 
-    let dataPath = '';
+    const Command = require('./js/command.js');
+    const Lexicon = require('./js/lexicon.js');
+    const Config = require('./js/config.js');
+    const Update = require('./js/update.js');
+    const Entry = require('./js/entry.js');
+    const Store = require('./js/store.js');
+    const Nav = require('./js/nav.js');
+    const Set = require('./js/set.js');
+    const UI = require('./js/ui/ui.js');
+
+    let filePath = '';
 
     if (localStorage.hasOwnProperty('logDataPath')) {
-      console.log('Data path found');
-      dataPath = localStorage.getItem('logDataPath');
+      filePath = localStorage.getItem('logDataPath');
     } else {
-      console.error('Data path not found');
-      dataPath = `${app.getPath('appData')}/log.json`;
+      const msg = 'Data path not found';
+      console.error(msg);
+      new window.Notification(msg);
+      filePath = `${app.getPath('appData')}/log.json`;
       localStorage.setItem('logDataPath', dataPath);
     }
 
-    const dataStore = new Store({
-      path: dataPath,
+    const data = new Store({
+      path: filePath,
       defaults: {
         locale: 'en',
         config: {
-          bg: '#f8f8f8', // Background
-          fg: '#202020', // Foreground
-          ac: '#eb4e32', // Accent
-          cm: 'sc', // Colour mode
-          vw: 28, // View
-          st: 0, // Stat format
-          ca: 'gregorian', // Calendar
-          tm: '24' // Time format
+          bg: '#f8f8f8',
+          fg: '#202020',
+          ac: '#eb4e32',
+          cm: 'sc',
+          vw:  28,
+          tm:  1,
+          ca:  0,
+          st:  0
         },
-        palette: {},
-        projectPalette: {},
+        pp: {},
+        sp: {},
         log: []
       }
     });
 
-    Log.path = dataStore.path;
-
-    const Dict = new Lexicon({
-      path: `${__dirname}/lexicon/en.json`
-    });
-
-    Log.init();
+    console.time('Log');
+    Log.init(data);
+    console.timeEnd('Log');
   </script>
 </body>
 </html>

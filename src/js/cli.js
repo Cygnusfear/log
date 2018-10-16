@@ -1,29 +1,27 @@
 'use strict';
 
-const paraCom = [
-  'edit', 'colourcode', 'colorcode', 'cc', 'rename', 'rn'
-];
+const CLI = {
 
-Log.console = {
-
+  paraCom: ['edit', 'colourcode', 'colorcode', 'cc', 'rename', 'rn',],
   history: [],
 
   installHistory () {
     if (localStorage.hasOwnProperty('histoire')) {
-      Log.console.history = JSON.parse(localStorage.getItem('histoire'));
+      CLI.history = JSON.parse(localStorage.getItem('histoire'));
     } else {
-      Log.console.history = [];
+      CLI.history = [];
       localStorage.setItem('histoire', '[]');
     }
   },
 
   /**
+   * TODO: Rewrite
    * Extract parameters
    * @param {string} input
    * @return {Array} Parameters
    */
   parameterise (input) {
-    if (!input) return;
+    if (input === undefined) return;
     if (!input.includes('"')) return;
 
     const part = input.slice(0, input.indexOf('"') - 1).split(' ');
@@ -35,13 +33,12 @@ Log.console = {
     part.map(e => !e.includes('"') && (params[params.length] = e));
     p.map((e, i) => e === '"' && (indices[indices.length] = i));
 
-    for (let i = 0, l = indices.length; i < l; i++) {
+    for (let i = 0, l = indices.length; i < l; i += 2) {
       for (let o = indices[i] + 1; o < indices[i + 1]; o++) {
         param += p[o];
       }
       params[params.length] = param;
       param = '';
-      i++;
     }
 
     return params;
@@ -56,60 +53,60 @@ Log.console = {
     const s = input.split(' ');
     const key = s[0].toLowerCase();
 
-    if (!~paraCom.indexOf(input)) {
+    if (CLI.paraCom.indexOf(input) < 0) {
       switch (key) {
-        case 'start':
         case 'begin':
-          Log.command.startEntry(input);
+        case 'start':
+          Command.startEntry(input);
           break;
-        case 'pomodoro':
-        case 'tomato':
         case 'pom':
-          Log.command.startPomodoro(input);
+        case 'tomato':
+        case 'pomodoro':
+          Command.startPomodoro(input);
           break;
-        case 'stop':
         case 'end':
+        case 'stop':
         case 'pause':
-          Log.command.endEntry();
+          Command.endEntry();
           Log.stopTimer ? Log.stopTimer() : 'noop';
           break;
         case 'resume':
         case 'continue':
-          Log.command.resumeEntry();
+          Command.resumeEntry();
           break;
-        case 'delete':
         case 'del':
+        case 'delete':
           Log.confirmDelete(input);
           break;
         case 'undo':
-          Log.command.undo();
+          Command.undo();
           break;
-        case 'background':
         case 'bg':
+        case 'background':
           Log.config.setBackgroundColour(s[1]);
           break;
-        case 'colour':
-        case 'color':
-        case 'foreground':
         case 'fg':
+        case 'color':
+        case 'colour':
+        case 'foreground':
           Log.config.setForegroundColour(s[1]);
           break;
-        case 'accent':
-        case 'highlight':
         case 'ac':
         case 'hl':
+        case 'accent':
+        case 'highlight':
           Log.config.setAccent(s[1]);
           break;
-        case 'colourmode':
-        case 'colormode':
         case 'cm':
+        case 'colormode':
+        case 'colourmode':
           Log.config.setColourMode(s[1]);
           break;
         case 'view':
           Log.config.setView(+s[1]);
           break;
-        case 'calendar':
         case 'cal':
+        case 'calendar':
           Log.config.setCalendar(s[1]);
           break;
         case 'time':
@@ -120,18 +117,18 @@ Log.console = {
           Log.config.setStatFormat(s[1]);
           break;
         case 'import':
-          Log.command.importData();
+          Command.importData();
           break;
         case 'export':
-          Log.command.exportData();
+          Command.exportData();
           break;
-        case 'invert':
         case 'iv':
-          Log.command.invert();
+        case 'invert':
+          Command.invert();
           break;
+        case 'q':
         case 'quit':
         case 'exit':
-        case 'q':
           app.quit();
           break;
         default:
@@ -139,19 +136,18 @@ Log.console = {
       }
     } else {
       const p = this.parameterise(input);
-
       switch (key) {
         case 'edit':
-          Log.command.editEntry(p[1], p[2], p[3]);
+          Command.editEntry(p[1], p[2], p[3]);
           break;
-        case 'colourcode':
-        case 'colorcode':
         case 'cc':
+        case 'colorcode':
+        case 'colourcode':
           Log.options.set.colourCode(p[1], p[2], p[3]);
           break;
-        case 'rename':
         case 'rn':
-          Log.command.rename(p[1], p[2], p[3]);
+        case 'rename':
+          Command.rename(p[1], p[2], p[3]);
           break;
         default:
           return;

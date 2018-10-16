@@ -29,6 +29,59 @@ function min (v = []) {
 }
 
 /**
+ * Add leading zeroes
+ * @return {string}
+ */
+Number.prototype.pad = function () {
+  return `0${this}`.substr(-2);
+}
+
+/**
+ * Parse logs
+ * @param {Array=} logs
+ * @return {Set}
+ */
+function parse (logs = Log.entries) {
+  const l = logs.length;
+  if (l === 0) return new Set(logs);
+  const parsed = [];
+
+  function diffDay (s, e) {
+    return s.toDate() !== e.toDate();
+  }
+
+  for (let i = 0; i < l; i++) {
+    const {s, e, c, t, d} = logs[i];
+    const a = toEpoch(s);
+    const b = e === undefined ? undefined : toEpoch(e);
+
+    if (e !== undefined && diffDay(a, b)) {
+      const x = new Date(a);
+      const y = new Date(b);
+
+      x.setHours(23, 59, 59);
+      y.setHours(0, 0, 0);
+
+      parsed[parsed.length] = new Entry({
+        id: i, s: a, e: x, c, t, d
+      });
+
+      parsed[parsed.length] = new Entry({
+        id: i, s: y, e: b, c, t, d
+      });
+
+      continue;
+    }
+
+    parsed[parsed.length] = new Entry({
+      id: i, s: a, e: b, c, t, d
+    });
+  }
+
+  return new Set(parsed);
+}
+
+/**
  * Calculate range
  * @param {Array=} v - Values
  * @return {number} Range
@@ -56,22 +109,20 @@ function sd (v = []) {
 }
 
 /**
- * Display stat
- * @param {number} val
+ * Display as stat
  * @param {number=} format - Stat format
  * @return {string} Stat
  */
-function stat (val, format = Log.config.st) {
+Number.prototype.toStat = function (format = Log.config.st) {
   switch (format) {
     case 0:
-      return val.toFixed(2);
+      return this.toFixed(2);
     case 1:
-      const v = val.toString().split('.');
-      if (v.length === 1) v[1] = '0';
-      const m = `0${(+`0.${v[1]}` * 60).toFixed(0)}`.substr(-2);
-      return `${v[0]}:${m}`;
+      const min = this % 1;
+      const tail = +(min * 60).toFixed(0);
+      return `${this - min}:${tail.pad()}`;
     default:
-      return val;
+      return this;
   }
 }
 
@@ -101,53 +152,3 @@ function trend (a, b) {
 function zScore (value, mean, sd) {
   return (value - mean) / sd;
 }
-
-Log.data = {
-
-  /**
-   * Parse logs
-   * @param {Array=} ent     - Entries
-   * @param {string=} colour - Default colour
-   * @return {Array} Entries
-   */
-  parse (ent = Log.entries, colour = Log.config.fg) {
-    const l = ent.length;
-    if (l === 0) return;
-
-    const parsed = [];
-
-    function sameDay (s, e) {
-      return s.toDate() === e.toDate();
-    }
-
-    for (let i = 0; i < l; i++) {
-      const {s, e, c, t, d} = ent[i];
-      const a = toEpoch(s);
-      const b = e === undefined ? undefined : toEpoch(e);
-
-      if (!!e && !sameDay(a, b)) {
-        const x = new Date(a);
-        const y = new Date(b);
-
-        x.setHours(23, 59, 59);
-        y.setHours(0, 0, 0);
-
-        parsed[parsed.length] = new Entry({
-          id: i, s: a, e: x, c, t, d
-        });
-
-        parsed[parsed.length] = new Entry({
-          id: i, s: y, e: b, c, t, d
-        });
-
-        continue;
-      }
-
-      parsed[parsed.length] = new Entry({
-        id: i, s: a, e: b, c, t, d
-      });
-    }
-
-    return new Set(parsed);
-  }
-};

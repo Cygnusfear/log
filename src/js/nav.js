@@ -1,10 +1,10 @@
+'use strict';
+
 const Nav = {
   menu: [],
   index: 0,
 
-  /**
-   * Move to next tab
-   */
+  // Move to the next tab
   next () {
     Nav.index = Nav.index === 5 ? 0 : Nav.index + 1;
     Nav.tab(Nav.menu[Nav.index]);
@@ -64,3 +64,5 @@ const Nav = {
     Nav.tab('DTL');
   }
 }
+
+module.exports = Nav;

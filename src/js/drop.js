@@ -40,13 +40,12 @@ window.addEventListener('drop', e => {
         timeFormat: o.config.system.timeFormat || '24'
       });
 
-      user.palette = o.palette || {};
-      user.projectPalette = o.projectPalette || {};
+      user.sp = o.sp || {};
+      user.pp = o.pp || {};
       user.log = o.log || [];
 
-      Log.path = path;
       localStorage.setItem('logDataPath', path);
-      dataStore.path = Log.path;
+      dataStore.path = path;
 
       localStorage.setItem('user', o);
       user = JSON.parse(localStorage.getItem('user'));

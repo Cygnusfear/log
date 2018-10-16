@@ -2,11 +2,23 @@
 
 const calendars = ['aequirys', 'desamber', 'monocal', 'gregorian'];
 const secpro = ['sector', 'sec', 'project', 'pro'];
-const statformats = ['decimal', 'human'];
 const timeformats = ['24', '12', 'decimal'];
+const statformats = ['decimal', 'human'];
 
 class Config {
 
+  /**
+   * Construct config
+   * @param {Object} attr
+   * @param {string} attr.bg - Background colour
+   * @param {string} attr.fg - Foreground colour
+   * @param {string} attr.ac - Accent colour
+   * @param {string} attr.cm - Colour mode
+   * @param {number} attr.vw - View
+   * @param {number} attr.st - Stat format
+   * @param {number} attr.ca - Calendar
+   * @param {number} attr.tm - Time format
+   */
   constructor (attr) {
     this.bg = attr.bg;
     this.fg = attr.fg;
@@ -69,8 +81,10 @@ class Config {
    * @param {string} m - Sector, project, or none
    */
   setColourMode (m) {
-    if (m === undefined) return;
-    if (secpro.indexOf(m) < 0 && m !== 'none') return;
+    if (
+      m === undefined ||
+      (secpro.indexOf(m) < 0 && m !== 'none')
+    ) return;
 
     switch (m) {
       case 'sector':  case 'sec': m = 'sc'; break;
@@ -97,8 +111,10 @@ class Config {
    * @param {string} f - Decimal or human
    */
   setStatFormat (f) {
-    if (f === undefined) return;
-    if (statformats.indexOf(f) < 0) return;
+    if (
+      f === undefined ||
+      statformats.indexOf(f) < 0
+    ) return;
     this.st = +!(f === 'decimal');
     Update.config();
   }
@@ -108,12 +124,14 @@ class Config {
    * @param {string} f - 24, 12, or decimal
    */
   setTimeFormat (f) {
-    if (f === undefined) return;
-    if (timeformats.indexOf(f) < 0) return;
+    if (
+      f === undefined ||
+      timeformats.indexOf(f) < 0
+    ) return;
 
     let n = 0;
     switch (f) {
-      case '24': n = 1; break;
+      case '24':      n = 1; break;
       case 'decimal': n = 2; break;
       default: break;
     }
@@ -127,9 +145,10 @@ class Config {
    * @param {number} n - Number of days
    */
   setView (n) {
-    if (n === undefined) return;
-    if (n < 0) return;
+    if (n === undefined || n < 0) return;
     this.vw = n;
     Update.config();
   }
 }
+
+module.exports = Config;

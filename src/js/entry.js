@@ -1,3 +1,5 @@
+'use strict';
+
 class Entry {
 
   /**
@@ -21,16 +23,16 @@ class Entry {
   get project () { return this.t; }
   get desc ()    { return this.d; }
 
+  get sc () { return Palette.sp[this.sector]; }
+  get pc () { return Palette.pp[this.project]; }
+  get wh () { return this.calcWidth(); }
+  get mg () { return this.calcMargin(); }
+
   set setStart (s)   { this.s = s; }
   set setEnd (e)     { this.e = e; }
   set setSector (c)  { this.c = c; }
   set setProject (t) { this.t = t; }
   set setDesc (d)    { this.d = d; }
-
-  get sc () { return Log.palette[this.sector]; }
-  get pc () { return Log.projectPalette[this.project]; }
-  get wh () { return this.calcWidth(); }
-  get mg () { return this.calcMargin(); }
 
   /**
    * Calculate left margin
@@ -39,7 +41,7 @@ class Entry {
   calcMargin () {
     const d = this.start;
     const m = new Date(d).setHours(0, 0, 0);
-    return (+d / 1E3 - +m / 1E3) / 86400 * 100;
+    return (+d - +m) / 864E3;
   }
 
   /**
@@ -47,6 +49,8 @@ class Entry {
    * @return {number} Width
    */
   calcWidth () {
-    return this.dur * 3600 / 864;
+    return this.dur * 25 / 6;;
   }
 }
+
+module.exports = Entry;
