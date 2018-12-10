@@ -1,4 +1,4 @@
-class Set {
+class LogSet {
 
   /**
    * Construct set
@@ -29,7 +29,7 @@ class Set {
     if (cm === 'none') {
       for (let i = l - 1; i >= 0; i--) {
         data[i] = [{
-          height: `${new Set(sorted[i]).coverage()}%`,
+          height: `${new LogSet(sorted[i]).coverage()}%`,
           backgroundColor: fg
         }];
       }
@@ -183,7 +183,7 @@ class Set {
     const se = this.sortEntries();
     const l = se.length;
     return l === 0 ? 0 :
-      se.reduce((s, c) => s + new Set(c).lh, 0) / l;
+      se.reduce((s, c) => s + new LogSet(c).lh, 0) / l;
   }
 
   /**
@@ -220,7 +220,7 @@ class Set {
 
     for (let i = 0; i < sl; i++) {
       if (sort[i].length === 0) continue;
-      l[l.length] = 1 / new Set(sort[i])[key]().length;
+      l[l.length] = 1 / new LogSet(sort[i])[key]().length;
     }
 
     return l;
@@ -468,7 +468,7 @@ class Set {
     let percs = [];
 
     for (let i = list.length - 1; i >= 0; i--) {
-      const lh = new Set(this[func](list[i])).lh;
+      const lh = new LogSet(this[func](list[i])).lh;
       tmp[list[i]] = {p: lh / lhe * 100, h: lh};
     }
 
@@ -531,4 +531,4 @@ class Set {
   }
 }
 
-module.exports = Set;
+module.exports = LogSet;

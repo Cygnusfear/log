@@ -4,7 +4,7 @@ const Details = {
 
   /**
    * Build Details
-   * @param {Set} ovw
+   * @param {LogSet} ovw
    * @return {Object}
    */
   build (ovw) {
@@ -58,7 +58,7 @@ const Details = {
 
     /**
      * Build Summary
-     * @param {Set} o - Overview
+     * @param {LogSet} o - Overview
      * @return {Object}
      */
     build (o) {
@@ -179,7 +179,7 @@ const Details = {
 
     /**
      * Build Summary focus
-     * @param {Set} o - Overview
+     * @param {LogSet} o - Overview
      * @return {Object}
      */
     focus (o) {
@@ -247,7 +247,7 @@ const Details = {
      * @return {Object}
      */
     build (mode, key, view = Log.config.vw) {
-      const rec = new Set(Session.recent(view - 1));
+      const rec = new LogSet(Session.recent(view - 1));
       let ent = {};
       let his = {};
       let sec = 'secsect';
@@ -255,11 +255,11 @@ const Details = {
       let es = 'SEN';
 
       if (mode === 0) {
-        ent = new Set(rec.bySector(key));
-        his = new Set(Session.bySector(key));
+        ent = new LogSet(rec.bySector(key));
+        his = new LogSet(Session.bySector(key));
       } else {
-        ent = new Set(rec.byProject(key));
-        his = new Set(Session.byProject(key));
+        ent = new LogSet(rec.byProject(key));
+        his = new LogSet(Session.byProject(key));
         sec = 'prosect';
         ss = 'PST';
         es = 'PEN';
@@ -317,7 +317,7 @@ const Details = {
 
     /**
      * Build Detail overview
-     * @param {Set} set
+     * @param {LogSet} set
      * @return {Object}
      */
     ovw (set) {
@@ -368,7 +368,7 @@ const Details = {
 
     /**
      * Build Detail stats
-     * @param {Set} histoire
+     * @param {LogSet} histoire
      * @return {Object}
      */
     stats (histoire) {

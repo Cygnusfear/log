@@ -4,8 +4,8 @@ const Overview = {
 
   /**
    * Build Overview
-   * @param {Set} t - Today
-   * @param {Set} o - Overview
+   * @param {LogSet} t - Today
+   * @param {LogSet} o - Overview
    * @return {Object}
    */
   build (t, o) {
@@ -31,7 +31,7 @@ const Overview = {
 
   /**
    * Build Overview Top
-   * @param {Set}   t - Today
+   * @param {LogSet}   t - Today
    * @param {Array} t.logs
    * @return {Object}
    */
@@ -65,7 +65,7 @@ const Overview = {
     const pd = document.createElement('div');
     const hc = ä('div', 'psr h7 wf nodrag');
     const dc = hc.cloneNode();
-    const st = new Set(Session.sortByDay()[(new Date).getDay()]);
+    const st = new LogSet(Session.sortByDay()[(new Date).getDay()]);
     const pt = st.peakHours();
 
     F.append(ol);
@@ -116,7 +116,7 @@ const Overview = {
 
   /**
    * Build Overview Chart
-   * @param {Set} ovw
+   * @param {LogSet} ovw
    * @return {Object}
    */
   chart (ovw) {
@@ -128,7 +128,7 @@ const Overview = {
 
   /**
    * Build Overview stats
-   * @param {Set} today
+   * @param {LogSet} today
    * @return {Object}
    */
   stats (today) {
@@ -162,7 +162,7 @@ const Overview = {
 
   /**
    * Build Overview lists
-   * @param {Set} today
+   * @param {LogSet} today
    * @return {Object}
    */
   lists (today) {

@@ -21,7 +21,7 @@ const Journal = {
     const c = ø('table', {className: 'cal nodrag hf wf f6 lhc c-pt bn'});
     const sy = new Date(2018,  0,  1);
     const ey = new Date(2018, 11, 31);
-    const year = new Set(Session.byPeriod(sy, ey));
+    const year = new LogSet(Session.byPeriod(sy, ey));
     const sort = year.sortEntries();
 
     if (sort.length === 0) return c;
@@ -110,7 +110,7 @@ const Journal = {
    * @param {Date=} d
    */
   displayEntry (d = (new Date)) {
-    const thisDay = new Set(Session.byDate(d));
+    const thisDay = new LogSet(Session.byDate(d));
     const l = thisDay.count;
     if (l === 0) return;
 

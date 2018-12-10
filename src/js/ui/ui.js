@@ -32,9 +32,9 @@ const UI = {
       return ø('div', {id, className});
     }
 
-    const ovw = new Set(Session.recent(vw - 1));
+    const ovw = new LogSet(Session.recent(vw - 1));
     const sor = Session.sortEntries().slice(-1)[0];
-    const tdy = new Set(
+    const tdy = new LogSet(
       Session.last.end === undefined ?
         sor.slice(0, -1) : sor
     );
@@ -89,7 +89,7 @@ const UI = {
 
   /**
    * Build Visualisation
-   * @param {Set} o - Overview
+   * @param {LogSet} o - Overview
    * @return {Object}
    */
   visual (o) {

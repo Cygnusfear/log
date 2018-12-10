@@ -201,7 +201,7 @@ const Vis = {
    * Generate list
    * @param {number}  mod      - Sector (0) or project (1)
    * @param {Array}   sort      - Sorted values
-   * @param {Set=}    set       - Set
+   * @param {LogSet=} set       - Set
    * @param {number=} set.count - Set log count
    * @param {number=} set.lh    - Set log hours
    * @param {Object=} config

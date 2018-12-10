@@ -39,11 +39,11 @@ Number.prototype.pad = function () {
 /**
  * Parse logs
  * @param {Array=} logs
- * @return {Set}
+ * @return {LogSet}
  */
 function parse (logs = Log.entries) {
   const l = logs.length;
-  if (l === 0) return new Set(logs);
+  if (l === 0) return new LogSet(logs);
   const parsed = [];
 
   function diffDay (s, e) {
@@ -78,7 +78,7 @@ function parse (logs = Log.entries) {
     });
   }
 
-  return new Set(parsed);
+  return new LogSet(parsed);
 }
 
 /**
