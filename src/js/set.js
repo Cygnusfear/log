@@ -431,17 +431,8 @@ class Set {
     if (el === 0) return sort;
 
     const dates = listDates(this.logs[0].start, end);
-    const list = [];
-
     for (let i = 0, l = dates.length; i < l; i++) {
-      list[list.length] = dates[i].toDate();
-      sort[sort.length] = [];
-    }
-
-    for (let i = 0; i < el; i++) {
-      if (this.logs[i] === undefined) continue;
-      const x = list.indexOf(this.logs[i].start.toDate());
-      if (x > -1) sort[x][sort[x].length] = this.logs[i];
+      sort[sort.length] = Session.byDate(dates[i]);
     }
 
     return sort;
