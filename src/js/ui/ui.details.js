@@ -82,43 +82,39 @@ const Details = {
       }
 
       const dur = Session.listDurations();
+      const secc = Session.sectorCounts();
+      const proc = Session.projectCounts();
+      const entc = Session.entryCounts();
       const container = document.createElement('div');
       const list = ä('ul', 'mb5 lsn f6 lhc r');
       const s = [
+        {n: Glossary.stats.sum,    v: sum(dur).toStat()},
         {
-          n: Glossary.stats.sum,
-          v: sum(dur).toStat()
-        }, {
-          n: Glossary.stats.minDur,
-          v: min(dur).toStat()
-        }, {
-          n: Glossary.stats.maxDur,
-          v: max(dur).toStat()
-        }, {
-          n: 'Range',
-          v: range(dur).toStat()
-        }, {
-          n: Glossary.stats.avgDur,
-          v: avg(dur).toStat()
-        }, {
-          n: Glossary.stats.daily,
-          v: Session.dailyAvg().toStat()
-        }, {
-          n: 'Standard Deviation',
-          v: sd(dur).toStat()
-        }, {
-          n: Glossary.stats.cov,
-          v: `${Session.coverage().toFixed(2)}%`
-        }, {
-          n: Glossary.entries,
-          v: Log.entries.length
-        }, {
-          n: Glossary.sec.plural,
-          v: Log.cache.sec.length
-        }, {
-          n: Glossary.pro.plural,
-          v: Log.cache.pro.length
-        }
+          n: 'Durations Range',
+          v: `${min(dur).toStat()}&ndash;${max(dur).toStat()}`
+        },
+        {n: Glossary.stats.avgDur, v: avg(dur).toStat()},
+        {n: 'Standard Deviation',  v: sd(dur).toStat()},
+        {n: Glossary.stats.daily,  v: Session.dailyAvg().toStat()},
+        {n: Glossary.stats.cov,    v: `${Session.coverage().toFixed(2)}%`},
+        {n: Glossary.entries,      v: Log.entries.length},
+        {
+          n: 'Daily Entry Range',
+          v: `${min(entc)}&ndash;${max(entc)}`
+        },
+        {n: 'Entry Average',       v: Math.ceil(avg(entc))},
+        {n: 'Total Sectors',   v: Log.cache.sec.length},
+        {
+          n: 'Daily Sector Range',
+          v: `${Math.ceil(min(secc))}&ndash;${Math.ceil(max(secc))}`
+        },
+        {n: 'Daily Sector Average', v: Math.ceil(avg(secc))},
+        {n: 'Total Projects',   v: Log.cache.pro.length},
+        {
+          n: 'Daily Project Range',
+          v: `${Math.ceil(min(proc))}&ndash;${Math.ceil(max(proc))}`
+        },
+        {n: 'Daily Project Average', v: Math.ceil(avg(proc))},
       ];
 
       for (let i = 0; i < s.length; i++) {
@@ -386,7 +382,10 @@ const Details = {
         {v: min(dur).toStat(),   n: lex.stats.minDur},
         {v: max(dur).toStat(),   n: lex.stats.maxDur},
         {v: avg(dur).toStat(),   n: lex.stats.avgDur},
+        {v: sd(dur).toStat(),    n: 'Standard Deviation'},
+        {v: histoire.dailyAvg().toStat(), n: 'Daily Average'},
         {v: histoire.count,      n: lex.entries},
+        {v: Math.ceil(avg(histoire.entryCounts)), n: 'Entry Average'},
         {v: histoire.streak(),   n: lex.stats.streak},
         {v: histoire.peakHour(), n: lex.ph},
         {v: histoire.peakDay(),  n: lex.pd}

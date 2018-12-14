@@ -138,16 +138,31 @@ const Overview = {
 
     const stats = ä('ul', 'lsn f6 lhc');
     const dur = today.listDurations();
+    const count = today.count;
 
     const s = [
-      {n: Glossary.stats.sum,    v:  sum(dur).toStat()},
-      {n: Glossary.stats.minDur, v:  min(dur).toStat()},
-      {n: Glossary.stats.maxDur, v:  max(dur).toStat()},
-      {n: Glossary.stats.avgDur, v:  avg(dur).toStat()},
-      {n: Glossary.stats.cov,    v: `${today.coverage().toFixed(2)}%`},
-      {n: Glossary.stats.foc,    v:  today.projectFocus().toFixed(2)},
-      {n: Glossary.entries,      v:  today.count},
-      {n: Glossary.stats.streak, v:  Session.streak()},
+      {
+        n: Glossary.stats.sum,
+        v: sum(dur).toStat()
+      }, {
+        n: 'Durations',
+        v: `${min(dur).toStat()}&ndash;${max(dur).toStat()}`
+      }, {
+        n: Glossary.stats.avgDur,
+        v: avg(dur).toStat()
+      }, {
+        n: Glossary.stats.cov,
+        v: `${today.coverage().toFixed(2)}%`
+      }, {
+        n: Glossary.stats.foc,
+        v: today.projectFocus().toFixed(2)
+      }, {
+        n: count === 1 ? 'Entry' : Glossary.entries,
+        v: count
+      }, {
+        n: Glossary.stats.streak,
+        v: Session.streak()
+      },
     ];
 
     for (let i = 0, l = s.length; i < l; i++) {

@@ -187,6 +187,21 @@ class LogSet {
   }
 
   /**
+   * Count entries per day
+   * @return {Array} Entries per day
+   */
+  entryCounts () {
+    if (this.count === 0) return 0;
+    const sorted = this.sortEntries();
+    const l = sorted.length;
+    const counts = [];
+    for (let i = 0; i < l; i++) {
+      counts[counts.length] = sorted[i].length;
+    }
+    return counts;
+  }
+
+  /**
    * List durations
    * @return {Array} List
    */
@@ -385,6 +400,25 @@ class LogSet {
   }
 
   /**
+   * Calculate project counts
+   * @return {Array} Counts
+   */
+  projectCounts () {
+    if (this.count === 0) return [];
+    const sorted = this.sortEntries();
+    const l = sorted.length;
+    const counts = [];
+    for (let i = 0; i < l; i++) {
+      let set = new Set();
+      for (let o = 0; o < sorted[i].length; o++) {
+        set.add(sorted[i][o].project);
+      }
+      counts[counts.length] = [...set].length;
+    }
+    return counts;
+  }
+
+  /**
    * Calculate project focus
    * @return {number} Focus
    */
@@ -401,6 +435,25 @@ class LogSet {
   recent (n = 1) {
     const x = n % 1 === 0 ? n : Math.round(n);
     return x < 1 ? [] : this.byPeriod((new Date).addDays(-x));
+  }
+
+  /**
+   * Calculate sector counts
+   * @return {Array} Counts
+   */
+  sectorCounts () {
+    if (this.count === 0) return [];
+    const sorted = this.sortEntries();
+    const l = sorted.length;
+    const counts = [];
+    for (let i = 0; i < l; i++) {
+      let set = new Set();
+      for (let o = 0; o < sorted[i].length; o++) {
+        set.add(sorted[i][o].sector);
+      }
+      counts[counts.length] = [...set].length;
+    }
+    return counts;
   }
 
   /**
